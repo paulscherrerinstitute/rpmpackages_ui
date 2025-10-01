@@ -13,6 +13,8 @@ import MenuIcon from '@mui/icons-material/Menu';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
+import { NavItems, Title } from '../helpers/NavbarHelper';
+import { useNavigate } from 'react-router-dom';
 import * as styles from "./Topbar.styles"
 
 interface Props {
@@ -24,9 +26,9 @@ interface Props {
 }
 
 const drawerWidth = 240;
-const navItems = ['Home', 'Facilities', 'Packages'];
-
 export default function Topbar(props: Props) {
+  
+  const navigate = useNavigate();
   const { window } = props;
   const [mobileOpen, setMobileOpen] = React.useState(false);
 
@@ -37,14 +39,14 @@ export default function Topbar(props: Props) {
   const drawer = (
     <Box onClick={handleDrawerToggle} sx={{ textAlign: 'center' }}>
       <Typography variant="h6" sx={{ my: 2 }}>
-        MUI
+        {Title}
       </Typography>
       <Divider />
       <List>
-        {navItems.map((item) => (
-          <ListItem key={item} disablePadding>
-            <ListItemButton sx={{ textAlign: 'center' }}>
-              <ListItemText primary={item} />
+        {NavItems.map((item) => (
+          <ListItem key={item.key} disablePadding>
+            <ListItemButton sx={styles.button} onClick={() => navigate(item.path)}>
+              <ListItemText primary={item.key} />
             </ListItemButton>
           </ListItem>
         ))}
@@ -73,12 +75,12 @@ export default function Topbar(props: Props) {
             component="div"
             sx={{ flexGrow: 1, display: { xs: 'none', sm: 'block' } }}
           >
-            MUI
+            {Title}
           </Typography>
           <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
-            {navItems.map((item) => (
-              <Button key={item} sx={{ color: '#fff' }}>
-                {item}
+            {NavItems.map((item) => (
+              <Button sx={styles.button} onClick={() => navigate(item.path)}>
+                {item.key}
               </Button>
             ))}
           </Box>

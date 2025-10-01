@@ -1,12 +1,17 @@
-import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import Topbar from "./components/Topbar/Topbar";
-import Content from "./components/Content/Content";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import "./index.css";
+import { NavItems } from "./components/helpers/NavbarHelper";
 
 createRoot(document.getElementById("root")!).render(
-  <StrictMode>
+  <BrowserRouter>
     <Topbar />
-    <Content />
-  </StrictMode>
+    <Routes>
+      <Route path="/" element={<Navigate to="/Home" replace />} />
+      {NavItems.map((item) => (
+        <Route key={item.key} path={item.path} element={<item.component />} />
+      ))}
+    </Routes>
+  </BrowserRouter>
 );

@@ -1,4 +1,5 @@
 import { type SxProps, type Theme } from "@mui/material";
 
-export const root: SxProps<Theme> = {
+export const button: SxProps<Theme> = {
+    color: "white"
 }

@@ -1,0 +1,4 @@
+# Front
+/react/node_modules
+# Back
+/fastapi/venv

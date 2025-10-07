@@ -38,14 +38,14 @@ export default function Topbar(props: Props) {
 
   const drawer = (
     <Box onClick={handleDrawerToggle} sx={{ textAlign: 'center' }}>
-      <Typography variant="h6" sx={{ my: 2 }}>
+          <Typography variant="h6" sx={{ my: 2 }}>
         {Title}
       </Typography>
       <Divider />
       <List>
         {NavItems.map((item) => (
           <ListItem key={item.key} disablePadding>
-            <ListItemButton sx={styles.button} onClick={() => navigate(item.path)}>
+            <ListItemButton sx={styles.topBarButton} onClick={() => navigate(item.path)}>
               <ListItemText primary={item.key} />
             </ListItemButton>
           </ListItem>
@@ -79,7 +79,7 @@ export default function Topbar(props: Props) {
           </Typography>
           <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
             {NavItems.map((item) => (
-              <Button sx={styles.button} onClick={() => navigate(item.path)}>
+              <Button key={item.key} sx={styles.topBarButton} onClick={() => navigate(item.path)}>
                 {item.key}
               </Button>
             ))}

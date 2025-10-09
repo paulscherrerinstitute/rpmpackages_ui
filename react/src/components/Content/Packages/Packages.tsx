@@ -3,8 +3,10 @@ import { useState, useEffect } from "react";
 import { getData } from "../../../helper/read_data";
 import * as styles from "../Content.styles";
 import { useParams } from "react-router-dom";
+import { DetailsPopup } from "../Details.tsx/DetailsPopup";
 
 export function Packages() {
+  // Display List
   const [data, setData] = useState<string[][]>([]);
   let { path } = useParams();
   let permPath: string = path ?? "";
@@ -25,7 +27,11 @@ export function Packages() {
     fetchData();
   }, []); // runs once when component mounts
 
-  useEffect(() => {});
+  // Display Popup
+  const [popupOpen, setPopupOpen] = useState(false);
+  const [pkge, setPkge] = useState("");
+  const handleButtonClick = (pk:string) =>{setPopupOpen(true); setPkge(pk)};
+  const handleClosePopup = () => {setPopupOpen(false)};
 
   function formatTitle(title: string) {
     return title.match("[A-Za-z].*")?.toString().toUpperCase();
@@ -51,12 +57,13 @@ export function Packages() {
                   {item.map(
                     (pkg, innerIdx) =>
                       innerIdx != 0 && (
-                        <li key={`${outerIdx}-${innerIdx}-${pkg}`}>{pkg}</li>
+                        <li key={`${outerIdx}-${innerIdx}-${pkg}`} onClick={() =>handleButtonClick(pkg)}>{pkg}</li>
                       )
                   )}
                 </ul>
               </Box>
             ))}
+          <DetailsPopup open={popupOpen} pkge={pkge} onClose={handleClosePopup}/>
           </Box>
         )}
         {permPath.length <= 0 && <Box>No Facility has been requested</Box>}

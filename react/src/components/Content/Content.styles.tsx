@@ -21,3 +21,9 @@ export const outerList: SxProps<Theme> = {
     justifyContent: "center",
     
 }
+
+export const innerList: SxProps<Theme> = {
+   '&:hover': {
+    cursor: 'pointer',
+  },
+}

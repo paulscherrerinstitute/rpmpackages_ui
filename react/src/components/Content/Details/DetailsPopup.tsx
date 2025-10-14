@@ -157,16 +157,6 @@ export function DetailsPopup({ open, pkge, handleClose }: DetailsPopupProps) {
     return clipSides(version);
   }
 
-  function getVersionNote(): string {
-    var versionnote = pkge
-      .replace(getName(), "")
-      .replace(getDistribution(), "")
-      .replace(getVersion(), "")
-      .replace(getArchitecture() + ".rpm", "");
-
-    return clipSides(versionnote);
-  }
-
   function getDistribution() {
     const arch = pkge
       .replace(getName(), "")
@@ -185,6 +175,16 @@ export function DetailsPopup({ open, pkge, handleClose }: DetailsPopupProps) {
       .split(".")
       .reverse();
     return clipSides(arch[0]);
+  }
+
+  function getVersionNote(): string {
+    const versionnote = pkge
+      .replace(getName(), "")
+      .replace(getDistribution(), "")
+      .replace(getVersion(), "")
+      .replace(".rpm", "")
+      .replace(getArchitecture(), "");
+    return clipSides(versionnote);
   }
 
   function clipSides(str: string) {

@@ -1,6 +1,9 @@
 import { Box, List, ListItem, ListItemText, Typography } from "@mui/material";
 import { useState, useEffect } from "react";
-import { getData } from "../../../helper/read_data";
+import {
+  getPackagesFromRepo,
+  removePackageFromRepo,
+} from "../../../helper/dataService";
 import * as styles from "../Content.styles";
 import { useParams } from "react-router-dom";
 import { DetailsPopup } from "../Details/DetailsPopup";
@@ -30,13 +33,13 @@ export function Packages() {
   };
 
   const formatTitle = (title: string) => {
+    if (!title) return;
     return title.match("[A-Za-z].*")?.toString().toUpperCase();
   };
 
   const handleRemove = (pkg: string) => {
-    const prompt = confirm(
-      "Do you want to remove " + pkg + " from " + permPath + "?"
-    );
+    const prompt = confirm(`Do you want to remove ${pkg} from ${permPath}?`);
+    removePackageFromRepo(pkg, permPath);
     console.log(prompt);
   };
 
@@ -48,7 +51,7 @@ export function Packages() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const resultData = await getData(path);
+        const resultData = await getPackagesFromRepo(path);
         setData(resultData);
       } catch (err) {
         console.error("Error loading data:", err);
@@ -63,9 +66,7 @@ export function Packages() {
       <Box sx={styles.main}>
         {permPath.length > 0 && !isNotFound && (
           <Box sx={styles.body}>
-            <Typography>
-              <h2>Packages for {permPath.toUpperCase()}</h2>
-            </Typography>
+            <h2>Packages for {permPath.toUpperCase()}</h2>
             {data.map((item, outerIdx) => (
               <Box
                 key={`category-${outerIdx}-${item[0]}`}
@@ -76,26 +77,23 @@ export function Packages() {
                   <AddIcon onClick={() => handleAdd()} />
                 </Box>
                 <List>
-                  {item.map(
-                    (pkg, innerIdx) =>
-                      innerIdx > 0 && (
-                        <ListItem key={`${outerIdx}-${innerIdx}-${pkg}`}>
-                          {!pkg.includes("#") && (
-                            <EditIcon
-                              sx={styles.innerList}
-                              onClick={() => handleButtonClick(pkg)}
-                            />
-                          )}
-                          <ListItemText>{pkg}</ListItemText>
-                          {!pkg.includes("#") && (
-                            <DeleteOutlineIcon
-                              sx={styles.innerList}
-                              onClick={() => handleRemove(pkg)}
-                            />
-                          )}
-                        </ListItem>
-                      )
-                  )}
+                  {item.map((pkg, innerIdx) => (
+                   innerIdx != 0 && <ListItem key={`${outerIdx}-${innerIdx}-${pkg}`}>
+                      {!pkg.includes("#") && (
+                        <EditIcon
+                          sx={styles.innerList}
+                          onClick={() => handleButtonClick(pkg)}
+                        />
+                      )}
+                      <ListItemText>{pkg}</ListItemText>
+                      {!pkg.includes("#") && (
+                        <DeleteOutlineIcon
+                          sx={styles.innerList}
+                          onClick={() => handleRemove(pkg)}
+                        />
+                      )}
+                    </ListItem>
+                  ))}
                 </List>
               </Box>
             ))}
@@ -106,11 +104,12 @@ export function Packages() {
             />
           </Box>
         )}
-        {permPath.length <= 0 && <Box>No Facility has been requested</Box>}
+        {permPath.length <= 0 && <Box>No Repository has been requested</Box>}
         {isNotFound && (
           <Box>
-            The Facility <span style={{ fontWeight: "bold" }}>{permPath}</span>{" "}
-            does not exist
+            The Repository{" "}
+            <span style={{ fontWeight: "bold" }}>{permPath}</span> does not
+            exist
           </Box>
         )}
       </Box>

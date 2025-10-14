@@ -5,3 +5,4 @@
 # Back
 /fastapi/venv
 /fastapi/__pycache__
+/fastapi/static/*.repo_cfg

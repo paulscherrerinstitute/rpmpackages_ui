@@ -1,4 +1,4 @@
-import { Box, List, ListItem, ListItemText, Typography } from "@mui/material";
+import { Box, List, ListItem, ListItemText } from "@mui/material";
 import { useState, useEffect } from "react";
 import {
   getPackagesFromRepo,
@@ -39,8 +39,10 @@ export function Packages() {
 
   const handleRemove = (pkg: string) => {
     const prompt = confirm(`Do you want to remove ${pkg} from ${permPath}?`);
-    removePackageFromRepo(pkg, permPath);
-    console.log(prompt);
+    if (prompt) {
+      permPath = `${permPath}.repo_cfg`;
+      removePackageFromRepo(pkg, permPath);
+    }
   };
 
   const handleAdd = () => {
@@ -77,23 +79,26 @@ export function Packages() {
                   <AddIcon onClick={() => handleAdd()} />
                 </Box>
                 <List>
-                  {item.map((pkg, innerIdx) => (
-                   innerIdx != 0 && <ListItem key={`${outerIdx}-${innerIdx}-${pkg}`}>
-                      {!pkg.includes("#") && (
-                        <EditIcon
-                          sx={styles.innerList}
-                          onClick={() => handleButtonClick(pkg)}
-                        />
-                      )}
-                      <ListItemText>{pkg}</ListItemText>
-                      {!pkg.includes("#") && (
-                        <DeleteOutlineIcon
-                          sx={styles.innerList}
-                          onClick={() => handleRemove(pkg)}
-                        />
-                      )}
-                    </ListItem>
-                  ))}
+                  {item.map(
+                    (pkg, innerIdx) =>
+                      innerIdx != 0 && (
+                        <ListItem key={`${outerIdx}-${innerIdx}-${pkg}`}>
+                          {!pkg.includes("#") && (
+                            <EditIcon
+                              sx={styles.innerList}
+                              onClick={() => handleButtonClick(pkg)}
+                            />
+                          )}
+                          <ListItemText>{pkg}</ListItemText>
+                          {!pkg.includes("#") && (
+                            <DeleteOutlineIcon
+                              sx={styles.innerList}
+                              onClick={() => handleRemove(pkg)}
+                            />
+                          )}
+                        </ListItem>
+                      )
+                  )}
                 </List>
               </Box>
             ))}

@@ -14,13 +14,18 @@ export async function getPackagesFromRepo(repo: string = "some") {
   return txt;
 }
 
-export async function getAvailableRepos(path: string = "../../public/") {
-  var repoList: string[] = ["some.repo_cfg", "someother.repo_cfg"];
-  return repoList.map((r) => r);
+export async function getAvailableRepos() {
+  return await fetch(`${api}`).then(async (response) => {
+    const data = await response.json();
+    return data;
+  });
 }
 
 export async function removePackageFromRepo(pkge: string, repo: string) {
-  console.log(`Removing ${pkge} from ${repo}`);
+  return await fetch(`${api}/pkge/${pkge}/${repo}`, {method: 'DELETE'}).then(async (response) => {
+    const data = await response.json()
+    return data;
+  })
 }
 
 export async function addPackageToRepo(

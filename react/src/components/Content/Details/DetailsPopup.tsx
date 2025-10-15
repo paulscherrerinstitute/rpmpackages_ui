@@ -14,45 +14,77 @@ import {
 } from "@mui/material";
 import * as styles from "./DetailsPopup.styles";
 import { useEffect, useState } from "react";
+import { addPackageToRepo } from "../../../helper/dataService";
 
-export function DetailsPopup({ open, pkge, handleClose }: DetailsPopupProps) {
-  const name = getName();
-  const version = getVersion();
-  const versionNote = getVersionNote();
-  const distribution = getDistribution();
-  const architecture = getArchitecture();
+export function DetailsPopup({
+  open,
+  pkge,
+  handleClose,
+  isAdd,
+  addProps,
+}: DetailsPopupProps) {
+  type DetailsForm = {
+    name: string;
+    version: string;
+    versionNote: string;
+    distribution: string;
+    architecture: string;
+  };
 
-  const [formData, setFormData] = useState({
-    name: name,
-    version: version,
-    versionNote: versionNote,
-    distribution: distribution,
-    architecture: architecture,
+  const [formData, setFormData] = useState<DetailsForm>({
+    name: "",
+    version: "",
+    versionNote: "",
+    distribution: "",
+    architecture: "",
   });
 
   const handleChange = (e: React.ChangeEvent<any>) => {
     const { name, value } = e.target; // fixed to e.target.name and e.target.value
-    setFormData((prevState) => ({
-      ...prevState,
-      [name]: value,
-    }));
+    setFormData(
+      (prevState) =>
+        ({
+          ...prevState,
+          [name]: value,
+        } as DetailsForm)
+    );
   };
 
   useEffect(() => {
     if (open) {
+      if (isAdd) {
+        setFormData({
+          name: "",
+          version: "",
+          versionNote: "",
+          distribution: "",
+          architecture: "",
+        });
+      } else {
+        setFormData({
+          name: getName(),
+          version: getVersion(),
+          versionNote: getVersionNote(),
+          distribution: getDistribution(),
+          architecture: getArchitecture(),
+        });
+      }
+    } else {
+      // clear form when closed
       setFormData({
-        name: name,
-        version: version,
-        versionNote: versionNote,
-        distribution: distribution,
-        architecture: architecture,
+        name: "",
+        version: "",
+        versionNote: "",
+        distribution: "",
+        architecture: "",
       });
     }
-  }, [open]);
+  }, [open, isAdd, pkge]);
 
   return (
     <Dialog open={open} onClose={handleClose} fullWidth maxWidth="md">
-      <DialogTitle>{pkge} </DialogTitle>
+      {!isAdd && <DialogTitle>{pkge} </DialogTitle>}
+      {isAdd && <DialogTitle>ADD to {addProps?.data[0]}</DialogTitle>}
       <DialogContent dividers>
         <Box onSubmit={handleSave} id="package-form" component="form">
           <Table>
@@ -70,7 +102,7 @@ export function DetailsPopup({ open, pkge, handleClose }: DetailsPopupProps) {
                 <TableCell>
                   <TextField
                     variant="standard"
-                    label={name}
+                    label={getName() === "" ? "(empty)" : getName()}
                     value={formData.name}
                     name="name"
                     onChange={handleChange}
@@ -79,7 +111,7 @@ export function DetailsPopup({ open, pkge, handleClose }: DetailsPopupProps) {
                 <TableCell>
                   <TextField
                     variant="standard"
-                    label={version}
+                    label={getVersion() === "" ? "(empty)" : getVersion()}
                     value={formData.version}
                     name="version"
                     onChange={handleChange}
@@ -88,7 +120,9 @@ export function DetailsPopup({ open, pkge, handleClose }: DetailsPopupProps) {
                 <TableCell>
                   <TextField
                     variant="standard"
-                    label={versionNote == "" ? "(empty)" : versionNote}
+                    label={
+                      getVersionNote() === "" ? "(empty)" : getVersionNote()
+                    }
                     value={formData.versionNote}
                     name="versionNote"
                     onChange={handleChange}
@@ -97,7 +131,9 @@ export function DetailsPopup({ open, pkge, handleClose }: DetailsPopupProps) {
                 <TableCell>
                   <TextField
                     variant="standard"
-                    label={distribution}
+                    label={
+                      getDistribution() === "" ? "(empty)" : getDistribution()
+                    }
                     value={formData.distribution}
                     name="distribution"
                     onChange={handleChange}
@@ -106,7 +142,9 @@ export function DetailsPopup({ open, pkge, handleClose }: DetailsPopupProps) {
                 <TableCell>
                   <TextField
                     variant="standard"
-                    label={architecture}
+                    label={
+                      getArchitecture() === "" ? "(empty)" : getArchitecture()
+                    }
                     value={formData.architecture}
                     name="architecture"
                     onChange={handleChange}
@@ -127,21 +165,41 @@ export function DetailsPopup({ open, pkge, handleClose }: DetailsPopupProps) {
   );
 
   function handleSave() {
-    var str = pkge
-      .replace(name, formData.name)
-      .replace(version, formData.version)
-      .replace(distribution, formData.distribution)
-      .replace(architecture, formData.architecture);
+    if (!isAdd) {
+      // derive original values from the pkge so we replace correct substrings
+      const origName = getName();
+      const origVersion = getVersion();
+      const origDistribution = getDistribution();
+      const origArchitecture = getArchitecture();
+      const origVersionNote = getVersionNote();
 
-    if (formData.versionNote != "") {
-      if (versionNote == "") {
-        var idx = str.indexOf(version) + version.length;
-        str = str.slice(0, idx + 1) + formData.versionNote + str.slice(idx);
+      let str = pkge
+        .replace(origName, formData.name)
+        .replace(origVersion, formData.version)
+        .replace(origDistribution, formData.distribution)
+        .replace(origArchitecture, formData.architecture);
+
+      if (formData.versionNote !== "") {
+        if (origVersionNote === "") {
+          const idx = str.indexOf(origVersion) + origVersion.length;
+          str = str.slice(0, idx + 1) + formData.versionNote + str.slice(idx);
+        } else {
+          str = str.replace(origVersionNote, formData.versionNote);
+        }
+      }
+    } else {
+      var pk;
+      if (formData.versionNote !== "") {
+        pk = `${formData.name}-${formData.version}-${formData.versionNote}.${formData.distribution}.${formData.architecture}.rpm`;
       } else {
-        str.replace(getVersionNote(), formData.versionNote);
+        pk = `${formData.name}-${formData.version}.${formData.distribution}.${formData.architecture}.rpm`;
+      }
+      if (addProps) {
+        console.log(pk, `${addProps.file_name}.repo_cfg`, addProps.insertIdx)
+        addPackageToRepo(pk, `${addProps.file_name}.repo_cfg`, addProps.insertIdx);
       }
     }
-    handleClose();
+   // handleClose();
   }
 
   function getName(): string {
@@ -164,7 +222,8 @@ export function DetailsPopup({ open, pkge, handleClose }: DetailsPopupProps) {
       .replace(".rpm", "")
       .split(".")
       .reverse();
-    return clipSides(arch[1]);
+    const clipped = clipSides(arch[1]);
+    return clipped != undefined ? clipped : "";
   }
 
   function getArchitecture() {
@@ -211,4 +270,13 @@ export type DetailsPopupProps = {
   open: boolean;
   pkge: string;
   handleClose: () => void;
+  isAdd: boolean;
+  addProps?: AddProps;
+};
+
+type AddProps = {
+  item?: string;
+  file_name: string;
+  insertIdx: number;
+  data: string[];
 };

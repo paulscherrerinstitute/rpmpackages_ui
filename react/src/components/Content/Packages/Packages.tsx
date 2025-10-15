@@ -22,10 +22,15 @@ export function Packages() {
 
   // Display Popup
   const [popupOpen, setPopupOpen] = useState(false);
+  const [isAdd, setIsAdd] = useState(false);
   const [pkge, setPkge] = useState("");
+
+  const [outerIdx, setOuterIdx] = useState(-1);
+  const [item, setItem] = useState<string[]>([]);
 
   const handleButtonClick = (pk: string) => {
     setPopupOpen(true);
+    setIsAdd(false);
     setPkge(pk);
   };
   const handleClosePopup = () => {
@@ -45,9 +50,11 @@ export function Packages() {
     }
   };
 
-  const handleAdd = () => {
+  const handleAdd = (it: string[], idx: number) => {
     setPopupOpen(true);
-    console.log("Adding...");
+    setIsAdd(true);
+    setItem(it);
+    setOuterIdx(idx);
   };
 
   useEffect(() => {
@@ -76,7 +83,7 @@ export function Packages() {
               >
                 <Box sx={styles.titleList}>
                   <h3>{formatTitle(item[0])}</h3>
-                  <AddIcon onClick={() => handleAdd()} />
+                  <AddIcon onClick={() => handleAdd(item, outerIdx)} />
                 </Box>
                 <List>
                   {item.map(
@@ -104,7 +111,13 @@ export function Packages() {
             ))}
             <DetailsPopup
               open={popupOpen}
+              isAdd={isAdd}
               pkge={pkge}
+              addProps={{
+                file_name: permPath,
+                insertIdx: outerIdx,
+                data: item,
+              }}
               handleClose={handleClosePopup}
             />
           </Box>

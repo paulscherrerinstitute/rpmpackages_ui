@@ -22,16 +22,33 @@ export async function getAvailableRepos() {
 }
 
 export async function removePackageFromRepo(pkge: string, repo: string) {
-  return await fetch(`${api}/pkge/${pkge}/${repo}`, {method: 'DELETE'}).then(async (response) => {
-    const data = await response.json()
-    return data;
-  })
+  return await fetch(`${api}/pkge/${pkge}/${repo}`, { method: "DELETE" }).then(
+    async (response) => {
+      const data = await response.json();
+      return data;
+    }
+  );
 }
 
 export async function addPackageToRepo(
   pkge: string,
   repo: string,
-  titleToInsertAt: string
+  insertIdx: number
 ) {
-  console.log(`Adding ${pkge} to ${repo} at ${titleToInsertAt}`);
+  console.log(pkge, repo, insertIdx)
+  // ensure Content-Type is set and body keys match required shape/order
+  const body = JSON.stringify({
+    item: pkge,
+    file_name: repo,
+    subTitleIndex: insertIdx,
+  });
+
+  return await fetch(`${api}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body,
+  }).then(async (response) => {
+    const data = await response.json();
+    return data;
+  });
 }

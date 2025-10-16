@@ -15,6 +15,13 @@ import {
 import * as styles from "./DetailsPopup.styles";
 import { useEffect, useState } from "react";
 import { addPackageToRepo } from "../../../helper/dataService";
+import {
+  getName,
+  getVersion,
+  getDistribution,
+  getArchitecture,
+  getVersionNote,
+} from "../../helpers/DetailsHelper";
 
 export function DetailsPopup({
   open,
@@ -50,6 +57,26 @@ export function DetailsPopup({
     );
   };
 
+  const getPName = () => {
+    return getName(pkge);
+  };
+
+  const getPVersion = () =>{
+    return getVersion(pkge);
+  }
+
+  const getPVersionNote = () =>{
+    return getVersionNote(pkge);
+  }
+
+  const getPDistribution = () =>{
+    return getDistribution(pkge);
+  }
+
+  const getPArchitecture = ()=>{
+    return getArchitecture(pkge);
+  }
+
   useEffect(() => {
     if (open) {
       if (isAdd) {
@@ -62,11 +89,11 @@ export function DetailsPopup({
         });
       } else {
         setFormData({
-          name: getName(),
-          version: getVersion(),
-          versionNote: getVersionNote(),
-          distribution: getDistribution(),
-          architecture: getArchitecture(),
+          name: getPName(),
+          version: getPVersion(),
+          versionNote: getPVersionNote(),
+          distribution: getPDistribution(),
+          architecture: getPArchitecture(),
         });
       }
     } else {
@@ -102,7 +129,7 @@ export function DetailsPopup({
                 <TableCell>
                   <TextField
                     variant="standard"
-                    label={getName() === "" ? "(empty)" : getName()}
+                    label={getPName() === "" ? "(empty)" : getPName()}
                     value={formData.name}
                     name="name"
                     onChange={handleChange}
@@ -111,7 +138,7 @@ export function DetailsPopup({
                 <TableCell>
                   <TextField
                     variant="standard"
-                    label={getVersion() === "" ? "(empty)" : getVersion()}
+                    label={getPVersion() === "" ? "(empty)" : getPVersion()}
                     value={formData.version}
                     name="version"
                     onChange={handleChange}
@@ -121,7 +148,7 @@ export function DetailsPopup({
                   <TextField
                     variant="standard"
                     label={
-                      getVersionNote() === "" ? "(empty)" : getVersionNote()
+                      getPVersionNote() === "" ? "(empty)" : getPVersionNote()
                     }
                     value={formData.versionNote}
                     name="versionNote"
@@ -132,7 +159,7 @@ export function DetailsPopup({
                   <TextField
                     variant="standard"
                     label={
-                      getDistribution() === "" ? "(empty)" : getDistribution()
+                      getPDistribution() === "" ? "(empty)" : getPDistribution()
                     }
                     value={formData.distribution}
                     name="distribution"
@@ -143,7 +170,7 @@ export function DetailsPopup({
                   <TextField
                     variant="standard"
                     label={
-                      getArchitecture() === "" ? "(empty)" : getArchitecture()
+                      getPArchitecture() === "" ? "(empty)" : getPArchitecture()
                     }
                     value={formData.architecture}
                     name="architecture"
@@ -167,11 +194,11 @@ export function DetailsPopup({
   function handleSave() {
     if (!isAdd) {
       // derive original values from the pkge so we replace correct substrings
-      const origName = getName();
-      const origVersion = getVersion();
-      const origDistribution = getDistribution();
-      const origArchitecture = getArchitecture();
-      const origVersionNote = getVersionNote();
+      const origName = getPName();
+      const origVersion = getPVersion();
+      const origDistribution = getPDistribution();
+      const origArchitecture = getPArchitecture();
+      const origVersionNote = getPVersionNote();
 
       let str = pkge
         .replace(origName, formData.name)
@@ -195,7 +222,6 @@ export function DetailsPopup({
         pk = `${formData.name}-${formData.version}.${formData.distribution}.${formData.architecture}.rpm`;
       }
       if (addProps) {
-        console.log(pk, `${addProps.file_name}.repo_cfg`, addProps.insertIdx);
         addPackageToRepo(
           pk,
           `${addProps.file_name}.repo_cfg`,
@@ -204,69 +230,6 @@ export function DetailsPopup({
       }
     }
     handleClose();
-  }
-
-  function getName(): string {
-    var split = pkge.split(/-[0-9]{1}/g)[0];
-    return split;
-  }
-
-  function getVersion(): string {
-    var version = pkge
-      .replace(getName(), "")
-      .replace(".rpm", "")
-      .split(/.[A-Za-z]/g)[0];
-    return clipSides(version);
-  }
-
-  function getDistribution() {
-    const arch = pkge
-      .replace(getName(), "")
-      .replace(getVersion(), "")
-      .replace(".rpm", "")
-      .split(".")
-      .reverse();
-    const clipped = clipSides(arch[1]);
-    return clipped != undefined ? clipped : "";
-  }
-
-  function getArchitecture() {
-    const arch = pkge
-      .replace(getName() + "-", "")
-      .replace(getVersion() + ".", "")
-      .replace(".rpm", "")
-      .split(".")
-      .reverse();
-    return clipSides(arch[0]);
-  }
-
-  function getVersionNote(): string {
-    const versionnote = pkge
-      .replace(getName(), "")
-      .replace(getDistribution(), "")
-      .replace(getVersion(), "")
-      .replace(".rpm", "")
-      .replace(getArchitecture(), "");
-    return clipSides(versionnote);
-  }
-
-  function clipSides(str: string) {
-    if (str == null) return str;
-    while (
-      str.startsWith("-") ||
-      str.startsWith(".") ||
-      str.endsWith("-") ||
-      str.endsWith(".")
-    ) {
-      // Remove leading or trailing '-' or '.'
-      if (str.startsWith("-") || str.startsWith(".")) {
-        str = str.slice(1);
-      }
-      if (str.endsWith("-") || str.endsWith(".")) {
-        str = str.slice(0, -1);
-      }
-    }
-    return str;
   }
 }
 

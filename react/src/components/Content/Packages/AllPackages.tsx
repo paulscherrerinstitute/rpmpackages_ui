@@ -22,12 +22,14 @@ import {
   getVersion,
   getVersionNote,
 } from "../../helpers/DetailsHelper";
+import { useNavigate } from "react-router-dom";
 
 export default function AllPackages() {
   const [data, setData] = useState<string[]>([]);
   const [inclusions, setInclusions] = useState<string[]>([]);
   const [open, setOpen] = useState(false);
   const [item, setItem] = useState("");
+  const navigate = useNavigate();
 
   const fetchData = async () => {
     try {
@@ -63,13 +65,25 @@ export default function AllPackages() {
 
   return (
     <Box sx={styles.main}>
-      <Typography>All Packages</Typography>
+      <h2>All Packages</h2>
       <Box>
-        {data.map((item) => (
-          <Typography key={item} onClick={() => getInclusions(item)}>
-            {item}
-          </Typography>
-        ))}
+        <Table>
+          <TableBody>
+            {data.map((item) => (
+              <TableRow>
+                <TableCell>
+                  <Typography
+                    sx={styles.clickButton}
+                    key={item}
+                    onClick={() => getInclusions(item)}
+                  >
+                    {item}
+                  </Typography>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
       </Box>
       <Dialog open={open} onClose={handleClose} fullWidth maxWidth="md">
         <DialogTitle>{item}</DialogTitle>
@@ -99,8 +113,17 @@ export default function AllPackages() {
         <Table>
           <TableBody>
             {inclusions.map((i) => (
-              <TableRow key={"included-"+i}>
-                <TableCell>{i}</TableCell>
+              <TableRow key={"included-" + i}>
+                <TableCell>
+                  <Typography
+                    sx={styles.clickButton}
+                    onClick={() =>
+                      navigate(`/Packages/${i.replace(".repo_cfg", "")}`)
+                    }
+                  >
+                    {i}
+                  </Typography>
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>

@@ -39,9 +39,13 @@ export const titleList: SxProps<Theme> = {
   },
 };
 
-export const innerList: SxProps<Theme> = {
+export const clickButton: SxProps<Theme> = {
   "&:hover": {
     cursor: "pointer",
   },
   fontSize: "medium",
 };
+
+export const boldTitle: SxProps<Theme> = {
+  fontWeight: "bold",
+}

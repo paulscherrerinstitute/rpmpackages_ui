@@ -1,10 +1,10 @@
 import {
   Box,
-  Typography,
   Toolbar,
-  List,
-  ListItem,
-  ListItemText,
+  Table,
+  TableBody,
+  TableCell,
+  TableRow,
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import { getAvailableRepos } from "../../../helper/dataService";
@@ -26,19 +26,22 @@ export function Repositories() {
   return (
     <Box component="main" sx={styles.main}>
       <Toolbar />
-      <Typography>Repositories:</Typography>
+      <h2>Available Repositories</h2>
       <Box sx={styles.body}>
-        <List>
-          {availableRepos.map((item) => (
-            <ListItem key={`repos-${item}`}
-              onClick={() => navigate(`/Packages/${item.split(".")[0]}`)}
-            >
-              <ListItemText sx={styles.innerList}>
-                - {item.split(".")[0]}
-              </ListItemText>
-            </ListItem>
-          ))}
-        </List>
+        <Table>
+          <TableBody>
+            {availableRepos.map((item) => (
+              <TableRow
+                key={`repos-${item}`}
+                onClick={() => navigate(`/Packages/${item.split(".")[0]}`)}
+              >
+                <TableCell sx={styles.clickButton}>
+                  {item.split(".")[0]}
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
       </Box>
     </Box>
   );

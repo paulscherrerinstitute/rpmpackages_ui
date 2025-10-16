@@ -1,4 +1,4 @@
-import { Box, List, ListItem, ListItemText } from "@mui/material";
+import { Box, List, ListItem, ListItemText, Tooltip } from "@mui/material";
 import { useState, useEffect } from "react";
 import {
   getPackagesFromRepo,
@@ -82,7 +82,9 @@ export default function PackagesInRepository() {
             <Box key={`category-${outerIdx}-${item[0]}`} sx={styles.outerList}>
               <Box sx={styles.titleList}>
                 <h3>{formatTitle(item[0])}</h3>
-                <AddIcon onClick={() => handleAdd(item, outerIdx)} />
+                <Tooltip title="Add package to subtitle">
+                  <AddIcon onClick={() => handleAdd(item, outerIdx)} />
+                </Tooltip>
               </Box>
               <List>
                 {item.map(
@@ -90,17 +92,21 @@ export default function PackagesInRepository() {
                     innerIdx != 0 && (
                       <ListItem key={`${outerIdx}-${innerIdx}-${pkg}`}>
                         {!pkg.includes("#") && (
-                          <EditIcon
-                            sx={styles.innerList}
-                            onClick={() => handleButtonClick(pkg)}
-                          />
+                          <Tooltip title="Edit package">
+                            <EditIcon
+                              sx={styles.clickButton}
+                              onClick={() => handleButtonClick(pkg)}
+                            />
+                          </Tooltip>
                         )}
                         <ListItemText>{pkg}</ListItemText>
                         {!pkg.includes("#") && (
-                          <DeleteOutlineIcon
-                            sx={styles.innerList}
-                            onClick={() => handleRemove(pkg)}
-                          />
+                          <Tooltip title="Delete package">
+                            <DeleteOutlineIcon
+                              sx={styles.clickButton}
+                              onClick={() => handleRemove(pkg)}
+                            />
+                          </Tooltip>
                         )}
                       </ListItem>
                     )

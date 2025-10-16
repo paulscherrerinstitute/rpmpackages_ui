@@ -188,18 +188,22 @@ export function DetailsPopup({
         }
       }
     } else {
-      var pk;
+      var pk: string;
       if (formData.versionNote !== "") {
         pk = `${formData.name}-${formData.version}-${formData.versionNote}.${formData.distribution}.${formData.architecture}.rpm`;
       } else {
         pk = `${formData.name}-${formData.version}.${formData.distribution}.${formData.architecture}.rpm`;
       }
       if (addProps) {
-        console.log(pk, `${addProps.file_name}.repo_cfg`, addProps.insertIdx)
-        addPackageToRepo(pk, `${addProps.file_name}.repo_cfg`, addProps.insertIdx);
+        console.log(pk, `${addProps.file_name}.repo_cfg`, addProps.insertIdx);
+        addPackageToRepo(
+          pk,
+          `${addProps.file_name}.repo_cfg`,
+          addProps.insertIdx
+        );
       }
     }
-   // handleClose();
+    handleClose();
   }
 
   function getName(): string {

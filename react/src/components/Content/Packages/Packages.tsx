@@ -35,6 +35,7 @@ export function Packages() {
   };
   const handleClosePopup = () => {
     setPopupOpen(false);
+    fetchData();
   };
 
   const formatTitle = (title: string) => {
@@ -42,12 +43,13 @@ export function Packages() {
     return title.match("[A-Za-z].*")?.toString().toUpperCase();
   };
 
-  const handleRemove = (pkg: string) => {
+  const handleRemove = async (pkg: string) => {
     const prompt = confirm(`Do you want to remove ${pkg} from ${permPath}?`);
     if (prompt) {
       permPath = `${permPath}.repo_cfg`;
-      removePackageFromRepo(pkg, permPath);
+      await removePackageFromRepo(pkg, permPath);
     }
+    fetchData();
   };
 
   const handleAdd = (it: string[], idx: number) => {
@@ -57,16 +59,16 @@ export function Packages() {
     setOuterIdx(idx);
   };
 
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        const resultData = await getPackagesFromRepo(path);
-        setData(resultData);
-      } catch (err) {
-        console.error("Error loading data:", err);
-      }
+  const fetchData = async () => {
+    try {
+      const resultData = await getPackagesFromRepo(path);
+      setData(resultData);
+    } catch (err) {
+      console.error("Error loading data:", err);
     }
+  };
 
+  useEffect(() => {
     fetchData();
   }, []); // runs once when component mounts
 

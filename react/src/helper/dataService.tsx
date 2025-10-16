@@ -21,6 +21,20 @@ export async function getAvailableRepos() {
   });
 }
 
+export async function getAllPackages() {
+  return await fetch(`${api}/all`).then(async (response) => {
+    const data = await response.json();
+    return data;
+  });
+}
+
+export async function getPackageInclusions(pkge: string){
+  return await fetch(`${api}/pkge/${pkge}`).then(async (response) =>{
+    const data = await response.json();
+    return data;
+  })
+}
+
 export async function removePackageFromRepo(pkge: string, repo: string) {
   return await fetch(`${api}/pkge/${pkge}/${repo}`, { method: "DELETE" }).then(
     async (response) => {
@@ -35,7 +49,6 @@ export async function addPackageToRepo(
   repo: string,
   insertIdx: number
 ) {
-  console.log(pkge, repo, insertIdx)
   // ensure Content-Type is set and body keys match required shape/order
   const body = JSON.stringify({
     item: pkge,

@@ -34,7 +34,7 @@ export const titleList: SxProps<Theme> = {
   "& > svg": {
     fontSize: "big",
     "&:hover": {
-        cursor: "pointer",
+      cursor: "pointer",
     },
   },
 };
@@ -48,4 +48,23 @@ export const clickButton: SxProps<Theme> = {
 
 export const boldTitle: SxProps<Theme> = {
   fontWeight: "bold",
+};
+
+export const packageTitle: SxProps<Theme> = {
+  display: "flex",
+  flexDirection: "row",
+  justifyContent: "space-between",
+  alignItems: "center"
+};
+
+export const dialogIcons: SxProps<Theme> = {
+  padding: 3,
+  display:"flex",
+  flexDirection: "row",
+  "& > *":{
+    margin: 0.5
+  },
+  "& > svg:hover":{
+    cursor: "pointer"
+  }
 }

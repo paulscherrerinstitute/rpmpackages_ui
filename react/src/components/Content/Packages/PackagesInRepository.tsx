@@ -77,7 +77,12 @@ export default function PackagesInRepository() {
     <Box sx={styles.main}>
       {permPath.length > 0 && !isNotFound && (
         <Box sx={styles.body}>
+          <Box sx={styles.packageTitle}>
           <h2>Packages for {permPath.toUpperCase()}</h2>
+          <Tooltip title="Add subtitle">
+            <AddIcon />
+          </Tooltip>
+          </Box>
           {data.map((item, outerIdx) => (
             <Box key={`category-${outerIdx}-${item[0]}`} sx={styles.outerList}>
               <Box sx={styles.titleList}>

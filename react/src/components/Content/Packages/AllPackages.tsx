@@ -7,6 +7,7 @@ import {
   TableCell,
   TableHead,
   TableRow,
+  Tooltip,
   Typography,
 } from "@mui/material";
 import * as styles from "../Content.styles";
@@ -23,6 +24,9 @@ import {
   getVersionNote,
 } from "../../helpers/DetailsHelper";
 import { useNavigate } from "react-router-dom";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
+import AddIcon from "@mui/icons-material/Add";
 
 export default function AllPackages() {
   const [data, setData] = useState<string[]>([]);
@@ -63,6 +67,18 @@ export default function AllPackages() {
     fetchData();
   }, []);
 
+  const handleAdd = () => {
+    console.log("ADD", item);
+  };
+
+  const handleRemove = () => {
+    console.log("REMOVE", item);
+  };
+
+  const handleEdit = () => {
+    console.log("EDIT", item);
+  };
+
   return (
     <Box sx={styles.main}>
       <h2>All Packages</h2>
@@ -86,7 +102,20 @@ export default function AllPackages() {
         </Table>
       </Box>
       <Dialog open={open} onClose={handleClose} fullWidth maxWidth="md">
-        <DialogTitle>{item}</DialogTitle>
+        <Box sx={styles.packageTitle}>
+          <DialogTitle>{item}</DialogTitle>
+          <Box sx={styles.dialogIcons}>
+            <Tooltip title="Add to other repository">
+              <AddIcon onClick={handleAdd} />
+            </Tooltip>
+            <Tooltip title="Edit across all repositories">
+              <EditIcon onClick={handleEdit} />
+            </Tooltip>
+            <Tooltip title="Delete in all repositories">
+              <DeleteOutlineIcon onClick={handleRemove} />
+            </Tooltip>
+          </Box>
+        </Box>
         <Box>
           <Table>
             <TableHead>

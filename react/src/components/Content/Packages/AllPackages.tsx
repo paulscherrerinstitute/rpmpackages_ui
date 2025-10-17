@@ -15,6 +15,7 @@ import { useEffect, useState } from "react";
 import {
   getAllPackages,
   getPackageInclusions,
+  removePackageFromRepo,
 } from "../../../helper/dataService";
 import {
   getArchitecture,
@@ -27,6 +28,7 @@ import { useNavigate } from "react-router-dom";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import AddIcon from "@mui/icons-material/Add";
+import { AddDetails } from "../Details/AddDetails";
 
 export default function AllPackages() {
   const [data, setData] = useState<string[]>([]);
@@ -34,6 +36,8 @@ export default function AllPackages() {
   const [open, setOpen] = useState(false);
   const [item, setItem] = useState("");
   const navigate = useNavigate();
+
+  const [openNested, setOpenNested] = useState(false);
 
   const fetchData = async () => {
     try {
@@ -63,16 +67,45 @@ export default function AllPackages() {
     setOpen(false);
   };
 
+  const handleNestedClose = () => {
+    setOpenNested(false);
+  };
+
   useEffect(() => {
     fetchData();
   }, []);
 
+  useEffect(() => {
+    if (inclusions.length == 0) {
+      setOpen(false);
+    }
+    fetchData();
+  }, [inclusions]);
+
   const handleAdd = () => {
     console.log("ADD", item);
+    setOpenNested(true);
   };
 
-  const handleRemove = () => {
-    console.log("REMOVE", item);
+  const handleRemoveAll = () => {
+    const prompt = confirm(
+      `Do you want to remove ${item} from all repositories it is contained in?`
+    );
+    if (prompt) {
+      inclusions.forEach(async (it) => {
+        await removePackageFromRepo(item, it);
+      });
+    }
+    handleClose();
+    fetchData();
+  };
+
+  const handleRemove = async (repo: string) => {
+    const prompt = confirm(`Do you want to remove ${item} from ${repo}?`);
+    if (prompt) {
+      await removePackageFromRepo(item, repo);
+    }
+    fetchInclusionData(item);
   };
 
   const handleEdit = () => {
@@ -85,8 +118,8 @@ export default function AllPackages() {
       <Box>
         <Table>
           <TableBody>
-            {data.map((item) => (
-              <TableRow>
+            {data.map((item, i) => (
+              <TableRow key={`list-${i}`} hover>
                 <TableCell>
                   <Typography
                     sx={styles.clickButton}
@@ -112,7 +145,7 @@ export default function AllPackages() {
               <EditIcon onClick={handleEdit} />
             </Tooltip>
             <Tooltip title="Delete in all repositories">
-              <DeleteOutlineIcon onClick={handleRemove} />
+              <DeleteOutlineIcon onClick={handleRemoveAll} />
             </Tooltip>
           </Box>
         </Box>
@@ -138,25 +171,43 @@ export default function AllPackages() {
             </TableBody>
           </Table>
         </Box>
-        <DialogTitle>This package is included in:</DialogTitle>
-        <Table>
-          <TableBody>
-            {inclusions.map((i) => (
-              <TableRow key={"included-" + i}>
-                <TableCell>
-                  <Typography
-                    sx={styles.clickButton}
-                    onClick={() =>
-                      navigate(`/Packages/${i.replace(".repo_cfg", "")}`)
-                    }
-                  >
-                    {i}
-                  </Typography>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+        {inclusions.length > 0 && (
+          <Box>
+            <DialogTitle>This package is included in:</DialogTitle>
+            <Table>
+              <TableBody>
+                {inclusions.map((i) => (
+                  <TableRow hover key={"included-" + i} sx={styles.packageRow}>
+                    <TableCell>
+                      <Typography
+                        sx={styles.clickButton}
+                        onClick={() =>
+                          navigate(`/Packages/${i.replace(".repo_cfg", "")}`)
+                        }
+                      >
+                        {i}
+                      </Typography>
+                    </TableCell>
+                    <TableCell>
+                      <Tooltip
+                        sx={styles.clickButtonBig}
+                        title="Delete from this repository"
+                      >
+                        <DeleteOutlineIcon onClick={() => handleRemove(i)} />
+                      </Tooltip>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+              <AddDetails
+                open={openNested}
+                handleClose={handleNestedClose}
+                item={item}
+                inclusions={inclusions}
+              />
+            </Table>
+          </Box>
+        )}
       </Dialog>
     </Box>
   );

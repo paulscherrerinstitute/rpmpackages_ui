@@ -46,6 +46,12 @@ export const clickButton: SxProps<Theme> = {
   fontSize: "medium",
 };
 
+export const clickButtonBig: SxProps<Theme> = {
+  "&:hover":{
+    cursor:"pointer",
+  },
+}
+
 export const boldTitle: SxProps<Theme> = {
   fontWeight: "bold",
 };
@@ -54,17 +60,27 @@ export const packageTitle: SxProps<Theme> = {
   display: "flex",
   flexDirection: "row",
   justifyContent: "space-between",
-  alignItems: "center"
+  alignItems: "center",
+};
+
+export const packageRow: SxProps<Theme> = {
+  display: "flex",
+  flexDirection: "row",
+  justifyContent: "space-between",
+  borderBottom: "1px solid rgba(224, 224, 224, 1)",
+  "& > *": {
+    borderBottom: "none",
+  },
 };
 
 export const dialogIcons: SxProps<Theme> = {
   padding: 3,
-  display:"flex",
+  display: "flex",
   flexDirection: "row",
-  "& > *":{
-    margin: 0.5
+  "& > *": {
+    margin: 0.5,
   },
-  "& > svg:hover":{
-    cursor: "pointer"
-  }
-}
+  "& > svg:hover": {
+    cursor: "pointer",
+  },
+};

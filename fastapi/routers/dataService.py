@@ -72,6 +72,35 @@ async def get_all_pkg():
     return unique_pkges
 
 
+# Create new directory inside a repository
+class CreateDirectoryRequest(BaseModel):
+    directory: str
+
+
+@router.post("/data/new/{repo}")
+async def create_dir(repo: str, request: CreateDirectoryRequest):
+    file_path = os.path.join(REPO_DIR, repo)
+    if not os.path.isfile(file_path):
+        raise HTTPException(status_code=404, detail="File not found")
+
+    with open(file_path, "r", encoding="utf-8") as file:
+        # Split existing file into categories using the separator "\n\n#"
+        text_by_category: list[str] = file.read().split("\n\n#")
+
+    doesExist = any(request.directory in t for t in text_by_category)
+    if not doesExist:
+        text_by_category.append(" " + request.directory)
+
+        with open(file_path, "w", encoding="utf-8") as file:
+            # Reassemble
+            reassenbled_txt = "\n\n#".join(text_by_category)
+            file.write(reassenbled_txt)
+
+        return {"added": True, "directory": request.directory}
+    else:
+        return {"added": False, "directory": request.directory}
+
+
 # Get Data from Repository
 @router.get("/data/{file_name}", response_class=PlainTextResponse)
 async def get_data(file_name: str):

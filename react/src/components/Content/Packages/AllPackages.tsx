@@ -69,6 +69,7 @@ export default function AllPackages() {
 
   const handleNestedClose = () => {
     setOpenNested(false);
+    fetchInclusionData(item)
   };
 
   useEffect(() => {

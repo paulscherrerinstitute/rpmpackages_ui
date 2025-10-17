@@ -87,18 +87,18 @@ async def create_dir(repo: str, request: CreateDirectoryRequest):
         # Split existing file into categories using the separator "\n\n#"
         text_by_category: list[str] = file.read().split("\n\n#")
 
-    doesExist = any(request.directory in t for t in text_by_category)
-    if not doesExist:
-        text_by_category.append(" " + request.directory)
+    for idx, t in enumerate(text_by_category):
+        if request.directory in t:
+            return {"added": False, "directory": request.directory, "index": idx}
 
-        with open(file_path, "w", encoding="utf-8") as file:
-            # Reassemble
-            reassenbled_txt = "\n\n#".join(text_by_category)
-            file.write(reassenbled_txt)
+    text_by_category.append(" " + request.directory)
 
-        return {"added": True, "directory": request.directory}
-    else:
-        return {"added": False, "directory": request.directory}
+    with open(file_path, "w", encoding="utf-8") as file:
+        # Reassemble
+        reassenbled_txt = "\n\n#".join(text_by_category)
+        file.write(reassenbled_txt)
+    idx = len(text_by_category) - 1
+    return {"added": True, "index": idx, "directory": request.directory}
 
 
 # Get Data from Repository

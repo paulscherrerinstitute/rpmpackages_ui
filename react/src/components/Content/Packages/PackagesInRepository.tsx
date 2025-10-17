@@ -1,6 +1,17 @@
-import { Box, List, ListItem, ListItemText, Tooltip } from "@mui/material";
+import {
+  Box,
+  Button,
+  Dialog,
+  List,
+  ListItem,
+  ListItemText,
+  TextField,
+  Tooltip,
+  Typography,
+} from "@mui/material";
 import { useState, useEffect } from "react";
 import {
+  createNewDirectoryInRepo,
   getPackagesFromRepo,
   removePackageFromRepo,
 } from "../../../helper/dataService";
@@ -10,6 +21,7 @@ import { DetailsPopup } from "../Details/DetailsPopup";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import AddIcon from "@mui/icons-material/Add";
+// removed unused PreviewSharp import
 
 export default function PackagesInRepository() {
   // Display List
@@ -27,6 +39,7 @@ export default function PackagesInRepository() {
 
   const [outerIdx, setOuterIdx] = useState(-1);
   const [item, setItem] = useState<string[]>([]);
+  const [addOpen, setAddOpen] = useState(false);
 
   const handleButtonClick = (pk: string) => {
     setPopupOpen(true);
@@ -60,6 +73,17 @@ export default function PackagesInRepository() {
     setOuterIdx(idx);
   };
 
+  const handleSubtitleButtonClick = () => setAddOpen(true);
+
+  const handleSubtitleClose = () =>  setAddOpen(false);
+  
+  const handleSubtitleAdd = async (newSubtitle: string) => {
+    const path = permPath + ".repo_cfg";
+    await createNewDirectoryInRepo(path, newSubtitle);
+    setAddOpen(false);
+    await fetchData();
+  };
+
   const fetchData = async () => {
     try {
       const resultData = await getPackagesFromRepo(path);
@@ -78,10 +102,19 @@ export default function PackagesInRepository() {
       {permPath.length > 0 && !isNotFound && (
         <Box sx={styles.body}>
           <Box sx={styles.packageTitle}>
-          <h2>Packages for {permPath.toUpperCase()}</h2>
-          <Tooltip title="Add subtitle">
-            <AddIcon />
-          </Tooltip>
+            <h2>Packages for {permPath.toUpperCase()}</h2>
+            <Tooltip title="Add subtitle">
+              <AddIcon
+                sx={styles.clickButtonBig}
+                onClick={handleSubtitleButtonClick}
+              />
+            </Tooltip>
+            <SubtitleDialog
+              open={addOpen}
+              onClose={handleSubtitleClose}
+              onAdd={handleSubtitleAdd}
+              repoName={permPath}
+            />
           </Box>
           {data.map((item, outerIdx) => (
             <Box key={`category-${outerIdx}-${item[0]}`} sx={styles.outerList}>
@@ -140,5 +173,43 @@ export default function PackagesInRepository() {
         </Box>
       )}
     </Box>
+  );
+}
+
+// Dialog-only component: keeps input state local so typing does NOT re-render parent
+function SubtitleDialog({
+  open,
+  onClose,
+  onAdd,
+  repoName,
+}: {
+  open: boolean;
+  onClose: () => void;
+  onAdd: (val: string) => void;
+  repoName: string;
+}) {
+  const [localValue, setLocalValue] = useState("");
+  return (
+    <Dialog open={open} onClose={onClose}>
+      <Box sx={styles.dialogueWrapper}>
+        <Box sx={styles.formWrapper}>
+          <Typography variant="h6">
+            Add Subtitle to {repoName.toUpperCase()}
+          </Typography>
+          <TextField
+            value={localValue}
+            onChange={(e) => setLocalValue(e.target.value)}
+          />
+          <Button
+            onClick={() => {
+              onAdd(localValue.trim());
+              setLocalValue("");
+            }}
+          >
+            Add
+          </Button>
+        </Box>
+      </Box>
+    </Dialog>
   );
 }

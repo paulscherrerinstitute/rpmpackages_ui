@@ -9,7 +9,12 @@ import {
   type SelectChangeEvent,
   Button,
 } from "@mui/material";
-import { getAvailableRepos, addPackageToRepo } from "../../../helper/dataService";
+import {
+  getAvailableRepos,
+  addPackageToRepo,
+  createNewDirectoryInRepo,
+  type CreateDirectoryResponse,
+} from "../../../helper/dataService";
 import * as styles from "./AddDetails.styles";
 import { useEffect, useState } from "react";
 
@@ -38,21 +43,26 @@ export function AddDetails({
     return false;
   };
 
-  const handleAdd = () =>{
-    console.log("ADD", newRepo, item)
-  }
+  const handleAdd = async () => {
+    const res: CreateDirectoryResponse = await createNewDirectoryInRepo(
+      newRepo,
+      "Added via Overiew"
+    );
+    await addPackageToRepo(item, newRepo, res.index);
+    handleClose();
+  };
 
   useEffect(() => {
     setNewRepo("");
     fetchRepos();
-  }, []);
+  }, [open]);
 
   return (
     <Dialog open={open} onClose={handleClose} fullWidth>
       <Box sx={styles.dialogueWrapper}>
         <Box sx={styles.formWrapper}>
           <Typography variant="h6">{item}</Typography>
-          <FormControl fullWidth >
+          <FormControl fullWidth>
             <InputLabel id="select-label">Repositories</InputLabel>
             <Select
               value={newRepo}
@@ -68,7 +78,9 @@ export function AddDetails({
               ))}
             </Select>
             <Box sx={styles.formControl}>
-              <Button color="primary" onClick={handleAdd}>Add</Button>
+              <Button color="primary" onClick={handleAdd}>
+                Add
+              </Button>
             </Box>
           </FormControl>
         </Box>

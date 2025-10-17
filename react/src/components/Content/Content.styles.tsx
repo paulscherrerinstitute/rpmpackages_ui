@@ -47,10 +47,10 @@ export const clickButton: SxProps<Theme> = {
 };
 
 export const clickButtonBig: SxProps<Theme> = {
-  "&:hover":{
-    cursor:"pointer",
+  "&:hover": {
+    cursor: "pointer",
   },
-}
+};
 
 export const boldTitle: SxProps<Theme> = {
   fontWeight: "bold",
@@ -82,5 +82,20 @@ export const dialogIcons: SxProps<Theme> = {
   },
   "& > svg:hover": {
     cursor: "pointer",
+  },
+};
+
+export const dialogueWrapper: SxProps<Theme> = {
+  "& > div": {
+    padding: 3,
+  },
+};
+
+export const formWrapper: SxProps<Theme> = {
+  display: "flex",
+  flexDirection: "column",
+  "& > *": {
+    paddingTop: 1,
+    paddingBottom: 1,
   },
 };

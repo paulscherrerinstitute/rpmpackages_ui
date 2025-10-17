@@ -65,3 +65,27 @@ export async function addPackageToRepo(
     return data;
   });
 }
+
+export async function createNewDirectoryInRepo(
+  repo: string,
+  directory: string
+){
+  const body = JSON.stringify({
+    directory: directory
+  })
+
+  return await fetch(`${api}/new/${repo}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json"},
+    body,
+  }).then (async (response) =>{
+    const data: CreateDirectoryResponse = await response.json();
+    return data;
+  })
+}
+
+export type CreateDirectoryResponse = {
+  added: string
+  index: number
+  directory: string
+}

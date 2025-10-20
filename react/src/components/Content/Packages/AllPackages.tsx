@@ -44,7 +44,7 @@ export default function AllPackages() {
   const fetchData = async () => {
     try {
       const resultData = await getAllPackages();
-      setData(resultData);
+      setData(resultData.sort((a, b) => a.localeCompare(b)));
     } catch (err) {
       console.error("Error loading data:", err);
     }
@@ -112,11 +112,11 @@ export default function AllPackages() {
       pk = `${form.name}-${form.version}.${form.distribution}.${form.architecture}.rpm`;
     }
     inclusions.forEach(async (rep) => {
-     await updatePackage(item, pk, rep);
+      await updatePackage(item, pk, rep);
     });
     await fetchData;
     await fetchInclusionData;
-  }
+  };
 
   useEffect(() => {
     fetchData();

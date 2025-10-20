@@ -89,12 +89,12 @@ async def get_all_pkg():
 
 
 # Create new directory inside a repository
-class CreateDirectoryRequest(BaseModel):
+class DirectoryRequest(BaseModel):
     directory: str
 
 
 @router.post("/data/new/{repo}")
-async def create_dir(repo: str, request: CreateDirectoryRequest):
+async def create_dir(repo: str, request: DirectoryRequest):
     file_path = os.path.join(REPO_DIR, repo)
     if not os.path.isfile(file_path):
         raise HTTPException(status_code=404, detail="File not found")
@@ -111,6 +111,16 @@ async def create_dir(repo: str, request: CreateDirectoryRequest):
     write_file(file_path, reassenbled_txt)
     idx = len(text_by_category) - 1
     return {"added": True, "index": idx, "directory": request.directory}
+
+
+# Delete directory
+@router.delete("/data/new/{repo}")
+async def remove_dir(repo: str, request: DirectoryRequest):
+    file_path = os.path.join(REPO_DIR, repo)
+    
+    content = read_file(file_path).replace("\n\n# " + request.directory, "")
+    write_file(file_path, content)
+    return content
 
 
 # Get Data from Repository
@@ -183,7 +193,8 @@ async def delete_item_repos(pkge: str, file_name: str):
 def read_file(file_path: str):
     with open(file_path, "r", encoding="utf-8") as file:
         return file.read()
-    
+
+
 def assemble_repo(file_path: str):
     return read_file(file_path).split("\n\n#")
 

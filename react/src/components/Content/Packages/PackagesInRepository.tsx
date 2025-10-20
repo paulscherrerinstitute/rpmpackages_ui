@@ -14,6 +14,7 @@ import {
   addPackageToRepo,
   createNewDirectoryInRepo,
   getPackagesFromRepo,
+  removeDirectory,
   removePackageFromRepo,
   updatePackage,
 } from "../../../helper/dataService";
@@ -23,7 +24,6 @@ import { DetailsPopup, type DetailsForm } from "../Details/DetailsPopup";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import AddIcon from "@mui/icons-material/Add";
-// removed unused PreviewSharp import
 
 export default function PackagesInRepository() {
   // Display List
@@ -58,15 +58,6 @@ export default function PackagesInRepository() {
     return title.match("[A-Za-z].*")?.toString().toUpperCase();
   };
 
-  const handleRemove = async (pkg: string) => {
-    const prompt = confirm(`Do you want to remove ${pkg} from ${permPath}?`);
-    if (prompt) {
-      permPath = `${permPath}.repo_cfg`;
-      await removePackageFromRepo(pkg, permPath);
-    }
-    fetchData();
-  };
-
   const handleAdd = (it: string[], idx: number) => {
     setPopupOpen(true);
     setPkge("");
@@ -78,6 +69,21 @@ export default function PackagesInRepository() {
   const handleSubtitleButtonClick = () => setAddOpen(true);
 
   const handleSubtitleClose = () => setAddOpen(false);
+
+  const handleRemove = async (pkg: string) => {
+    const prompt = confirm(`Do you want to remove ${pkg} from ${permPath}?`);
+    if (prompt) {
+      permPath = `${permPath}.repo_cfg`;
+      await removePackageFromRepo(pkg, permPath);
+    }
+    fetchData();
+  };
+
+  const handleSubtitleRemove = async (directory: string) => {
+    await removeDirectory(permPath + ".repo_cfg", directory);
+    console.log(directory)
+    await fetchData();
+  };
 
   const handleSubtitleAdd = async (newSubtitle: string) => {
     const path = permPath + ".repo_cfg";
@@ -146,9 +152,17 @@ export default function PackagesInRepository() {
             <Box key={`category-${outerIdx}-${item[0]}`} sx={styles.outerList}>
               <Box sx={styles.titleList}>
                 <h3>{formatTitle(item[0])}</h3>
-                <Tooltip title="Add package to subtitle">
-                  <AddIcon onClick={() => handleAdd(item, outerIdx)} />
-                </Tooltip>
+                <Box>
+                  <Tooltip title="Add package to subtitle">
+                    <AddIcon onClick={() => handleAdd(item, outerIdx)} />
+                  </Tooltip>
+                  <Tooltip title="Remove subtitle">
+                    <DeleteOutlineIcon
+                      sx={styles.clickButtonBig}
+                      onClick={() => handleSubtitleRemove((item[0]))}
+                    />
+                  </Tooltip>
+                </Box>
               </Box>
               <List>
                 {item.map(

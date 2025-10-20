@@ -14,7 +14,6 @@ import {
 } from "@mui/material";
 import * as styles from "./DetailsPopup.styles";
 import { useEffect, useState } from "react";
-import { addPackageToRepo } from "../../../helper/dataService";
 import {
   getName,
   getVersion,
@@ -26,18 +25,12 @@ import {
 export function DetailsPopup({
   open,
   pkge,
-  handleClose,
   isAdd,
   addProps,
+  onClose,
+  onAdd,
+  onSave,
 }: DetailsPopupProps) {
-  type DetailsForm = {
-    name: string;
-    version: string;
-    versionNote: string;
-    distribution: string;
-    architecture: string;
-  };
-
   const [formData, setFormData] = useState<DetailsForm>({
     name: "",
     version: "",
@@ -61,21 +54,21 @@ export function DetailsPopup({
     return getName(pkge);
   };
 
-  const getPVersion = () =>{
+  const getPVersion = () => {
     return getVersion(pkge);
-  }
+  };
 
-  const getPVersionNote = () =>{
+  const getPVersionNote = () => {
     return getVersionNote(pkge);
-  }
+  };
 
-  const getPDistribution = () =>{
+  const getPDistribution = () => {
     return getDistribution(pkge);
-  }
+  };
 
-  const getPArchitecture = ()=>{
+  const getPArchitecture = () => {
     return getArchitecture(pkge);
-  }
+  };
 
   useEffect(() => {
     if (open) {
@@ -106,10 +99,11 @@ export function DetailsPopup({
         architecture: "",
       });
     }
+    console.log();
   }, [open, isAdd, pkge]);
 
   return (
-    <Dialog open={open} onClose={handleClose} fullWidth maxWidth="md">
+    <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
       {!isAdd && <DialogTitle>{pkge} </DialogTitle>}
       {isAdd && <DialogTitle>ADD to {addProps?.data[0]}</DialogTitle>}
       <DialogContent dividers>
@@ -186,64 +180,36 @@ export function DetailsPopup({
         <Button onClick={handleSave} form="package-form">
           Save
         </Button>
-        <Button onClick={handleClose}>Cancel</Button>
+        <Button onClick={onClose}>Cancel</Button>
       </DialogActions>
     </Dialog>
   );
 
   function handleSave() {
-    if (!isAdd) {
-      // derive original values from the pkge so we replace correct substrings
-      const origName = getPName();
-      const origVersion = getPVersion();
-      const origDistribution = getPDistribution();
-      const origArchitecture = getPArchitecture();
-      const origVersionNote = getPVersionNote();
-
-      let str = pkge
-        .replace(origName, formData.name)
-        .replace(origVersion, formData.version)
-        .replace(origDistribution, formData.distribution)
-        .replace(origArchitecture, formData.architecture);
-
-      if (formData.versionNote !== "") {
-        if (origVersionNote === "") {
-          const idx = str.indexOf(origVersion) + origVersion.length;
-          str = str.slice(0, idx + 1) + formData.versionNote + str.slice(idx);
-        } else {
-          str = str.replace(origVersionNote, formData.versionNote);
-        }
-      }
-    } else {
-      var pk: string;
-      if (formData.versionNote !== "") {
-        pk = `${formData.name}-${formData.version}-${formData.versionNote}.${formData.distribution}.${formData.architecture}.rpm`;
-      } else {
-        pk = `${formData.name}-${formData.version}.${formData.distribution}.${formData.architecture}.rpm`;
-      }
-      if (addProps) {
-        addPackageToRepo(
-          pk,
-          `${addProps.file_name}.repo_cfg`,
-          addProps.insertIdx
-        );
-      }
-    }
-    handleClose();
+    if (isAdd && onAdd) onAdd(formData);
+    else onSave(formData);
+    onClose();
   }
 }
 
 export type DetailsPopupProps = {
   open: boolean;
   pkge: string;
-  handleClose: () => void;
   isAdd: boolean;
+  onClose: () => void;
+  onSave: (form: DetailsForm) => void;
+  onAdd?: (form: DetailsForm) => void;
   addProps?: AddProps;
 };
 
 type AddProps = {
-  item?: string;
-  file_name: string;
-  insertIdx: number;
   data: string[];
+};
+
+export type DetailsForm = {
+  name: string;
+  version: string;
+  versionNote: string;
+  distribution: string;
+  architecture: string;
 };

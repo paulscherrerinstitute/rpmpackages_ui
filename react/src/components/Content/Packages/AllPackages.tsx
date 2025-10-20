@@ -16,6 +16,7 @@ import {
   getAllPackages,
   getPackageInclusions,
   removePackageFromRepo,
+  updatePackage,
 } from "../../../helper/dataService";
 import {
   getArchitecture,
@@ -29,15 +30,16 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import AddIcon from "@mui/icons-material/Add";
 import { AddDetails } from "../Details/AddDetails";
+import { DetailsPopup, type DetailsForm } from "../Details/DetailsPopup";
 
 export default function AllPackages() {
   const [data, setData] = useState<string[]>([]);
   const [inclusions, setInclusions] = useState<string[]>([]);
   const [open, setOpen] = useState(false);
+  const [openNested, setOpenNested] = useState(false);
+  const [openEdit, setOpenEdit] = useState(false);
   const [item, setItem] = useState("");
   const navigate = useNavigate();
-
-  const [openNested, setOpenNested] = useState(false);
 
   const fetchData = async () => {
     try {
@@ -63,32 +65,16 @@ export default function AllPackages() {
     fetchInclusionData(it);
   };
 
-  const handleClose = () => {
-    setOpen(false);
-  };
+  const handleClose = () => setOpen(false);
 
   const handleNestedClose = () => {
     setOpenNested(false);
-    fetchInclusionData(item)
+    fetchInclusionData(item);
   };
 
-  useEffect(() => {
-    fetchData();
-  }, []);
+  const handleAdd = () => setOpenNested(true);
 
-  useEffect(() => {
-    if (inclusions.length == 0) {
-      setOpen(false);
-    }
-    fetchData();
-  }, [inclusions]);
-
-  const handleAdd = () => {
-    console.log("ADD", item);
-    setOpenNested(true);
-  };
-
-  const handleRemoveAll = () => {
+  const handleRemoveAll = async () => {
     const prompt = confirm(
       `Do you want to remove ${item} from all repositories it is contained in?`
     );
@@ -98,7 +84,7 @@ export default function AllPackages() {
       });
     }
     handleClose();
-    fetchData();
+    await fetchData();
   };
 
   const handleRemove = async (repo: string) => {
@@ -110,8 +96,38 @@ export default function AllPackages() {
   };
 
   const handleEdit = () => {
-    console.log("EDIT", item);
+    setOpenEdit(true);
   };
+
+  const handleEditClose = async () => {
+    setOpenEdit(false);
+    await fetchData();
+  };
+
+  const handleSave = async (form: DetailsForm) => {
+    var pk: string;
+    if (form.versionNote !== "") {
+      pk = `${form.name}-${form.version}-${form.versionNote}.${form.distribution}.${form.architecture}.rpm`;
+    } else {
+      pk = `${form.name}-${form.version}.${form.distribution}.${form.architecture}.rpm`;
+    }
+    inclusions.forEach(async (rep) => {
+     await updatePackage(item, pk, rep);
+    });
+    await fetchData;
+    await fetchInclusionData;
+  }
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  useEffect(() => {
+    if (inclusions.length == 0) {
+      setOpen(false);
+    }
+    fetchData();
+  }, [inclusions]);
 
   return (
     <Box sx={styles.main}>
@@ -209,6 +225,13 @@ export default function AllPackages() {
             </Table>
           </Box>
         )}
+        <DetailsPopup
+          open={openEdit}
+          pkge={item}
+          onSave={(f) => handleSave(f)}
+          onClose={handleEditClose}
+          isAdd={false}
+        ></DetailsPopup>
       </Dialog>
     </Box>
   );

@@ -28,11 +28,30 @@ export async function getAllPackages() {
   });
 }
 
-export async function getPackageInclusions(pkge: string){
-  return await fetch(`${api}/pkge/${pkge}`).then(async (response) =>{
+export async function getPackageInclusions(pkge: string) {
+  return await fetch(`${api}/pkge/${pkge}`).then(async (response) => {
     const data = await response.json();
     return data;
-  })
+  });
+}
+
+export async function updatePackage(
+  pkge: string,
+  updatedPackage: string,
+  repository: string
+) {
+  const body = JSON.stringify({
+    updatePackage: updatedPackage,
+    repository: repository,
+  });
+  return await fetch(`${api}/pkge/${pkge}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body,
+  }).then(async (res) => {
+    const data = await res.json();
+    return data;
+  });
 }
 
 export async function removePackageFromRepo(pkge: string, repo: string) {
@@ -69,23 +88,23 @@ export async function addPackageToRepo(
 export async function createNewDirectoryInRepo(
   repo: string,
   directory: string
-){
+) {
   const body = JSON.stringify({
-    directory: directory
-  })
+    directory: directory,
+  });
 
   return await fetch(`${api}/new/${repo}`, {
     method: "POST",
-    headers: { "Content-Type": "application/json"},
+    headers: { "Content-Type": "application/json" },
     body,
-  }).then (async (response) =>{
+  }).then(async (response) => {
     const data: CreateDirectoryResponse = await response.json();
     return data;
-  })
+  });
 }
 
 export type CreateDirectoryResponse = {
-  added: string
-  index: number
-  directory: string
-}
+  added: string;
+  index: number;
+  directory: string;
+};

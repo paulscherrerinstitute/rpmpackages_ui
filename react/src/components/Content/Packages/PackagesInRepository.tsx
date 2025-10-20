@@ -11,13 +11,15 @@ import {
 } from "@mui/material";
 import { useState, useEffect } from "react";
 import {
+  addPackageToRepo,
   createNewDirectoryInRepo,
   getPackagesFromRepo,
   removePackageFromRepo,
+  updatePackage,
 } from "../../../helper/dataService";
 import * as styles from "../Content.styles";
 import { useParams } from "react-router-dom";
-import { DetailsPopup } from "../Details/DetailsPopup";
+import { DetailsPopup, type DetailsForm } from "../Details/DetailsPopup";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import AddIcon from "@mui/icons-material/Add";
@@ -75,8 +77,8 @@ export default function PackagesInRepository() {
 
   const handleSubtitleButtonClick = () => setAddOpen(true);
 
-  const handleSubtitleClose = () =>  setAddOpen(false);
-  
+  const handleSubtitleClose = () => setAddOpen(false);
+
   const handleSubtitleAdd = async (newSubtitle: string) => {
     const path = permPath + ".repo_cfg";
     await createNewDirectoryInRepo(path, newSubtitle);
@@ -91,6 +93,30 @@ export default function PackagesInRepository() {
     } catch (err) {
       console.error("Error loading data:", err);
     }
+  };
+
+  const handleSave = async (form: DetailsForm) => {
+    var pk;
+    if (form.versionNote !== "") {
+      pk = `${form.name}-${form.version}-${form.versionNote}.${form.distribution}.${form.architecture}.rpm`;
+    } else {
+      pk = `${form.name}-${form.version}.${form.distribution}.${form.architecture}.rpm`;
+    }
+    var repo_path = `${permPath}.repo_cfg`;
+    await updatePackage(pkge, pk, repo_path);
+    fetchData();
+  };
+
+  const handleAddSubmit = async (form: DetailsForm) => {
+    var pk;
+    if (form.versionNote !== "") {
+      pk = `${form.name}-${form.version}-${form.versionNote}.${form.distribution}.${form.architecture}.rpm`;
+    } else {
+      pk = `${form.name}-${form.version}.${form.distribution}.${form.architecture}.rpm`;
+    }
+    var repo_path = `${permPath}.repo_cfg`;
+    await addPackageToRepo(pk, repo_path, outerIdx);
+    fetchData();
   };
 
   useEffect(() => {
@@ -156,12 +182,12 @@ export default function PackagesInRepository() {
             open={popupOpen}
             isAdd={isAdd}
             pkge={pkge}
+            onSave={(f) => handleSave(f)}
+            onAdd={(f) => handleAddSubmit(f)}
             addProps={{
-              file_name: permPath,
-              insertIdx: outerIdx,
               data: item,
             }}
-            handleClose={handleClosePopup}
+            onClose={handleClosePopup}
           />
         </Box>
       )}

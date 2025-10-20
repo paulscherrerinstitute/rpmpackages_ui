@@ -21,12 +21,12 @@ async def list_files():
         )
 
 
+# Get Specific Package
 def mapArr(s: str):
     arr = s.split("\n")
     return arr
 
 
-# Get Specific Package
 @router.get("/data/pkge/{pkge}")
 async def pkge_inc_in_repos(pkge):
     files = os.listdir(REPO_DIR)

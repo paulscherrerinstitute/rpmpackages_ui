@@ -35,9 +35,8 @@ async def pkge_inc_in_repos(pkge):
         file_path = os.path.join(REPO_DIR, f)
 
         # GET DATA
-        with open(file_path, "r", encoding="utf-8") as file:
-            first_arr = file.read().split("\n\n#")
-            contents = list(map(mapArr, first_arr))
+        first_arr = assemble_repo(file_path)
+        contents = list(map(mapArr, first_arr))
 
         # Save if exists within
         for fArr in contents:
@@ -51,6 +50,24 @@ async def pkge_inc_in_repos(pkge):
     return includedIn
 
 
+class PatchRequest(BaseModel):
+    updatePackage: str
+    repository: str
+
+
+@router.patch("/data/pkge/{pkge}", response_class=JSONResponse)
+async def update_pkges(pkge, request: PatchRequest):
+    file_path = os.path.join(REPO_DIR, request.repository)
+    content = read_file(file_path).split("\n")
+
+    for i, pk in enumerate(content):
+        if pkge == pk:
+            content[i] = request.updatePackage
+
+    write_file(file_path, reassemble_repo_lb(content))
+    return content
+
+
 @router.get("/data/all", response_class=JSONResponse)
 async def get_all_pkg():
     files = os.listdir(REPO_DIR)
@@ -59,9 +76,8 @@ async def get_all_pkg():
         file_path = os.path.join(REPO_DIR, f)
 
         # GET DATA
-        with open(file_path, "r", encoding="utf-8") as file:
-            first_arr = file.read().split("\n\n#")
-            contents = list(map(mapArr, first_arr))
+        first_arr = assemble_repo(file_path)
+        contents = list(map(mapArr, first_arr))
 
         # Save if exists within
         for fArr in contents:
@@ -83,20 +99,16 @@ async def create_dir(repo: str, request: CreateDirectoryRequest):
     if not os.path.isfile(file_path):
         raise HTTPException(status_code=404, detail="File not found")
 
-    with open(file_path, "r", encoding="utf-8") as file:
-        # Split existing file into categories using the separator "\n\n#"
-        text_by_category: list[str] = file.read().split("\n\n#")
+    text_by_category: list[str] = assemble_repo(file_path)
 
     for idx, t in enumerate(text_by_category):
         if request.directory in t:
             return {"added": False, "directory": request.directory, "index": idx}
 
     text_by_category.append(" " + request.directory)
+    reassenbled_txt = reassemble_repo(text_by_category)
 
-    with open(file_path, "w", encoding="utf-8") as file:
-        # Reassemble
-        reassenbled_txt = "\n\n#".join(text_by_category)
-        file.write(reassenbled_txt)
+    write_file(file_path, reassenbled_txt)
     idx = len(text_by_category) - 1
     return {"added": True, "index": idx, "directory": request.directory}
 
@@ -110,8 +122,7 @@ async def get_data(file_name: str):
         raise HTTPException(status_code=404, detail="File not found")
 
     try:
-        with open(file_path, "r", encoding="utf-8") as f:
-            contents = f.read()
+        contents = read_file(file_path)
         return PlainTextResponse(content=contents, media_type="text/plain")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error reading file: {str(e)}")
@@ -134,21 +145,16 @@ async def create_item(request: CreateRequest):
     if not os.path.isfile(file_path):
         raise HTTPException(status_code=404, detail="File not found")
 
-    with open(file_path, "r", encoding="utf-8") as file:
-        # File into List[List[str]]
-        text_by_category: list[str] = file.read().split("\n\n#")
-        txt = [t.split("\n") for t in text_by_category]
-        txt = [[line for line in t if len(line) > 0] for t in txt]
+    text_by_category: list[str] = assemble_repo(file_path)
+    txt = [t.split("\n") for t in text_by_category]
+    txt = [[line for line in t if len(line) > 0] for t in txt]
 
     if len(txt) > 0 and len(txt) >= idx:
         # Append item to specified place
         (txt[idx]).append(item)
 
-        with open(file_path, "w", encoding="utf-8") as file:
-            # ITEMS! Reassemble!
-            joined_categories = ["\n".join(category) for category in txt]
-            reassenbled_txt = "\n\n#".join(joined_categories)
-            file.write(reassenbled_txt)
+        reassenbled_txt = reassemble_repo_nested(txt)
+        write_file(file_path, reassenbled_txt)
     return txt
 
 
@@ -162,15 +168,39 @@ async def delete_item_repos(pkge: str, file_name: str):
 
     try:
         # read
-        with open(file_path, "r", encoding="utf-8") as file:
-            contents = file.read()
+        contents = read_file(file_path)
 
         # save updated
         updated_contents = contents.replace("\n" + pkge, "")
-        with open(file_path, "w", encoding="utf-8") as file:
-            file.write(updated_contents)
+        write_file(file_path, updated_contents)
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error reading file: {str(e)}")
 
     return [pkge, file_name]
+
+
+def read_file(file_path: str):
+    with open(file_path, "r", encoding="utf-8") as file:
+        return file.read()
+    
+def assemble_repo(file_path: str):
+    return read_file(file_path).split("\n\n#")
+
+
+def write_file(file_path: str, content: str):
+    with open(file_path, "w", encoding="utf-8") as file:
+        file.write(content)
+
+
+def reassemble_repo(content: list[str]):
+    return "\n\n#".join(content)
+
+
+def reassemble_repo_lb(content: list[str]):
+    return "\n".join(content)
+
+
+def reassemble_repo_nested(content: list[list[str]]):
+    joined_categories: list[str] = ["\n".join(c) for c in content]
+    return "\n\n#".join(joined_categories)

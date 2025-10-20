@@ -56,6 +56,27 @@ export async function updatePackage(
   });
 }
 
+export async function movePackage(
+  pkge: string,
+  repository: string,
+  o_idx: number,
+  i_idx: number
+) {
+  const body = JSON.stringify({
+    repository: repository,
+    outer_index: o_idx,
+    inner_index: i_idx
+  })
+  return await fetch(`${api}/move/pkge/${pkge}`, {
+    method: "PATCH",
+    headers: {"Content-Type": "application/json"},
+    body
+  }).then(async (res) =>{
+    const data = await res.json();
+    return data;
+  })
+}
+
 export async function removePackageFromRepo(
   pkge: string,
   repo: string
@@ -68,12 +89,9 @@ export async function removePackageFromRepo(
   );
 }
 
-export async function removeDirectory(
-  repository: string,
-  directory: string
-) {
+export async function removeDirectory(repository: string, directory: string) {
   const body = JSON.stringify({
-    directory: (directory.trim()),
+    directory: directory.trim(),
   });
   return await fetch(`${api}/new/${repository}`, {
     method: "DELETE",
@@ -81,7 +99,7 @@ export async function removeDirectory(
     body,
   }).then(async (res) => {
     const data = await res.text();
-    console.log(data)
+    console.log(data);
     return data;
   });
 }

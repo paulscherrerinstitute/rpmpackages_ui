@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import PlainTextResponse, JSONResponse
 from pydantic import BaseModel
+from typing import Optional
 import os
 
 router = APIRouter()
@@ -53,6 +54,29 @@ async def pkge_inc_in_repos(pkge):
 class PatchRequest(BaseModel):
     updatePackage: str
     repository: str
+
+
+class PatchMoveRequest(BaseModel):
+    repository: str
+    outer_index: int
+    inner_index: int
+
+
+@router.patch("/data/move/pkge/{pkge}", response_class=JSONResponse)
+async def move_pkge(pkge: str, request: PatchMoveRequest):
+    file_path = os.path.join(REPO_DIR, request.repository)
+    content = read_file(file_path)
+    content = content.replace("\n" + pkge, "").split("\n\n#")
+    for i, pk in enumerate(content):
+        if i == request.outer_index:
+            con: list[str] = pk.split("\n")
+            if len(con) > 0:
+                con.insert(request.inner_index, pkge)
+            content[i] = "\n".join(con)
+            break
+
+    write_file(file_path, reassemble_repo(content))
+    return content
 
 
 @router.patch("/data/pkge/{pkge}", response_class=JSONResponse)
@@ -117,7 +141,7 @@ async def create_dir(repo: str, request: DirectoryRequest):
 @router.delete("/data/new/{repo}")
 async def remove_dir(repo: str, request: DirectoryRequest):
     file_path = os.path.join(REPO_DIR, repo)
-    
+
     content = read_file(file_path).replace("\n\n# " + request.directory, "")
     write_file(file_path, content)
     return content

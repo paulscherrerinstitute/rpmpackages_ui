@@ -14,6 +14,7 @@ import {
   addPackageToRepo,
   createNewDirectoryInRepo,
   getPackagesFromRepo,
+  movePackage,
   removeDirectory,
   removePackageFromRepo,
   updatePackage,
@@ -81,7 +82,6 @@ export default function PackagesInRepository() {
 
   const handleSubtitleRemove = async (directory: string) => {
     await removeDirectory(permPath + ".repo_cfg", directory);
-    console.log(directory)
     await fetchData();
   };
 
@@ -129,6 +129,19 @@ export default function PackagesInRepository() {
     fetchData();
   }, []); // runs once when component mounts
 
+  const [dragging, setDragging] = useState<string>("");
+  const handleDragStart = (pk: string) => {
+    setDragging(pk);
+  };
+
+  const handleDragEnter = async (o_idx: number, i_idx: number) => {
+    if (dragging != "") {
+      console.log(o_idx, i_idx);
+      await movePackage(dragging, permPath + ".repo_cfg", o_idx, i_idx);
+      await fetchData();
+    }
+  };
+
   return (
     <Box sx={styles.main}>
       {permPath.length > 0 && !isNotFound && (
@@ -159,7 +172,7 @@ export default function PackagesInRepository() {
                   <Tooltip title="Remove subtitle">
                     <DeleteOutlineIcon
                       sx={styles.clickButtonBig}
-                      onClick={() => handleSubtitleRemove((item[0]))}
+                      onClick={() => handleSubtitleRemove(item[0])}
                     />
                   </Tooltip>
                 </Box>
@@ -168,7 +181,12 @@ export default function PackagesInRepository() {
                 {item.map(
                   (pkg, innerIdx) =>
                     innerIdx != 0 && (
-                      <ListItem key={`${outerIdx}-${innerIdx}-${pkg}`}>
+                      <ListItem
+                        onDragEnter={() => handleDragEnter(outerIdx, innerIdx)}
+                        key={`${outerIdx}-${innerIdx}-${pkg}`}
+                        draggable
+                        onDragStart={() => handleDragStart(pkg)}
+                      >
                         {!pkg.includes("#") && (
                           <Tooltip title="Edit package">
                             <EditIcon

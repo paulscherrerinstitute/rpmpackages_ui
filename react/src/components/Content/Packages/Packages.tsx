@@ -1,6 +1,6 @@
 import { Box } from "@mui/material";
 import PackagesInRepository from "./PackagesInRepository/PackagesInRepository";
-import AllPackages from "./AllPackages/AllPackages";
+import AllPackages from "../Packages/AllPackages/AllPackages";
 import { useParams } from "react-router-dom";
 
 export function Packages() {

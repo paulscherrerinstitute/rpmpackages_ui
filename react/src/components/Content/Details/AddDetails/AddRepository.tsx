@@ -15,7 +15,7 @@ import {
   createNewDirectoryInRepo,
   type CreateDirectoryResponse,
 } from "../../../../helper/dataService";
-import * as styles from "./AddDetails.styles";
+import * as styles from "./AddRepository.styles";
 import { useEffect, useState } from "react";
 
 export function AddDetails({

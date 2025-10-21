@@ -21,6 +21,7 @@ import {
   getArchitecture,
   getVersionNote,
 } from "../../../helpers/DetailsHelper";
+import { FileInput } from "../FileInput/FileInput";
 
 export function DetailsPopup({
   open,
@@ -38,7 +39,6 @@ export function DetailsPopup({
     distribution: "",
     architecture: "",
   });
-
   const handleChange = (e: React.ChangeEvent<any>) => {
     const { name, value } = e.target; // fixed to e.target.name and e.target.value
     setFormData(
@@ -80,6 +80,7 @@ export function DetailsPopup({
           distribution: "",
           architecture: "",
         });
+        setFile(null);
       } else {
         setFormData({
           name: getPName(),
@@ -98,9 +99,11 @@ export function DetailsPopup({
         distribution: "",
         architecture: "",
       });
+      setFile(null);
     }
-    console.log();
   }, [open, isAdd, pkge]);
+
+  const [file, setFile] = useState<File | null>(null);
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
@@ -174,6 +177,7 @@ export function DetailsPopup({
               </TableRow>
             </TableBody>
           </Table>
+          <FileInput file={file} setFile={setFile} accept=".repo_cfg" />
         </Box>
       </DialogContent>
       <DialogActions>

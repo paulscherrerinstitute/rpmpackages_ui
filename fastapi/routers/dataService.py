@@ -1,7 +1,6 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, UploadFile
 from fastapi.responses import PlainTextResponse, JSONResponse
 from pydantic import BaseModel
-from typing import Optional
 import os
 
 router = APIRouter()
@@ -13,13 +12,45 @@ REPO_DIR = "static"
 @router.get("/data", response_class=JSONResponse)
 async def list_files():
     try:
-        return JSONResponse(os.listdir(REPO_DIR))
+        file_list: list[str] = []
+        for el in os.listdir(REPO_DIR):
+            if el not in file_list and not os.path.isdir(os.path.join(REPO_DIR, el)):
+                file_list.append(el)
+        return file_list
     except FileNotFoundError:
         raise HTTPException(status_code=404, detail="Directory not found")
     except Exception as e:
         raise HTTPException(
             status_code=500, detail=f"Error reading directory: {str(e)}"
         )
+
+
+# Get List of Folders
+@router.get("/data/dir", response_class=JSONResponse)
+async def list_folders():
+    try:
+        file_list: list[str] = []
+        for el in os.listdir(REPO_DIR):
+            if el not in file_list and os.path.isdir(os.path.join(REPO_DIR, el)):
+                file_list.append(el)
+        return file_list
+    except FileNotFoundError:
+        raise HTTPException(status_code=404, detail="Directory not found")
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=f"Error reading directory: {str(e)}"
+        )
+
+
+@router.post("/data/dir/{dir}")
+async def upload_file(dir: str, file: UploadFile):
+    file_path = os.path.join(REPO_DIR, dir)
+    print(file_path)
+    os.makedirs(file_path, exist_ok=True)
+    with open(file_path, "wb+") as f:
+        f.write(await file.read())
+
+    return file
 
 
 # Get Specific Package

@@ -11,7 +11,7 @@ import {
   Typography,
 } from "@mui/material";
 import * as styles from "../../Content.styles";
-import * as ap_styles from "../Packages/AllPackages.styles";
+import * as ap_styles from "./AllPackages.styles"
 import { useEffect, useState } from "react";
 import {
   getAllPackages,
@@ -30,7 +30,7 @@ import { useNavigate } from "react-router-dom";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import AddIcon from "@mui/icons-material/Add";
-import { AddDetails } from "../../Details/AddDetails/AddDetails";
+import { AddDetails } from "../../Details/AddDetails/AddRepository";
 import { DetailsPopup, type DetailsForm } from "../../Details/DetailsPopup/DetailsPopup";
 
 export default function AllPackages() {

@@ -130,13 +130,43 @@ export default function PackagesInRepository() {
   }, []); // runs once when component mounts
 
   const [dragging, setDragging] = useState<string>("");
-  const handleDragStart = (pk: string) => {
+
+  const handleDragStart = (event: React.DragEvent, pk: string) => {
     setDragging(pk);
+    const dragPreview = document.createElement("div");
+    dragPreview.style.cssText = `
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    width: 300px;
+    background: rgb(0, 0, 0);
+    border-radius: 5px;
+    color: white;
+    font-weight: bold;
+    opacity: 1;
+    position: absolute;
+    top: -1000px; /* Off-screen */
+    left: -1000px;
+    pointer-events: none;
+    z-index: -1;
+    cursor: grab;
+    `;
+
+    dragPreview.innerText = pk;
+    document.body.appendChild(dragPreview);
+    event.dataTransfer.setDragImage(dragPreview, 3, 3);
+
+    setTimeout(() => {
+      dragPreview.remove();
+    });
+
+    event.currentTarget.addEventListener("dragend", () => {
+      setDragging("");
+    }, { once: true });
   };
 
   const handleDragEnter = async (o_idx: number, i_idx: number) => {
     if (dragging != "") {
-      console.log(o_idx, i_idx);
       await movePackage(dragging, permPath + ".repo_cfg", o_idx, i_idx);
       await fetchData();
     }
@@ -163,7 +193,10 @@ export default function PackagesInRepository() {
           </Box>
           {data.map((item, outerIdx) => (
             <Box key={`category-${outerIdx}-${item[0]}`} sx={styles.outerList}>
-              <Box sx={styles.titleList}>
+              <Box
+                onDragEnter={() => handleDragEnter(outerIdx, 1)}
+                sx={styles.titleList}
+              >
                 <h3>{formatTitle(item[0])}</h3>
                 <Box>
                   <Tooltip title="Add package to subtitle">
@@ -185,7 +218,8 @@ export default function PackagesInRepository() {
                         onDragEnter={() => handleDragEnter(outerIdx, innerIdx)}
                         key={`${outerIdx}-${innerIdx}-${pkg}`}
                         draggable
-                        onDragStart={() => handleDragStart(pkg)}
+                        onDragStart={(e) => handleDragStart(e, pkg)}
+                        sx={styles.listItem(pkg == dragging)}
                       >
                         {!pkg.includes("#") && (
                           <Tooltip title="Edit package">

@@ -3,7 +3,6 @@ import Topbar from "./components/Topbar/Topbar";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import "./index.css";
 import { NavItems } from "./components/helpers/NavbarHelper";
-import { Packages } from "./components/Content/Packages/Packages";
 
 createRoot(document.getElementById("root")!).render(
   <BrowserRouter>

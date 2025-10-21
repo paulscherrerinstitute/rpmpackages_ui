@@ -10,27 +10,28 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import * as styles from "../Content.styles";
+import * as styles from "../../Content.styles";
+import * as ap_styles from "../Packages/AllPackages.styles";
 import { useEffect, useState } from "react";
 import {
   getAllPackages,
   getPackageInclusions,
   removePackageFromRepo,
   updatePackage,
-} from "../../../helper/dataService";
+} from "../../../../helper/dataService";
 import {
   getArchitecture,
   getDistribution,
   getName,
   getVersion,
   getVersionNote,
-} from "../../helpers/DetailsHelper";
+} from "../../../helpers/DetailsHelper";
 import { useNavigate } from "react-router-dom";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import AddIcon from "@mui/icons-material/Add";
-import { AddDetails } from "../Details/AddDetails";
-import { DetailsPopup, type DetailsForm } from "../Details/DetailsPopup";
+import { AddDetails } from "../../Details/AddDetails/AddDetails";
+import { DetailsPopup, type DetailsForm } from "../../Details/DetailsPopup/DetailsPopup";
 
 export default function AllPackages() {
   const [data, setData] = useState<string[]>([]);
@@ -154,7 +155,7 @@ export default function AllPackages() {
       <Dialog open={open} onClose={handleClose} fullWidth maxWidth="md">
         <Box sx={styles.packageTitle}>
           <DialogTitle>{item}</DialogTitle>
-          <Box sx={styles.dialogIcons}>
+          <Box sx={ap_styles.dialogIcons}>
             <Tooltip title="Add to other repository">
               <AddIcon onClick={handleAdd} />
             </Tooltip>
@@ -194,7 +195,7 @@ export default function AllPackages() {
             <Table>
               <TableBody>
                 {inclusions.map((i) => (
-                  <TableRow hover key={"included-" + i} sx={styles.packageRow}>
+                  <TableRow hover key={"included-" + i} sx={ap_styles.packageRow}>
                     <TableCell>
                       <Typography
                         sx={styles.clickButton}

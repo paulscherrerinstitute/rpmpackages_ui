@@ -20,7 +20,7 @@ import {
   getDistribution,
   getArchitecture,
   getVersionNote,
-} from "../../helpers/DetailsHelper";
+} from "../../../helpers/DetailsHelper";
 
 export function DetailsPopup({
   open,

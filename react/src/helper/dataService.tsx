@@ -16,7 +16,7 @@ export async function getPackagesFromRepo(
   return txt;
 }
 
-export async function getAvailableRepos(): Promise<string> {
+export async function getAvailableRepos(): Promise<string[]> {
   return await fetch(`${api}`).then(async (response) => {
     const data = await response.json();
     return data;
@@ -65,16 +65,16 @@ export async function movePackage(
   const body = JSON.stringify({
     repository: repository,
     outer_index: o_idx,
-    inner_index: i_idx
-  })
+    inner_index: i_idx,
+  });
   return await fetch(`${api}/move/pkge/${pkge}`, {
     method: "PATCH",
-    headers: {"Content-Type": "application/json"},
-    body
-  }).then(async (res) =>{
+    headers: { "Content-Type": "application/json" },
+    body,
+  }).then(async (res) => {
     const data = await res.json();
     return data;
-  })
+  });
 }
 
 export async function removePackageFromRepo(

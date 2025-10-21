@@ -18,10 +18,14 @@ import {
   removeDirectory,
   removePackageFromRepo,
   updatePackage,
-} from "../../../helper/dataService";
-import * as styles from "../Content.styles";
+} from "../../../../helper/dataService";
+import * as styles from "../../Content.styles";
+import * as pir_styles from "./PackagesInRepository.styles";
 import { useParams } from "react-router-dom";
-import { DetailsPopup, type DetailsForm } from "../Details/DetailsPopup";
+import {
+  DetailsPopup,
+  type DetailsForm,
+} from "../../Details/DetailsPopup/DetailsPopup";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import AddIcon from "@mui/icons-material/Add";
@@ -160,9 +164,13 @@ export default function PackagesInRepository() {
       dragPreview.remove();
     });
 
-    event.currentTarget.addEventListener("dragend", () => {
-      setDragging("");
-    }, { once: true });
+    event.currentTarget.addEventListener(
+      "dragend",
+      () => {
+        setDragging("");
+      },
+      { once: true }
+    );
   };
 
   const handleDragEnter = async (o_idx: number, i_idx: number) => {
@@ -192,13 +200,16 @@ export default function PackagesInRepository() {
             />
           </Box>
           {data.map((item, outerIdx) => (
-            <Box key={`category-${outerIdx}-${item[0]}`} sx={styles.outerList}>
+            <Box
+              key={`category-${outerIdx}-${item[0]}`}
+              sx={pir_styles.outerList}
+            >
               <Box
                 onDragEnter={() => handleDragEnter(outerIdx, 1)}
-                sx={styles.titleList}
+                sx={pir_styles.titleList}
               >
                 <h3>{formatTitle(item[0])}</h3>
-                <Box>
+                <Box sx={pir_styles.listButtons}>
                   <Tooltip title="Add package to subtitle">
                     <AddIcon onClick={() => handleAdd(item, outerIdx)} />
                   </Tooltip>
@@ -219,25 +230,27 @@ export default function PackagesInRepository() {
                         key={`${outerIdx}-${innerIdx}-${pkg}`}
                         draggable
                         onDragStart={(e) => handleDragStart(e, pkg)}
-                        sx={styles.listItem(pkg == dragging)}
+                        sx={pir_styles.listItem(pkg == dragging)}
                       >
-                        {!pkg.includes("#") && (
-                          <Tooltip title="Edit package">
-                            <EditIcon
-                              sx={styles.clickButton}
-                              onClick={() => handleButtonClick(pkg)}
-                            />
-                          </Tooltip>
-                        )}
                         <ListItemText>{pkg}</ListItemText>
-                        {!pkg.includes("#") && (
-                          <Tooltip title="Delete package">
-                            <DeleteOutlineIcon
-                              sx={styles.clickButton}
-                              onClick={() => handleRemove(pkg)}
-                            />
-                          </Tooltip>
-                        )}
+                        <Box sx={pir_styles.listButtons}>
+                          {!pkg.includes("#") && (
+                            <Tooltip title="Edit package">
+                              <EditIcon
+                                sx={styles.clickButton}
+                                onClick={() => handleButtonClick(pkg)}
+                              />
+                            </Tooltip>
+                          )}
+                          {!pkg.includes("#") && (
+                            <Tooltip title="Delete package">
+                              <DeleteOutlineIcon
+                                sx={styles.clickButton}
+                                onClick={() => handleRemove(pkg)}
+                              />
+                            </Tooltip>
+                          )}
+                        </Box>
                       </ListItem>
                     )
                 )}
@@ -283,8 +296,8 @@ function SubtitleDialog({
   const [localValue, setLocalValue] = useState("");
   return (
     <Dialog open={open} onClose={onClose}>
-      <Box sx={styles.dialogueWrapper}>
-        <Box sx={styles.formWrapper}>
+      <Box sx={pir_styles.dialogueWrapper}>
+        <Box sx={pir_styles.formWrapper}>
           <Typography variant="h6">
             Add Subtitle to {repoName.toUpperCase()}
           </Typography>

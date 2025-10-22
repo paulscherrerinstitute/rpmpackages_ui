@@ -20,8 +20,9 @@ export const fileMessage: SxProps<Theme> = {
     display: "flex",
     justifyContent: "center",
     marginInline: 20,
+    padding: 1
   },
-  marginBlock: 2
+  marginBlock: 1
 };
 
 export const noFile: SxProps<Theme> = {

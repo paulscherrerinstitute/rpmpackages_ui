@@ -1,4 +1,4 @@
-import { type ChangeEvent, useEffect, useRef } from "react";
+import { type ChangeEvent, useEffect, useRef, useState } from "react";
 import * as styles from "./FileInput.styles";
 import * as con_styles from "../../Content.styles";
 import { Box, Tooltip } from "@mui/material";
@@ -16,13 +16,34 @@ export function FileInput({
   removeFile: () => void;
 }) {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isNewUpload, setIsNewUpload] = useState(false);
+  const initialFileNameRef = useRef<string | null>(file ? file.name : null);
 
   const updateFile = (event: ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
       const f = event.target.files[0];
+      // Clear the initial-file marker so we know this is a user-selected upload
+      initialFileNameRef.current = null;
       setFile(f);
+      setIsNewUpload(true);
     }
   };
+
+  useEffect(() => {
+    // If the component was mounted with a file (existing on server), ensure
+    // it's shown as existing (not as a newly uploaded/unsaved file).
+    if (
+      initialFileNameRef.current &&
+      file &&
+      file.name === initialFileNameRef.current
+    ) {
+      setIsNewUpload(false);
+    }
+    // If file becomes null, reset uploaded state
+    if (!file) {
+      setIsNewUpload(false);
+    }
+  }, [file]);
 
   const getFileURL = () => {
     if (file) {
@@ -43,12 +64,12 @@ export function FileInput({
             No File has been detected for this package.
           </Box>
         )}
-        {file != null && !fileInputRef.current && (
+        {file != null && !isNewUpload && (
           <Box sx={styles.isFile}>
             A file has been detected for this package.
           </Box>
         )}
-        {file != null && fileInputRef.current && (
+        {file != null && isNewUpload && (
           <Box sx={styles.isFileSave}>
             A file has been uploaded. Press Save to save it.
           </Box>

@@ -16,6 +16,7 @@ import { useEffect, useState } from "react";
 import {
   getAllPackages,
   getPackageInclusions,
+  removePackageFromDirectory,
   removePackageFromRepo,
   updatePackage,
 } from "../../../../helper/dataService";
@@ -123,6 +124,8 @@ export default function AllPackages() {
     await fetchData;
     await fetchInclusionData;
   };
+
+  const handleRemoveFile = async (f: File) => {};
 
   useEffect(() => {
     fetchData();
@@ -242,6 +245,7 @@ export default function AllPackages() {
           setFile={(f) => setFile(f)}
           onSave={(f) => handleSave(f)}
           onClose={handleEditClose}
+          onRemoveFile={(f) => handleRemoveFile(f)}
           isAdd={false}
         ></DetailsPopup>
       </Dialog>

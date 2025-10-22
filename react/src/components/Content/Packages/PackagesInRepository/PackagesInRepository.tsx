@@ -13,6 +13,7 @@ import { useState, useEffect } from "react";
 import {
   addPackageToRepo,
   createNewDirectoryInRepo,
+  getFileFromDirectory,
   getPackagesFromRepo,
   movePackage,
   removeDirectory,
@@ -51,6 +52,8 @@ export default function PackagesInRepository() {
 
   const [file, setFile] = useState<File | null>(null);
 
+  const [fileStatus, setFileStatus] = useState<any[]>();
+
   const handleButtonClick = (pk: string) => {
     setPopupOpen(true);
     setIsAdd(false);
@@ -74,7 +77,10 @@ export default function PackagesInRepository() {
     setOuterIdx(idx);
   };
 
-  const handleSubtitleButtonClick = () => setAddOpen(true);
+  const handleSubtitleButtonClick = async () => {
+    setAddOpen(true);
+    await fetchFile();
+  };
 
   const handleSubtitleClose = () => setAddOpen(false);
 
@@ -108,6 +114,15 @@ export default function PackagesInRepository() {
     }
   };
 
+  const fetchFile = async () => {
+    try {
+      const res = await getFileFromDirectory(permPath, pkge);
+      setFile(res);
+    } catch (err) {
+      console.error("Error loading data:", err);
+    }
+  };
+
   const handleSave = async (form: DetailsForm) => {
     var pk;
     if (form.versionNote !== "") {
@@ -135,9 +150,38 @@ export default function PackagesInRepository() {
     fetchData();
   };
 
+  const fetchFileStatus = () => {
+    var d: any = [];
+    if (data) {
+      data.forEach((el: string[]) => {
+        el.forEach(async (e: string) => {
+          if (!e.includes("#")) {
+            const a = await getFileFromDirectory(permPath, e);
+            d.push({ name: e, isTrue: a != null });
+          } else {
+            d.push({ name: e, isTrue: false });
+          }
+        });
+      });
+      setFileStatus(d);
+      console.log(fileStatus);
+    }
+  };
+
   useEffect(() => {
     fetchData();
+    fetchFileStatus();
   }, []); // runs once when component mounts
+
+  useEffect(() => {
+    if (popupOpen) {
+      fetchFile();
+    }
+  }, [popupOpen]);
+
+  useEffect(() => {
+    fetchFileStatus;
+  }, [data]);
 
   const [dragging, setDragging] = useState<string>("");
 
@@ -185,6 +229,8 @@ export default function PackagesInRepository() {
       await fetchData();
     }
   };
+
+  const handleRemoveFile = () => {};
 
   return (
     <Box sx={styles.main}>
@@ -269,6 +315,7 @@ export default function PackagesInRepository() {
             pkge={pkge}
             file={file}
             setFile={(f) => setFile(f)}
+            onRemoveFile={handleRemoveFile}
             onSave={(f) => handleSave(f)}
             onAdd={(f) => handleAddSubmit(f)}
             addProps={{

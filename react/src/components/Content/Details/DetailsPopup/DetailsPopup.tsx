@@ -33,6 +33,7 @@ export function DetailsPopup({
   setFile,
   onAdd,
   onSave,
+  onRemoveFile,
 }: DetailsPopupProps) {
   const [formData, setFormData] = useState<DetailsForm>({
     name: "",
@@ -41,6 +42,7 @@ export function DetailsPopup({
     distribution: "",
     architecture: "",
   });
+
   const handleChange = (e: React.ChangeEvent<any>) => {
     const { name, value } = e.target; // fixed to e.target.name and e.target.value
     setFormData(
@@ -101,7 +103,6 @@ export function DetailsPopup({
         distribution: "",
         architecture: "",
       });
-      setFile(null);
     }
   }, [open, isAdd, pkge]);
 
@@ -177,7 +178,24 @@ export function DetailsPopup({
               </TableRow>
             </TableBody>
           </Table>
-          <FileInput file={file} setFile={setFile} accept=".rpm" />
+          <Box sx={styles.fileMessage}>
+            {file == null && (
+              <Box sx={styles.noFile}>
+                No File has been detected for this package.
+              </Box>
+            )}
+            {file != null && (
+              <Box sx={styles.isFile}>
+                A file has been detected for this package.
+              </Box>
+            )}
+          </Box>
+          <FileInput
+            file={file}
+            setFile={setFile}
+            accept=".rpm"
+            removeFile={handleRemoveFile}
+          />
         </Box>
       </DialogContent>
       <DialogActions>
@@ -194,6 +212,10 @@ export function DetailsPopup({
     else onSave(formData);
     onClose();
   }
+
+  function handleRemoveFile() {
+    if (file) onRemoveFile(file);
+  }
 }
 
 export type DetailsPopupProps = {
@@ -202,8 +224,9 @@ export type DetailsPopupProps = {
   isAdd: boolean;
   file: File | null;
   onClose: () => void;
-  setFile: (File: File | null) => void;
+  setFile: (file: File | null) => void;
   onSave: (form: DetailsForm) => void;
+  onRemoveFile: (file: File) => void;
   onAdd?: (form: DetailsForm) => void;
   addProps?: AddProps;
 };

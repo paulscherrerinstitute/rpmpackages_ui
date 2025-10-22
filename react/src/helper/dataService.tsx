@@ -37,6 +37,22 @@ export async function getPackageInclusions(pkge: string): Promise<string[]> {
   });
 }
 
+export async function getFileFromDirectory(
+  directory: string,
+  pkge: string
+): Promise<File | null> {
+  return await fetch(`${api}/dir/${directory}/${pkge}`).then(async (res) => {
+    const content_type = res.headers.get("Content-Type");
+
+    if (content_type == "application/octet-stream") {
+      const data = await res.blob();
+      return new File([data], pkge);
+    } else {
+      return null;
+    }
+  });
+}
+
 export async function uploadFile(directory: string, file: File) {
   const formData = new FormData();
   formData.append("file", file);
@@ -99,6 +115,16 @@ export async function removePackageFromRepo(
       return data;
     }
   );
+}
+
+export async function removePackageFromDirectory(
+  file: File,
+  directory: string
+): Promise<string[]> {
+  return await fetch(`${api}`).then(async (res) => {
+    const data = await res.json();
+    return data;
+  });
 }
 
 export async function removeDirectory(repository: string, directory: string) {

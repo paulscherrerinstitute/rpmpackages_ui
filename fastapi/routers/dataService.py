@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException, UploadFile
-from fastapi.responses import PlainTextResponse, JSONResponse
+from fastapi.responses import PlainTextResponse, JSONResponse, FileResponse
 from pydantic import BaseModel
 import os
 
@@ -42,6 +42,7 @@ async def list_folders():
         )
 
 
+# Upload File
 @router.post("/data/dir/{dir}")
 async def upload_file(dir: str, file: UploadFile):
     file_path = os.path.join(REPO_DIR, dir)
@@ -53,6 +54,24 @@ async def upload_file(dir: str, file: UploadFile):
         with open(newfile_path, "wb") as f:
             f.write(content)
     return content
+
+
+# Get File from Directory
+@router.get("/data/dir/{dir}/{pkge}")
+async def get_files(dir: str, pkge: str):
+    file_path = os.path.join(REPO_DIR, dir)
+    if not os.path.exists(file_path):
+        return PlainTextResponse("No file found.")
+
+    for el in os.listdir(file_path):
+        if el == pkge:
+            f: str = os.path.join(file_path, el)
+            if os.path.isfile(f):
+                return FileResponse(
+                    f, media_type="application/octet-stream", filename=pkge
+                )
+
+    return PlainTextResponse("No file found.")
 
 
 # Get Specific Package
@@ -67,20 +86,21 @@ async def pkge_inc_in_repos(pkge):
     includedIn = []
     for f in files:
         file_path = os.path.join(REPO_DIR, f)
+        if os.path.isfile(file_path):
 
-        # GET DATA
-        first_arr = assemble_repo(file_path)
-        contents = list(map(mapArr, first_arr))
+            # GET DATA
+            first_arr = assemble_repo(file_path)
+            contents = list(map(mapArr, first_arr))
 
-        # Save if exists within
-        for fArr in contents:
-            for scArr in fArr:
-                isIncluded = scArr == pkge
+            # Save if exists within
+            for fArr in contents:
+                for scArr in fArr:
+                    isIncluded = scArr == pkge
+                    if isIncluded:
+                        includedIn.append(f)
+                        break
                 if isIncluded:
-                    includedIn.append(f)
                     break
-            if isIncluded:
-                break
     return includedIn
 
 
@@ -131,17 +151,22 @@ async def get_all_pkg():
     unique_pkges = []
     for f in files:
         file_path = os.path.join(REPO_DIR, f)
+        if os.path.isfile(file_path):
+            print(file_path)
 
-        # GET DATA
-        first_arr = assemble_repo(file_path)
-        contents = list(map(mapArr, first_arr))
+            # GET DATA
+            first_arr = assemble_repo(file_path)
+            contents = list(map(mapArr, first_arr))
 
-        # Save if exists within
-        for fArr in contents:
-            for pk in fArr:
-                isIncluded = unique_pkges.count(pk) == 0 and pk != "" and (".rpm" in pk)
-                if isIncluded == True:
-                    unique_pkges.append(pk)
+            # Save if exists within
+            for fArr in contents:
+                for pk in fArr:
+                    isIncluded = (
+                        unique_pkges.count(pk) == 0 and pk != "" and (".rpm" in pk)
+                    )
+                    if isIncluded == True:
+                        print("HIII")
+                        unique_pkges.append(pk)
     return unique_pkges
 
 
@@ -248,7 +273,7 @@ async def delete_item_repos(pkge: str, file_name: str):
 
 
 def read_file(file_path: str):
-    with open(file_path, "r", encoding="utf-8") as file:
+    with open(file_path, "r+", encoding="utf-8") as file:
         return file.read()
 
 

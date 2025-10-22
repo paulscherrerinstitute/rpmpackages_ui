@@ -1,15 +1,19 @@
-import { type ChangeEvent, useRef, useState } from "react";
+import { type ChangeEvent, useRef } from "react";
 import * as styles from "./FileInput.styles";
-import { Box } from "@mui/material";
+import * as con_styles from "../../Content.styles";
+import { Box, Tooltip } from "@mui/material";
+import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 
 export function FileInput({
   accept,
   file,
   setFile,
+  removeFile,
 }: {
   accept: string;
   file: File | null;
   setFile: (newFile: File | null) => void;
+  removeFile: () => void;
 }) {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -20,15 +24,39 @@ export function FileInput({
     }
   };
 
+  const getFileURL = () => {
+    if (file) {
+      const fileURL = URL.createObjectURL(file);
+      const downloadLink = document.createElement("a");
+      downloadLink.href = fileURL;
+      downloadLink.download = file.name;
+      downloadLink.click();
+      URL.revokeObjectURL(fileURL);
+    }
+  };
+
   return (
     <Box sx={styles.wrapper}>
-      {file && <Box>{file.name}</Box>}
-      <input
-        ref={fileInputRef}
-        accept={accept}
-        onChange={updateFile}
-        type="file"
-      />
+      {file != null && (
+        <Box sx={styles.existWrapper}>
+          <Tooltip title="Click to download the .rpm">
+            <Box sx={con_styles.clickButtonBig} onClick={getFileURL}>
+              {file.name}
+            </Box>
+          </Tooltip>
+          <Tooltip title="Remove the .rpm from the current directory the repository is pointing to">
+            <DeleteOutlineIcon onClick={removeFile} sx={con_styles.clickButtonBig} />
+          </Tooltip>
+        </Box>
+      )}
+      {file == null && (
+        <input
+          ref={fileInputRef}
+          accept={accept}
+          onChange={updateFile}
+          type="file"
+        />
+      )}
     </Box>
   );
 }

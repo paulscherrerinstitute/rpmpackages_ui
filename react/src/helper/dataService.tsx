@@ -117,11 +117,19 @@ export async function removePackageFromRepo(
   );
 }
 
+export type RemovePackageResponse = {
+  directory: string;
+  package: string;
+  deleted: boolean;
+};
+
 export async function removePackageFromDirectory(
-  file: File,
-  directory: string
-): Promise<string[]> {
-  return await fetch(`${api}`).then(async (res) => {
+  directory: string,
+  pkge: string
+): Promise<RemovePackageResponse> {
+  return await fetch(`${api}/dir/${directory}/${pkge}`, {
+    method: "DELETE",
+  }).then(async (res) => {
     const data = await res.json();
     return data;
   });

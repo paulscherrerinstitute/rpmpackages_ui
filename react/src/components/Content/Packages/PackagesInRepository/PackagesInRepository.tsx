@@ -17,6 +17,7 @@ import {
   getPackagesFromRepo,
   movePackage,
   removeDirectory,
+  removePackageFromDirectory,
   removePackageFromRepo,
   updatePackage,
   uploadFile,
@@ -51,8 +52,6 @@ export default function PackagesInRepository() {
   const [addOpen, setAddOpen] = useState(false);
 
   const [file, setFile] = useState<File | null>(null);
-
-  const [fileStatus, setFileStatus] = useState<any[]>();
 
   const handleButtonClick = (pk: string) => {
     setPopupOpen(true);
@@ -150,27 +149,8 @@ export default function PackagesInRepository() {
     fetchData();
   };
 
-  const fetchFileStatus = () => {
-    var d: any = [];
-    if (data) {
-      data.forEach((el: string[]) => {
-        el.forEach(async (e: string) => {
-          if (!e.includes("#")) {
-            const a = await getFileFromDirectory(permPath, e);
-            d.push({ name: e, isTrue: a != null });
-          } else {
-            d.push({ name: e, isTrue: false });
-          }
-        });
-      });
-      setFileStatus(d);
-      console.log(fileStatus);
-    }
-  };
-
   useEffect(() => {
     fetchData();
-    fetchFileStatus();
   }, []); // runs once when component mounts
 
   useEffect(() => {
@@ -178,10 +158,6 @@ export default function PackagesInRepository() {
       fetchFile();
     }
   }, [popupOpen]);
-
-  useEffect(() => {
-    fetchFileStatus;
-  }, [data]);
 
   const [dragging, setDragging] = useState<string>("");
 
@@ -230,7 +206,11 @@ export default function PackagesInRepository() {
     }
   };
 
-  const handleRemoveFile = () => {};
+  const handleRemoveFile = async (file: File) => {
+    await removePackageFromDirectory(permPath, file.name);
+    await fetchFile();
+    console.log(file, file.name)
+  };
 
   return (
     <Box sx={styles.main}>
@@ -315,7 +295,7 @@ export default function PackagesInRepository() {
             pkge={pkge}
             file={file}
             setFile={(f) => setFile(f)}
-            onRemoveFile={handleRemoveFile}
+            onRemoveFile={(f) => handleRemoveFile(f)}
             onSave={(f) => handleSave(f)}
             onAdd={(f) => handleAddSubmit(f)}
             addProps={{

@@ -43,6 +43,8 @@ export function DetailsPopup({
     architecture: "",
   });
 
+  const [hasBeenSaved, setHasBeenSaved] = useState(false);
+
   const handleChange = (e: React.ChangeEvent<any>) => {
     const { name, value } = e.target; // fixed to e.target.name and e.target.value
     setFormData(
@@ -178,18 +180,6 @@ export function DetailsPopup({
               </TableRow>
             </TableBody>
           </Table>
-          <Box sx={styles.fileMessage}>
-            {file == null && (
-              <Box sx={styles.noFile}>
-                No File has been detected for this package.
-              </Box>
-            )}
-            {file != null && (
-              <Box sx={styles.isFile}>
-                A file has been detected for this package.
-              </Box>
-            )}
-          </Box>
           <FileInput
             file={file}
             setFile={setFile}
@@ -210,6 +200,8 @@ export function DetailsPopup({
   function handleSave() {
     if (isAdd && onAdd) onAdd(formData);
     else onSave(formData);
+
+    setHasBeenSaved(true);
     onClose();
   }
 

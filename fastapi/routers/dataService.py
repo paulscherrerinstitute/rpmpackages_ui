@@ -74,6 +74,17 @@ async def get_files(dir: str, pkge: str):
     return PlainTextResponse("No file found.")
 
 
+@router.delete("/data/dir/{dir}/{pkge}")
+async def remove(dir: str, pkge: str):
+    file_path = os.path.join(REPO_DIR, dir, pkge)
+    is_del = False
+    if os.path.isfile(file_path):
+        os.remove(file_path)
+        is_del = True
+
+    return {"directory": dir, "package": pkge, "deleted": is_del}
+
+
 # Get Specific Package
 def mapArr(s: str):
     arr = s.split("\n")

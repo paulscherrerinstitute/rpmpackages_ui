@@ -11,7 +11,7 @@ import {
   Typography,
 } from "@mui/material";
 import * as styles from "../../Content.styles";
-import * as ap_styles from "./AllPackages.styles"
+import * as ap_styles from "./AllPackages.styles";
 import { useEffect, useState } from "react";
 import {
   getAllPackages,
@@ -31,7 +31,10 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import AddIcon from "@mui/icons-material/Add";
 import { AddDetails } from "../../Details/AddDetails/AddRepository";
-import { DetailsPopup, type DetailsForm } from "../../Details/DetailsPopup/DetailsPopup";
+import {
+  DetailsPopup,
+  type DetailsForm,
+} from "../../Details/DetailsPopup/DetailsPopup";
 
 export default function AllPackages() {
   const [data, setData] = useState<string[]>([]);
@@ -41,6 +44,8 @@ export default function AllPackages() {
   const [openEdit, setOpenEdit] = useState(false);
   const [item, setItem] = useState("");
   const navigate = useNavigate();
+
+  const [file, setFile] = useState<File | null>(null);
 
   const fetchData = async () => {
     try {
@@ -195,7 +200,11 @@ export default function AllPackages() {
             <Table>
               <TableBody>
                 {inclusions.map((i) => (
-                  <TableRow hover key={"included-" + i} sx={ap_styles.packageRow}>
+                  <TableRow
+                    hover
+                    key={"included-" + i}
+                    sx={ap_styles.packageRow}
+                  >
                     <TableCell>
                       <Typography
                         sx={styles.clickButton}
@@ -229,6 +238,8 @@ export default function AllPackages() {
         <DetailsPopup
           open={openEdit}
           pkge={item}
+          file={file}
+          setFile={(f) => setFile(f)}
           onSave={(f) => handleSave(f)}
           onClose={handleEditClose}
           isAdd={false}

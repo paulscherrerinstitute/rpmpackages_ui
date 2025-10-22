@@ -18,6 +18,7 @@ import {
   removeDirectory,
   removePackageFromRepo,
   updatePackage,
+  uploadFile,
 } from "../../../../helper/dataService";
 import * as styles from "../../Content.styles";
 import * as pir_styles from "./PackagesInRepository.styles";
@@ -47,6 +48,8 @@ export default function PackagesInRepository() {
   const [outerIdx, setOuterIdx] = useState(-1);
   const [item, setItem] = useState<string[]>([]);
   const [addOpen, setAddOpen] = useState(false);
+
+  const [file, setFile] = useState<File | null>(null);
 
   const handleButtonClick = (pk: string) => {
     setPopupOpen(true);
@@ -114,7 +117,10 @@ export default function PackagesInRepository() {
     }
     var repo_path = `${permPath}.repo_cfg`;
     await updatePackage(pkge, pk, repo_path);
-    fetchData();
+    if (file != null) {
+      await uploadFile(permPath, file);
+    }
+    await fetchData();
   };
 
   const handleAddSubmit = async (form: DetailsForm) => {
@@ -261,6 +267,8 @@ export default function PackagesInRepository() {
             open={popupOpen}
             isAdd={isAdd}
             pkge={pkge}
+            file={file}
+            setFile={(f) => setFile(f)}
             onSave={(f) => handleSave(f)}
             onAdd={(f) => handleAddSubmit(f)}
             addProps={{

@@ -13,10 +13,6 @@ export function FileInput({
 }) {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleUploadClick = () => {
-    fileInputRef.current?.click();
-  };
-
   const updateFile = (event: ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
       const f = event.target.files[0];

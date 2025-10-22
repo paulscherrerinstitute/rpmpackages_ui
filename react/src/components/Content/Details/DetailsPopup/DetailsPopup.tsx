@@ -28,7 +28,9 @@ export function DetailsPopup({
   pkge,
   isAdd,
   addProps,
+  file,
   onClose,
+  setFile,
   onAdd,
   onSave,
 }: DetailsPopupProps) {
@@ -103,8 +105,6 @@ export function DetailsPopup({
     }
   }, [open, isAdd, pkge]);
 
-  const [file, setFile] = useState<File | null>(null);
-
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
       {!isAdd && <DialogTitle>{pkge} </DialogTitle>}
@@ -177,7 +177,7 @@ export function DetailsPopup({
               </TableRow>
             </TableBody>
           </Table>
-          <FileInput file={file} setFile={setFile} accept=".repo_cfg" />
+          <FileInput file={file} setFile={setFile} accept=".rpm" />
         </Box>
       </DialogContent>
       <DialogActions>
@@ -200,7 +200,9 @@ export type DetailsPopupProps = {
   open: boolean;
   pkge: string;
   isAdd: boolean;
+  file: File | null;
   onClose: () => void;
+  setFile: (File: File | null) => void;
   onSave: (form: DetailsForm) => void;
   onAdd?: (form: DetailsForm) => void;
   addProps?: AddProps;

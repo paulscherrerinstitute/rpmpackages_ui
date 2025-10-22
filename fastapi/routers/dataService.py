@@ -45,12 +45,14 @@ async def list_folders():
 @router.post("/data/dir/{dir}")
 async def upload_file(dir: str, file: UploadFile):
     file_path = os.path.join(REPO_DIR, dir)
-    print(file_path)
+    content = await file.read()
+    print(content)
     os.makedirs(file_path, exist_ok=True)
-    with open(file_path, "wb+") as f:
-        f.write(await file.read())
-
-    return file
+    if file.filename:
+        newfile_path = file_path + "/" + file.filename
+        with open(newfile_path, "wb") as f:
+            f.write(content)
+    return content
 
 
 # Get Specific Package

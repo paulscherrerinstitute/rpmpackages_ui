@@ -37,6 +37,18 @@ export async function getPackageInclusions(pkge: string): Promise<string[]> {
   });
 }
 
+export async function uploadFile(directory: string, file: File) {
+  const formData = new FormData();
+  formData.append("file", file);
+  return await fetch(`${api}/dir/${directory}`, {
+    method: "POST",
+    body: formData,
+  }).then(async (res) => {
+    const data = await res.json();
+    return data;
+  });
+}
+
 export async function updatePackage(
   pkge: string,
   updatedPackage: string,

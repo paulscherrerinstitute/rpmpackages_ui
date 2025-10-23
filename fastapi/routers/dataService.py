@@ -14,7 +14,12 @@ async def list_files():
     try:
         file_list: list[str] = []
         for el in os.listdir(REPO_DIR):
-            if el not in file_list and not os.path.isdir(os.path.join(REPO_DIR, el)):
+            print(el)
+            if (
+                el not in file_list
+                and not os.path.isdir(os.path.join(REPO_DIR, el))
+                and ".repo_cfg" in el
+            ):
                 file_list.append(el)
         return file_list
     except FileNotFoundError:
@@ -40,6 +45,39 @@ async def list_folders():
         )
 
 
+# Get list of orphaned files without one in a repos
+@router.get("/data/dir/file/orphans", response_class=JSONResponse)
+async def list_orphaned_files():
+    completeList: list[str] = get_all_packages()
+    orphans: list[str] = []
+    for dir in get_repo_directories():
+        file_path = os.path.join(REPO_DIR, dir)
+        for f in os.listdir(file_path):
+            if f not in completeList:
+                orphans.append(f)
+
+    return orphans
+
+
+# Get list of orphaned packages without a file
+@router.get("/data/dir/pkge/orphans", response_class=JSONResponse)
+async def list_orphaned_pkge():
+    completeList: list[str] = []
+    orphans: list[str] = []
+
+    for dir in get_repo_directories():
+        file_path = os.path.join(REPO_DIR, dir)
+        for f in os.listdir(file_path):
+            completeList.append(f)
+
+    for p in get_all_packages():
+        if p not in completeList:
+            orphans.append(p)
+
+    return orphans
+
+
+# Get list of where a pkge has a file
 @router.get("/data/dir/pkge/{pkge}", response_class=JSONResponse)
 async def list_folders_containing_pkge(pkge: str):
     try:
@@ -53,7 +91,20 @@ async def list_folders_containing_pkge(pkge: str):
                     break
         return contained_in
     except Exception as e:
-        return []
+        return [e]
+
+
+# Rename File after update of package
+@router.patch("/data/dir/{dir}/{pkge}")
+async def rename_file(dir: str, pkge: str):
+    file_path = os.path.join(REPO_DIR, dir)
+
+    for el in os.listdir(file_path):
+        if el == pkge and "rpm" in el:
+            os.rename(el, pkge)
+            return {"old_name": el, "new_name": pkge}
+
+    return {"old_name": el, "new_name": ""}
 
 
 # Upload File
@@ -172,25 +223,7 @@ async def update_pkges(pkge, request: PatchRequest):
 
 @router.get("/data/all", response_class=JSONResponse)
 async def get_all_pkg():
-    files = os.listdir(REPO_DIR)
-    unique_pkges = []
-    for f in files:
-        file_path = os.path.join(REPO_DIR, f)
-        if os.path.isfile(file_path):
-
-            # GET DATA
-            first_arr = assemble_repo(file_path)
-            contents = list(map(mapArr, first_arr))
-
-            # Save if exists within
-            for fArr in contents:
-                for pk in fArr:
-                    isIncluded = (
-                        unique_pkges.count(pk) == 0 and pk != "" and (".rpm" in pk)
-                    )
-                    if isIncluded == True:
-                        unique_pkges.append(pk)
-    return unique_pkges
+    return get_all_packages()
 
 
 # Create new directory inside a repository
@@ -328,3 +361,25 @@ def get_repo_directories():
         if el not in file_list and os.path.isdir(os.path.join(REPO_DIR, el)):
             file_list.append(el)
     return file_list
+
+
+def get_all_packages():
+    files = os.listdir(REPO_DIR)
+    unique_pkges: list[str] = []
+    for f in files:
+        file_path = os.path.join(REPO_DIR, f)
+        if os.path.isfile(file_path):
+
+            # GET DATA
+            first_arr = assemble_repo(file_path)
+            contents = list(map(mapArr, first_arr))
+
+            # Save if exists within
+            for fArr in contents:
+                for pk in fArr:
+                    isIncluded = (
+                        unique_pkges.count(pk) == 0 and pk != "" and (".rpm" in pk)
+                    )
+                    if isIncluded == True:
+                        unique_pkges.append(pk)
+    return unique_pkges

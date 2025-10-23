@@ -1,5 +1,9 @@
 const api: string = "http://localhost:8000/data";
 
+//////////
+/* GET */
+/////////
+
 export async function getPackagesFromRepo(
   repo: string = "some"
 ): Promise<string[][]> {
@@ -59,17 +63,23 @@ export async function getIncludedDirectories(pkge: string): Promise<string[]> {
   });
 }
 
-export async function uploadFile(directory: string, file: File) {
-  const formData = new FormData();
-  formData.append("file", file);
-  return await fetch(`${api}/dir/${directory}`, {
-    method: "POST",
-    body: formData,
-  }).then(async (res) => {
+export async function getOrphanedFiles(): Promise<string[]> {
+  return await fetch(`${api}/dir/file/orphans`).then(async (res) => {
     const data = await res.json();
     return data;
   });
 }
+
+export async function getOrphanedPackages(): Promise<string[]> {
+  return await fetch(`${api}/dir/pkge/orphans`).then(async (res) => {
+    const data = await res.json();
+    return data;
+  });
+}
+
+////////////
+/* PATCH */
+///////////
 
 export async function updatePackage(
   pkge: string,
@@ -111,46 +121,36 @@ export async function movePackage(
   });
 }
 
-export async function removePackageFromRepo(
-  pkge: string,
-  repo: string
-): Promise<string[]> {
-  return await fetch(`${api}/pkge/${pkge}/${repo}`, { method: "DELETE" }).then(
-    async (response) => {
-      const data = await response.json();
-      return data;
-    }
-  );
-}
-
-export type RemovePackageResponse = {
-  directory: string;
-  package: string;
-  deleted: boolean;
+type RenameFileResponse = {
+  old_name: string;
+  new_name: string;
 };
 
-export async function removePackageFromDirectory(
+export async function renameFile(
   directory: string,
   pkge: string
-): Promise<RemovePackageResponse> {
+): Promise<RenameFileResponse> {
   return await fetch(`${api}/dir/${directory}/${pkge}`, {
-    method: "DELETE",
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
   }).then(async (res) => {
     const data = await res.json();
     return data;
   });
 }
 
-export async function removeDirectory(repository: string, directory: string) {
-  const body = JSON.stringify({
-    directory: directory.trim(),
-  });
-  return await fetch(`${api}/new/${repository}`, {
-    method: "DELETE",
-    headers: { "Content-Type": "application/json" },
-    body,
+///////////
+/* POST */
+//////////
+
+export async function uploadFile(directory: string, file: File) {
+  const formData = new FormData();
+  formData.append("file", file);
+  return await fetch(`${api}/dir/${directory}`, {
+    method: "POST",
+    body: formData,
   }).then(async (res) => {
-    const data = await res.text();
+    const data = await res.json();
     return data;
   });
 }
@@ -200,3 +200,51 @@ export type CreateDirectoryResponse = {
   index: number;
   directory: string;
 };
+
+/////////////
+/* DELETE */
+////////////
+
+export async function removePackageFromRepo(
+  pkge: string,
+  repo: string
+): Promise<string[]> {
+  return await fetch(`${api}/pkge/${pkge}/${repo}`, { method: "DELETE" }).then(
+    async (response) => {
+      const data = await response.json();
+      return data;
+    }
+  );
+}
+
+export type RemovePackageResponse = {
+  directory: string;
+  package: string;
+  deleted: boolean;
+};
+
+export async function removePackageFromDirectory(
+  directory: string,
+  pkge: string
+): Promise<RemovePackageResponse> {
+  return await fetch(`${api}/dir/${directory}/${pkge}`, {
+    method: "DELETE",
+  }).then(async (res) => {
+    const data = await res.json();
+    return data;
+  });
+}
+
+export async function removeDirectory(repository: string, directory: string) {
+  const body = JSON.stringify({
+    directory: directory.trim(),
+  });
+  return await fetch(`${api}/new/${repository}`, {
+    method: "DELETE",
+    headers: { "Content-Type": "application/json" },
+    body,
+  }).then(async (res) => {
+    const data = await res.text();
+    return data;
+  });
+}

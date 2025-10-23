@@ -1,7 +1,7 @@
 import { Box, Tooltip } from "@mui/material";
 import * as styles from "./AllPackagesInputPopup.styles";
 import * as con_styles from "../../Content.styles";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, type ChangeEvent } from "react";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import {
@@ -15,19 +15,22 @@ export default function AllPackagesInputPopup({
   packageIncludedIn,
   fileIncludedIn,
   updatePackages,
+  setFile,
 }: AllPackagesInputPopupProps) {
   useEffect(() => {
     fetchData();
   }, [fileIncludedIn]);
 
   const [isPossible, setIsPossible] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const fetchData = () => {
-    console.log(file);
-    if (fileIncludedIn.length < packageIncludedIn.length && fileIncludedIn.length < 1) {
-      console.log(packageIncludedIn);
+    if (
+      fileIncludedIn.length < packageIncludedIn.length &&
+      fileIncludedIn.length < 1
+    ) {
       setIsPossible(true);
-    }else{
+    } else {
       setIsPossible(false);
     }
   };
@@ -64,6 +67,23 @@ export default function AllPackagesInputPopup({
     });
   };
 
+  const updateFile = async (event: ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files && event.target.files[0]) {
+      const f: File = event.target.files[0];
+
+      if (f) {
+        setFile(f);
+        packageIncludedIn.forEach(async (pkge) => {
+          var withoutEnd = pkge.replace(".repo_cfg", "");
+          if (!fileIncludedIn.includes(withoutEnd) && f.name != null) {
+            await uploadFile(withoutEnd, f);
+          }
+        });
+      }
+      updatePackages();
+    }
+  };
+
   return (
     <Box sx={styles.wrapper}>
       {file != null && (
@@ -86,7 +106,12 @@ export default function AllPackagesInputPopup({
       )}
       {displayInput && isPossible && (
         <Box>
-          <input type="file" />
+          <input
+            type="file"
+            ref={fileInputRef}
+            accept=".rpm"
+            onChange={updateFile}
+          />
         </Box>
       )}
     </Box>
@@ -99,4 +124,5 @@ type AllPackagesInputPopupProps = {
   packageIncludedIn: string[];
   fileIncludedIn: string[];
   updatePackages: () => void;
+  setFile: (f: File) => void;
 };

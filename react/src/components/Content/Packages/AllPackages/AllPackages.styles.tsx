@@ -25,6 +25,10 @@ export const dialogIcons: SxProps<Theme> = {
 export const tableFileStatusWrapper: SxProps<Theme> = {
   "& > *": {
     alignContent: "center",
+    justifyContent: "left",
+  },
+  "& > div": {
+    marginRight: 40,
   },
   display: "flex",
   flexDirection: "row",

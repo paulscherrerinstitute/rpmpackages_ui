@@ -134,7 +134,6 @@ export default function AllPackages() {
   useEffect(() => {
     fetchData();
     fetchIncl();
-    fetchFile();
   }, []);
 
   useEffect(() => {
@@ -249,26 +248,22 @@ export default function AllPackages() {
                         {i}
                       </Typography>
                     </TableCell>
-                    <Box sx={ap_styles.tableFileStatusWrapper}>
-                      <TableCell>
-                        {Array.isArray(incl) &&
-                          !incl.includes(i.replace(".repo_cfg", "")) && (
-                            <Box sx={ap_styles.noFile}>No File detected.</Box>
-                          )}
-                        {Array.isArray(incl) &&
-                          incl.includes(i.replace(".repo_cfg", "")) && (
-                            <Box sx={ap_styles.isFile}>File detected.</Box>
-                          )}
-                      </TableCell>
-                      <TableCell>
-                        <Tooltip
-                          sx={styles.clickButtonBig}
-                          title="Delete from this repository"
-                        >
-                          <DeleteOutlineIcon onClick={() => handleRemove(i)} />
-                        </Tooltip>
-                      </TableCell>
-                    </Box>
+                    <TableCell colSpan={2} sx={ap_styles.tableFileStatusWrapper}>
+                      {Array.isArray(incl) &&
+                        !incl.includes(i.replace(".repo_cfg", "")) && (
+                          <Box sx={ap_styles.noFile}>No File detected.</Box>
+                        )}
+                      {Array.isArray(incl) &&
+                        incl.includes(i.replace(".repo_cfg", "")) && (
+                          <Box sx={ap_styles.isFile}>File detected.</Box>
+                        )}
+                      <Tooltip
+                        sx={styles.clickButtonBig}
+                        title="Delete from this repository"
+                      >
+                        <DeleteOutlineIcon onClick={() => handleRemove(i)} />
+                      </Tooltip>
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -284,6 +279,7 @@ export default function AllPackages() {
               packageIncludedIn={inclusions}
               displayInput={displayInput}
               file={file}
+              setFile={setFile}
               updatePackages={updatedPackage}
             />
           </Box>

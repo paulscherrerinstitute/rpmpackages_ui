@@ -29,11 +29,9 @@ async def list_files():
 @router.get("/data/dir", response_class=JSONResponse)
 async def list_folders():
     try:
-        file_list: list[str] = []
-        for el in os.listdir(REPO_DIR):
-            if el not in file_list and os.path.isdir(os.path.join(REPO_DIR, el)):
-                file_list.append(el)
+        file_list: list[str] = get_repo_directories()
         return file_list
+
     except FileNotFoundError:
         raise HTTPException(status_code=404, detail="Directory not found")
     except Exception as e:
@@ -42,12 +40,28 @@ async def list_folders():
         )
 
 
+@router.get("/data/dir/pkge/{pkge}", response_class=JSONResponse)
+async def list_folders_containing_pkge(pkge: str):
+    try:
+        contained_in: list[str] = []
+        directory_list: list[str] = get_repo_directories()
+        for dir in directory_list:
+            dir_path = os.path.join(REPO_DIR, dir)
+            for file in os.listdir(dir_path):
+                if file == pkge:
+                    contained_in.append(dir)
+                    break
+        return contained_in
+    except Exception as e:
+        return []
+
+
 # Upload File
 @router.post("/data/dir/{dir}")
 async def upload_file(dir: str, file: UploadFile):
     file_path = os.path.join(REPO_DIR, dir)
     content = await file.read()
-    print(content)
+
     os.makedirs(file_path, exist_ok=True)
     if file.filename:
         newfile_path = file_path + "/" + file.filename
@@ -163,7 +177,6 @@ async def get_all_pkg():
     for f in files:
         file_path = os.path.join(REPO_DIR, f)
         if os.path.isfile(file_path):
-            print(file_path)
 
             # GET DATA
             first_arr = assemble_repo(file_path)
@@ -176,7 +189,6 @@ async def get_all_pkg():
                         unique_pkges.count(pk) == 0 and pk != "" and (".rpm" in pk)
                     )
                     if isIncluded == True:
-                        print("HIII")
                         unique_pkges.append(pk)
     return unique_pkges
 
@@ -308,3 +320,11 @@ def reassemble_repo_lb(content: list[str]):
 def reassemble_repo_nested(content: list[list[str]]):
     joined_categories: list[str] = ["\n".join(c) for c in content]
     return "\n\n#".join(joined_categories)
+
+
+def get_repo_directories():
+    file_list: list[str] = []
+    for el in os.listdir(REPO_DIR):
+        if el not in file_list and os.path.isdir(os.path.join(REPO_DIR, el)):
+            file_list.append(el)
+    return file_list

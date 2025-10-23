@@ -43,13 +43,19 @@ export async function getFileFromDirectory(
 ): Promise<File | null> {
   return await fetch(`${api}/dir/${directory}/${pkge}`).then(async (res) => {
     const content_type = res.headers.get("Content-Type");
-
     if (content_type == "application/octet-stream") {
       const data = await res.blob();
       return new File([data], pkge);
     } else {
       return null;
     }
+  });
+}
+
+export async function getIncludedDirectories(pkge: string): Promise<string[]> {
+  return await fetch(`${api}/dir/pkge/${pkge}`).then(async (res) => {
+    const data = await res.json();
+    return data;
   });
 }
 
@@ -145,7 +151,6 @@ export async function removeDirectory(repository: string, directory: string) {
     body,
   }).then(async (res) => {
     const data = await res.text();
-    console.log(data);
     return data;
   });
 }

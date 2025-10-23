@@ -13,7 +13,7 @@ export function FileInput({
   accept: string;
   file: File | null;
   setFile: (newFile: File | null) => void;
-  removeFile: () => void;
+  removeFile?: () => void;
 }) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isNewUpload, setIsNewUpload] = useState(false);

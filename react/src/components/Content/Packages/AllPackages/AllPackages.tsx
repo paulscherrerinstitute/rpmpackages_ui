@@ -15,8 +15,9 @@ import * as ap_styles from "./AllPackages.styles";
 import { useEffect, useState } from "react";
 import {
   getAllPackages,
+  getFileFromDirectory,
+  getIncludedDirectories,
   getPackageInclusions,
-  removePackageFromDirectory,
   removePackageFromRepo,
   updatePackage,
 } from "../../../../helper/dataService";
@@ -36,6 +37,7 @@ import {
   DetailsPopup,
   type DetailsForm,
 } from "../../Details/DetailsPopup/DetailsPopup";
+import AllPackagesInputPopup from "../../Details/AllPackagesInputPopup/AllPackagesInputPopup";
 
 export default function AllPackages() {
   const [data, setData] = useState<string[]>([]);
@@ -45,8 +47,6 @@ export default function AllPackages() {
   const [openEdit, setOpenEdit] = useState(false);
   const [item, setItem] = useState("");
   const navigate = useNavigate();
-
-  const [file, setFile] = useState<File | null>(null);
 
   const fetchData = async () => {
     try {
@@ -125,10 +125,16 @@ export default function AllPackages() {
     await fetchInclusionData;
   };
 
-  const handleRemoveFile = async (f: File) => {};
+  const [incl, setIncl] = useState<string[]>([]);
+  const fetchIncl = async () => {
+    var inclDirectories = await getIncludedDirectories(item);
+    setIncl(inclDirectories);
+  };
 
   useEffect(() => {
     fetchData();
+    fetchIncl();
+    fetchFile();
   }, []);
 
   useEffect(() => {
@@ -136,7 +142,32 @@ export default function AllPackages() {
       setOpen(false);
     }
     fetchData();
+    fetchFile();
   }, [inclusions]);
+
+  useEffect(() => {
+    fetchIncl();
+    if (open) fetchFile();
+  }, [open]);
+
+  const [file, setFile] = useState<File | null>(null);
+  const [displayInput, setDisplayInput] = useState<boolean>(true);
+
+  const fetchFile = async () => {
+    if (incl.length > 0) {
+      const pk = await getFileFromDirectory(incl[0], item);
+      setFile(pk);
+    }
+  };
+
+  useEffect(() => {
+    setDisplayInput(incl.length != inclusions.length);
+  }, [incl]);
+
+  const updatedPackage = async () => {
+    await fetchFile();
+    await fetchIncl();
+  };
 
   return (
     <Box sx={styles.main}>
@@ -218,14 +249,26 @@ export default function AllPackages() {
                         {i}
                       </Typography>
                     </TableCell>
-                    <TableCell>
-                      <Tooltip
-                        sx={styles.clickButtonBig}
-                        title="Delete from this repository"
-                      >
-                        <DeleteOutlineIcon onClick={() => handleRemove(i)} />
-                      </Tooltip>
-                    </TableCell>
+                    <Box sx={ap_styles.tableFileStatusWrapper}>
+                      <TableCell>
+                        {Array.isArray(incl) &&
+                          !incl.includes(i.replace(".repo_cfg", "")) && (
+                            <Box sx={ap_styles.noFile}>No File detected.</Box>
+                          )}
+                        {Array.isArray(incl) &&
+                          incl.includes(i.replace(".repo_cfg", "")) && (
+                            <Box sx={ap_styles.isFile}>File detected.</Box>
+                          )}
+                      </TableCell>
+                      <TableCell>
+                        <Tooltip
+                          sx={styles.clickButtonBig}
+                          title="Delete from this repository"
+                        >
+                          <DeleteOutlineIcon onClick={() => handleRemove(i)} />
+                        </Tooltip>
+                      </TableCell>
+                    </Box>
                   </TableRow>
                 ))}
               </TableBody>
@@ -236,17 +279,22 @@ export default function AllPackages() {
                 inclusions={inclusions}
               />
             </Table>
+            <AllPackagesInputPopup
+              fileIncludedIn={incl}
+              packageIncludedIn={inclusions}
+              displayInput={displayInput}
+              file={file}
+              updatePackages={updatedPackage}
+            />
           </Box>
         )}
         <DetailsPopup
           open={openEdit}
           pkge={item}
-          file={file}
-          setFile={(f) => setFile(f)}
           onSave={(f) => handleSave(f)}
           onClose={handleEditClose}
-          onRemoveFile={(f) => handleRemoveFile(f)}
           isAdd={false}
+          enableFileUpload={false}
         ></DetailsPopup>
       </Dialog>
     </Box>

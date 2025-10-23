@@ -29,6 +29,7 @@ export function DetailsPopup({
   isAdd,
   addProps,
   file,
+  enableFileUpload = true,
   onClose,
   setFile,
   onAdd,
@@ -86,7 +87,7 @@ export function DetailsPopup({
           distribution: "",
           architecture: "",
         });
-        setFile(null);
+        if(setFile) setFile(null);
       } else {
         setFormData({
           name: getPName(),
@@ -180,12 +181,14 @@ export function DetailsPopup({
               </TableRow>
             </TableBody>
           </Table>
-          <FileInput
-            file={file}
-            setFile={setFile}
-            accept=".rpm"
-            removeFile={handleRemoveFile}
-          />
+          {enableFileUpload && file && setFile && (
+            <FileInput
+              file={file}
+              setFile={setFile}
+              accept=".rpm"
+              removeFile={handleRemoveFile}
+            />
+          )}
         </Box>
       </DialogContent>
       <DialogActions>
@@ -206,7 +209,7 @@ export function DetailsPopup({
   }
 
   function handleRemoveFile() {
-    if (file) onRemoveFile(file);
+    if (file && onRemoveFile) onRemoveFile(file);
   }
 }
 
@@ -214,11 +217,12 @@ export type DetailsPopupProps = {
   open: boolean;
   pkge: string;
   isAdd: boolean;
-  file: File | null;
+  file?: File | null;
+  enableFileUpload: boolean;
   onClose: () => void;
-  setFile: (file: File | null) => void;
+  setFile?: (file: File | null) => void;
   onSave: (form: DetailsForm) => void;
-  onRemoveFile: (file: File) => void;
+  onRemoveFile?: (file: File) => void;
   onAdd?: (form: DetailsForm) => void;
   addProps?: AddProps;
 };

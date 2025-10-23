@@ -209,7 +209,6 @@ export default function PackagesInRepository() {
   const handleRemoveFile = async (file: File) => {
     await removePackageFromDirectory(permPath, file.name);
     await fetchFile();
-    console.log(file, file.name)
   };
 
   return (
@@ -301,6 +300,7 @@ export default function PackagesInRepository() {
             addProps={{
               data: item,
             }}
+            enableFileUpload
             onClose={handleClosePopup}
           />
         </Box>

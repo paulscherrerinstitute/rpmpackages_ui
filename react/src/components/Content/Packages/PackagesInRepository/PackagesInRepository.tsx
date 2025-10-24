@@ -47,6 +47,8 @@ export default function PackagesInRepository() {
   const [isAdd, setIsAdd] = useState(false);
   const [pkge, setPkge] = useState("");
 
+  const [hasLoaded, setHasLoaded] = useState(false);
+
   const [outerIdx, setOuterIdx] = useState(-1);
   const [item, setItem] = useState<string[]>([]);
   const [addOpen, setAddOpen] = useState(false);
@@ -86,7 +88,6 @@ export default function PackagesInRepository() {
   const handleRemove = async (pkg: string) => {
     const prompt = confirm(`Do you want to remove ${pkg} from ${permPath}?`);
     if (prompt) {
-      permPath = `${permPath}.repo_cfg`;
       await removePackageFromRepository(pkg, permPath);
     }
     fetchData();
@@ -106,7 +107,7 @@ export default function PackagesInRepository() {
 
   const fetchData = async () => {
     try {
-      const resultData = await getAllPackagesFromRepository(path);
+      const resultData = await getAllPackagesFromRepository(permPath);
       setData(resultData);
     } catch (err) {
       console.error("Error loading data:", err);
@@ -150,8 +151,23 @@ export default function PackagesInRepository() {
   };
 
   useEffect(() => {
+    setHasLoaded(false);
+    console.log(hasLoaded);
     fetchData();
   }, []); // runs once when component mounts
+
+  useEffect(() => {
+    const urlHash = window.location.hash;
+    if (urlHash.length && !hasLoaded) {
+      const element = document.getElementById(urlHash.substring(1));
+      if (element) {
+        element.scrollIntoView();
+        setHasLoaded(true);
+        // Cleanup in case of rerenders or navigation
+      }
+      console.log(element);
+    }
+  }, [fetchData]);
 
   useEffect(() => {
     if (popupOpen) {
@@ -201,7 +217,12 @@ export default function PackagesInRepository() {
 
   const handleDragEnter = async (o_idx: number, i_idx: number) => {
     if (dragging != "") {
-      await movePackageToRepository(dragging, permPath + ".repo_cfg", o_idx, i_idx);
+      await movePackageToRepository(
+        dragging,
+        permPath + ".repo_cfg",
+        o_idx,
+        i_idx
+      );
       await fetchData();
     }
   };
@@ -210,6 +231,13 @@ export default function PackagesInRepository() {
     await removeFileFromDirectory(permPath, file.name);
     await fetchFile();
   };
+
+  const shallShowAnimation = (pkg: string) =>{
+    const urlHash = window.location.hash.replace("#", "");
+    console.log(urlHash);
+    if(pkg == urlHash)
+    return pir_styles.highlightSx
+  }
 
   return (
     <Box sx={styles.main}>
@@ -257,13 +285,14 @@ export default function PackagesInRepository() {
                   (pkg, innerIdx) =>
                     innerIdx != 0 && (
                       <ListItem
+                        id={pkg}
                         onDragEnter={() => handleDragEnter(outerIdx, innerIdx)}
                         key={`${outerIdx}-${innerIdx}-${pkg}`}
                         draggable
                         onDragStart={(e) => handleDragStart(e, pkg)}
                         sx={pir_styles.listItem(pkg == dragging)}
                       >
-                        <ListItemText>{pkg}</ListItemText>
+                        <ListItemText sx={shallShowAnimation(pkg)}>{pkg}</ListItemText>
                         <Box sx={pir_styles.listButtons}>
                           {!pkg.includes("#") && (
                             <Tooltip title="Edit package">

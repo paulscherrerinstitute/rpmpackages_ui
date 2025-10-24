@@ -1,4 +1,4 @@
-import { type SxProps, type Theme } from "@mui/material";
+import { keyframes, type SxProps, type Theme } from "@mui/material";
 
 export const outerList: SxProps<Theme> = {
   width: "100%",
@@ -56,3 +56,18 @@ export const listButtons: SxProps<Theme> = {
   },
   cursor: "default",
 };
+
+const highlightFade = keyframes`
+  0% {
+    background-color: #9eb9c5ff; /* Light yellow (MUI's yellow[200]) */
+  }
+  100% {
+    background-color: transparent;
+  }
+`;
+
+export const highlightSx: SxProps<Theme> = (theme) => ({
+  animation: `${highlightFade} 5s ease-out`,
+  transition: "background-color 5s ease-out",
+  borderRadius: "4px",
+});

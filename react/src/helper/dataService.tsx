@@ -201,7 +201,7 @@ export async function removePackageFromRepository(
   pkge: string,
   repository: string
 ): Promise<string[]> {
-  return await fetch(`${API}/pkge/${pkge}/${repository}`, {
+  return await fetch(`${API}/pkge/${pkge}/${repository}.${FILE_ENDING}`, {
     method: "DELETE",
   }).then(async (response) => {
     const data = await response.json();

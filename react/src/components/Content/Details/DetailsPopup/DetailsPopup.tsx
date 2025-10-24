@@ -181,9 +181,9 @@ export function DetailsPopup({
               </TableRow>
             </TableBody>
           </Table>
-          {enableFileUpload && file && setFile && (
+          {enableFileUpload && File && setFile && (
             <FileInput
-              file={file}
+              file={file ?? null}
               setFile={setFile}
               accept=".rpm"
               removeFile={handleRemoveFile}

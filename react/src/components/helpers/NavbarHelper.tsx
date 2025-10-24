@@ -9,4 +9,4 @@ export const NavItems = [
   { key: "Packages", path: "/Packages", component: Packages },
   { key: "Orphans", path: "/Orphans", component: Orphans}
 ];
-export const Title = "NRM PACKAGES";
+export const Title = "RPM PACKAGES";

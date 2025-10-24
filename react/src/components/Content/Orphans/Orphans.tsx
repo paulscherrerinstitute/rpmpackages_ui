@@ -8,10 +8,12 @@ import {
   type OrphanedFile,
   type OrphanedPackage,
 } from "../../../helper/dataService";
+import { useNavigate } from "react-router-dom";
 
 export function Orphans() {
   const [fileOrphans, setFileOrphans] = useState<OrphanedFile[]>([]);
   const [pkgeOrphans, setPkgeOrphans] = useState<OrphanedPackage[]>([]);
+  const navigate = useNavigate();
 
   const fetchData = async () => {
     const o_f = await getOrphanedFiles();
@@ -19,6 +21,11 @@ export function Orphans() {
     const o_p = await getOrphanedPackages();
     setPkgeOrphans(o_p);
   };
+
+  const navigateToPackage = (o: OrphanedPackage) =>{
+    const rep_path = o.repository[0].split(".")[0]
+    navigate(`/Packages/${rep_path}#${o.name}`)
+  }
 
   useEffect(() => {
     fetchData();
@@ -34,7 +41,7 @@ export function Orphans() {
           <Box>
             <Table>
               {fileOrphans.map((o) => (
-                <TableRow>
+                <TableRow hover>
                   <TableCell>
                     {o.name} - {o.directory}
                   </TableCell>
@@ -49,7 +56,7 @@ export function Orphans() {
           </Typography>
           <Table>
             {pkgeOrphans.map((o) => (
-              <TableRow>
+              <TableRow hover onClick={() => navigateToPackage(o)}>
                 <TableCell>
                   {o.name} - {o.repository}
                 </TableCell>

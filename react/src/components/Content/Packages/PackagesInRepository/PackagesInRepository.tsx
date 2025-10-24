@@ -11,16 +11,16 @@ import {
 } from "@mui/material";
 import { useState, useEffect } from "react";
 import {
-  addPackageToRepo,
-  createNewDirectoryInRepo,
-  getFileFromDirectory,
-  getPackagesFromRepo,
-  movePackage,
-  removeDirectory,
-  removePackageFromDirectory,
-  removePackageFromRepo,
-  updatePackage,
-  uploadFile,
+  addPackageToRepository,
+  addDirectoryToRepository,
+  getPackageFileFromDirectory,
+  getAllPackagesFromRepository,
+  movePackageToRepository,
+  removeDirectoryFromRepository,
+  removeFileFromDirectory,
+  removePackageFromRepository,
+  updatePackageInRepository,
+  uploadFileToDirectory,
 } from "../../../../helper/dataService";
 import * as styles from "../../Content.styles";
 import * as pir_styles from "./PackagesInRepository.styles";
@@ -87,26 +87,26 @@ export default function PackagesInRepository() {
     const prompt = confirm(`Do you want to remove ${pkg} from ${permPath}?`);
     if (prompt) {
       permPath = `${permPath}.repo_cfg`;
-      await removePackageFromRepo(pkg, permPath);
+      await removePackageFromRepository(pkg, permPath);
     }
     fetchData();
   };
 
   const handleSubtitleRemove = async (directory: string) => {
-    await removeDirectory(permPath + ".repo_cfg", directory);
+    await removeDirectoryFromRepository(permPath + ".repo_cfg", directory);
     await fetchData();
   };
 
   const handleSubtitleAdd = async (newSubtitle: string) => {
     const path = permPath + ".repo_cfg";
-    await createNewDirectoryInRepo(path, newSubtitle);
+    await addDirectoryToRepository(path, newSubtitle);
     setAddOpen(false);
     await fetchData();
   };
 
   const fetchData = async () => {
     try {
-      const resultData = await getPackagesFromRepo(path);
+      const resultData = await getAllPackagesFromRepository(path);
       setData(resultData);
     } catch (err) {
       console.error("Error loading data:", err);
@@ -115,7 +115,7 @@ export default function PackagesInRepository() {
 
   const fetchFile = async () => {
     try {
-      const res = await getFileFromDirectory(permPath, pkge);
+      const res = await getPackageFileFromDirectory(permPath, pkge);
       setFile(res);
     } catch (err) {
       console.error("Error loading data:", err);
@@ -130,9 +130,9 @@ export default function PackagesInRepository() {
       pk = `${form.name}-${form.version}.${form.distribution}.${form.architecture}.rpm`;
     }
     var repo_path = `${permPath}.repo_cfg`;
-    await updatePackage(pkge, pk, repo_path);
+    await updatePackageInRepository(pkge, pk, repo_path);
     if (file != null) {
-      await uploadFile(permPath, file);
+      await uploadFileToDirectory(permPath, file);
     }
     await fetchData();
   };
@@ -145,7 +145,7 @@ export default function PackagesInRepository() {
       pk = `${form.name}-${form.version}.${form.distribution}.${form.architecture}.rpm`;
     }
     var repo_path = `${permPath}.repo_cfg`;
-    await addPackageToRepo(pk, repo_path, outerIdx);
+    await addPackageToRepository(pk, repo_path, outerIdx);
     fetchData();
   };
 
@@ -201,13 +201,13 @@ export default function PackagesInRepository() {
 
   const handleDragEnter = async (o_idx: number, i_idx: number) => {
     if (dragging != "") {
-      await movePackage(dragging, permPath + ".repo_cfg", o_idx, i_idx);
+      await movePackageToRepository(dragging, permPath + ".repo_cfg", o_idx, i_idx);
       await fetchData();
     }
   };
 
   const handleRemoveFile = async (file: File) => {
-    await removePackageFromDirectory(permPath, file.name);
+    await removeFileFromDirectory(permPath, file.name);
     await fetchFile();
   };
 

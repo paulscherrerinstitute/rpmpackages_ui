@@ -7,7 +7,7 @@ import {
   TableRow,
 } from "@mui/material";
 import { useEffect, useState } from "react";
-import { getAvailableRepos } from "../../../helper/dataService";
+import { getAllRepositories } from "../../../helper/dataService";
 import * as styles from "../Content.styles";
 import { useNavigate } from "react-router-dom";
 
@@ -17,7 +17,7 @@ export function Repositories() {
 
   useEffect(() => {
     async function fetchData() {
-      const repos = await getAvailableRepos();
+      const repos = await getAllRepositories();
       setAvailableRepos(repos);
     }
     fetchData();

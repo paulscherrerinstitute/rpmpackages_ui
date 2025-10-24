@@ -5,8 +5,8 @@ import { useEffect, useState, useRef, type ChangeEvent } from "react";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import {
-  removePackageFromDirectory,
-  uploadFile,
+  removeFileFromDirectory,
+  uploadFileToDirectory,
 } from "../../../../helper/dataService";
 
 export default function AllPackagesInputPopup({
@@ -50,7 +50,7 @@ export default function AllPackagesInputPopup({
     packageIncludedIn.forEach(async (pkge) => {
       var withoutEnd = pkge.replace(".repo_cfg", "");
       if (!fileIncludedIn.includes(withoutEnd) && file != null) {
-        await uploadFile(withoutEnd, file);
+        await uploadFileToDirectory(withoutEnd, file);
         updatePackages();
       }
     });
@@ -61,7 +61,7 @@ export default function AllPackagesInputPopup({
     packageIncludedIn.forEach(async (pkge) => {
       var withoutEnd = pkge.replace(".repo_cfg", "");
       if (fileIncludedIn.includes(withoutEnd) && file != null) {
-        await removePackageFromDirectory(withoutEnd, file.name);
+        await removeFileFromDirectory(withoutEnd, file.name);
         updatePackages();
       }
     });
@@ -76,7 +76,7 @@ export default function AllPackagesInputPopup({
         packageIncludedIn.forEach(async (pkge) => {
           var withoutEnd = pkge.replace(".repo_cfg", "");
           if (!fileIncludedIn.includes(withoutEnd) && f.name != null) {
-            await uploadFile(withoutEnd, f);
+            await uploadFileToDirectory(withoutEnd, f);
           }
         });
       }

@@ -10,9 +10,9 @@ import {
   Button,
 } from "@mui/material";
 import {
-  getAvailableRepos,
-  addPackageToRepo,
-  createNewDirectoryInRepo,
+  getAllRepositories,
+  addPackageToRepository,
+  addDirectoryToRepository,
   type CreateDirectoryResponse,
 } from "../../../../helper/dataService";
 import * as styles from "./AddRepository.styles";
@@ -28,7 +28,7 @@ export function AddDetails({
   const [newRepo, setNewRepo] = useState("");
 
   const fetchRepos = async () => {
-    const res = await getAvailableRepos();
+    const res = await getAllRepositories();
     setAvailableRepos(res);
   };
 
@@ -44,11 +44,11 @@ export function AddDetails({
   };
 
   const handleAdd = async () => {
-    const res: CreateDirectoryResponse = await createNewDirectoryInRepo(
+    const res: CreateDirectoryResponse = await addDirectoryToRepository(
       newRepo,
       "Added via Overiew"
     );
-    await addPackageToRepo(item, newRepo, res.index);
+    await addPackageToRepository(item, newRepo, res.index);
     handleClose();
   };
 

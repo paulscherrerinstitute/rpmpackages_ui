@@ -14,12 +14,12 @@ import * as styles from "../../Content.styles";
 import * as ap_styles from "./AllPackages.styles";
 import { useEffect, useState } from "react";
 import {
-  getAllPackages,
-  getFileFromDirectory,
-  getIncludedDirectories,
-  getPackageInclusions,
-  removePackageFromRepo,
-  updatePackage,
+  getAllPackagesOverall,
+  getPackageFileFromDirectory,
+  getDirectoriesIncludingPkge,
+  getRepositoriesOfPackage,
+  removePackageFromRepository,
+  updatePackageInRepository,
 } from "../../../../helper/dataService";
 import {
   getArchitecture,
@@ -41,16 +41,23 @@ import AllPackagesInputPopup from "../../Details/AllPackagesInputPopup/AllPackag
 
 export default function AllPackages() {
   const [data, setData] = useState<string[]>([]);
-  const [inclusions, setInclusions] = useState<string[]>([]);
+  const [inclusionsInRepositories, setinclusionsInRepositories] = useState<
+    string[]
+  >([]);
   const [open, setOpen] = useState(false);
   const [openNested, setOpenNested] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
-  const [item, setItem] = useState("");
+  const [pkge, setPkge] = useState("");
+  const [inclusionsInDirectories, setInclusionsInDirectories] = useState<
+    string[]
+  >([]);
+  const [file, setFile] = useState<File | null>(null);
+  const [displayInput, setDisplayInput] = useState<boolean>(true);
   const navigate = useNavigate();
 
   const fetchData = async () => {
     try {
-      const resultData = await getAllPackages();
+      const resultData = await getAllPackagesOverall();
       setData(resultData.sort((a, b) => a.localeCompare(b)));
     } catch (err) {
       console.error("Error loading data:", err);
@@ -59,35 +66,35 @@ export default function AllPackages() {
 
   const fetchInclusionData = async (pk: string) => {
     try {
-      const resultData = await getPackageInclusions(pk);
-      setInclusions(resultData);
+      const resultData = await getRepositoriesOfPackage(pk);
+      setinclusionsInRepositories(resultData);
     } catch (err) {
       console.error("Error loading data:", err);
     }
   };
 
-  const getInclusions = (it: string) => {
+  const openPopup = (pk: string) => {
     setOpen(true);
-    setItem(it);
-    fetchInclusionData(it);
+    setPkge(pk);
+    fetchInclusionData(pk);
   };
 
   const handleClose = () => setOpen(false);
 
   const handleNestedClose = () => {
     setOpenNested(false);
-    fetchInclusionData(item);
+    fetchInclusionData(pkge);
   };
 
   const handleAdd = () => setOpenNested(true);
 
   const handleRemoveAll = async () => {
     const prompt = confirm(
-      `Do you want to remove ${item} from all repositories it is contained in?`
+      `Do you want to remove ${pkge} from all repositories it is contained in?`
     );
     if (prompt) {
-      inclusions.forEach(async (it) => {
-        await removePackageFromRepo(item, it);
+      inclusionsInRepositories.forEach(async (it) => {
+        await removePackageFromRepository(pkge, it);
       });
     }
     handleClose();
@@ -95,11 +102,11 @@ export default function AllPackages() {
   };
 
   const handleRemove = async (repo: string) => {
-    const prompt = confirm(`Do you want to remove ${item} from ${repo}?`);
+    const prompt = confirm(`Do you want to remove ${pkge} from ${repo}?`);
     if (prompt) {
-      await removePackageFromRepo(item, repo);
+      await removePackageFromRepository(pkge, repo);
     }
-    fetchInclusionData(item);
+    fetchInclusionData(pkge);
   };
 
   const handleEdit = () => {
@@ -118,55 +125,56 @@ export default function AllPackages() {
     } else {
       pk = `${form.name}-${form.version}.${form.distribution}.${form.architecture}.rpm`;
     }
-    inclusions.forEach(async (rep) => {
-      await updatePackage(item, pk, rep);
+    inclusionsInRepositories.forEach(async (rep) => {
+      await updatePackageInRepository(pkge, pk, rep);
     });
     await fetchData;
     await fetchInclusionData;
   };
 
-  const [incl, setIncl] = useState<string[]>([]);
-  const fetchIncl = async () => {
-    var inclDirectories = await getIncludedDirectories(item);
-    setIncl(inclDirectories);
+  const fetchInclusionsInDirectories = async () => {
+    var inclDirectories = await getDirectoriesIncludingPkge(pkge);
+    setInclusionsInDirectories(inclDirectories);
   };
 
-  useEffect(() => {
-    fetchData();
-    fetchIncl();
-  }, []);
-
-  useEffect(() => {
-    if (inclusions.length == 0) {
-      setOpen(false);
-    }
-    fetchData();
-    fetchFile();
-  }, [inclusions]);
-
-  useEffect(() => {
-    fetchIncl();
-    if (open) fetchFile();
-  }, [open]);
-
-  const [file, setFile] = useState<File | null>(null);
-  const [displayInput, setDisplayInput] = useState<boolean>(true);
-
   const fetchFile = async () => {
-    if (incl.length > 0) {
-      const pk = await getFileFromDirectory(incl[0], item);
+    if (inclusionsInDirectories.length > 0) {
+      const pk = await getPackageFileFromDirectory(
+        inclusionsInDirectories[0],
+        pkge
+      );
       setFile(pk);
     }
   };
 
-  useEffect(() => {
-    setDisplayInput(incl.length != inclusions.length);
-  }, [incl]);
-
   const updatedPackage = async () => {
     await fetchFile();
-    await fetchIncl();
+    await fetchInclusionsInDirectories();
   };
+
+  useEffect(() => {
+    fetchData();
+    fetchInclusionsInDirectories();
+  }, []);
+
+  useEffect(() => {
+    if (inclusionsInRepositories.length == 0) {
+      setOpen(false);
+    }
+    fetchData();
+    fetchFile();
+  }, [inclusionsInRepositories]);
+
+  useEffect(() => {
+    fetchInclusionsInDirectories();
+    if (open) fetchFile();
+  }, [open]);
+
+  useEffect(() => {
+    setDisplayInput(
+      inclusionsInDirectories.length != inclusionsInRepositories.length
+    );
+  }, [inclusionsInDirectories]);
 
   return (
     <Box sx={styles.main}>
@@ -174,15 +182,15 @@ export default function AllPackages() {
       <Box>
         <Table>
           <TableBody>
-            {data.map((item, i) => (
+            {data.map((pkge, i) => (
               <TableRow key={`list-${i}`} hover>
                 <TableCell>
                   <Typography
                     sx={styles.clickButton}
-                    key={item}
-                    onClick={() => getInclusions(item)}
+                    key={pkge}
+                    onClick={() => openPopup(pkge)}
                   >
-                    {item}
+                    {pkge}
                   </Typography>
                 </TableCell>
               </TableRow>
@@ -192,7 +200,7 @@ export default function AllPackages() {
       </Box>
       <Dialog open={open} onClose={handleClose} fullWidth maxWidth="md">
         <Box sx={styles.packageTitle}>
-          <DialogTitle>{item}</DialogTitle>
+          <DialogTitle>{pkge}</DialogTitle>
           <Box sx={ap_styles.dialogIcons}>
             <Tooltip title="Add to other repository">
               <AddIcon onClick={handleAdd} />
@@ -218,21 +226,21 @@ export default function AllPackages() {
             </TableHead>
             <TableBody>
               <TableRow>
-                <TableCell>{getName(item)}</TableCell>
-                <TableCell>{getVersion(item)}</TableCell>
-                <TableCell>{getVersionNote(item)}</TableCell>
-                <TableCell>{getDistribution(item)}</TableCell>
-                <TableCell>{getArchitecture(item)}</TableCell>
+                <TableCell>{getName(pkge)}</TableCell>
+                <TableCell>{getVersion(pkge)}</TableCell>
+                <TableCell>{getVersionNote(pkge)}</TableCell>
+                <TableCell>{getDistribution(pkge)}</TableCell>
+                <TableCell>{getArchitecture(pkge)}</TableCell>
               </TableRow>
             </TableBody>
           </Table>
         </Box>
-        {inclusions.length > 0 && (
+        {inclusionsInRepositories.length > 0 && (
           <Box>
             <DialogTitle>This package is included in:</DialogTitle>
             <Table>
               <TableBody>
-                {inclusions.map((i) => (
+                {inclusionsInRepositories.map((i) => (
                   <TableRow
                     hover
                     key={"included-" + i}
@@ -248,15 +256,18 @@ export default function AllPackages() {
                         {i}
                       </Typography>
                     </TableCell>
-                    <TableCell colSpan={2} sx={ap_styles.tableFileStatusWrapper}>
-                      {Array.isArray(incl) &&
-                        !incl.includes(i.replace(".repo_cfg", "")) && (
-                          <Box sx={ap_styles.noFile}>No File detected.</Box>
-                        )}
-                      {Array.isArray(incl) &&
-                        incl.includes(i.replace(".repo_cfg", "")) && (
-                          <Box sx={ap_styles.isFile}>File detected.</Box>
-                        )}
+                    <TableCell
+                      colSpan={2}
+                      sx={ap_styles.tableFileStatusWrapper}
+                    >
+                      {Array.isArray(inclusionsInDirectories) &&
+                        !inclusionsInDirectories.includes(
+                          i.replace(".repo_cfg", "")
+                        ) && <Box sx={ap_styles.noFile}>No File detected.</Box>}
+                      {Array.isArray(inclusionsInDirectories) &&
+                        inclusionsInDirectories.includes(
+                          i.replace(".repo_cfg", "")
+                        ) && <Box sx={ap_styles.isFile}>File detected.</Box>}
                       <Tooltip
                         sx={styles.clickButtonBig}
                         title="Delete from this repository"
@@ -270,13 +281,13 @@ export default function AllPackages() {
               <AddDetails
                 open={openNested}
                 handleClose={handleNestedClose}
-                item={item}
-                inclusions={inclusions}
+                item={pkge}
+                inclusions={inclusionsInRepositories}
               />
             </Table>
             <AllPackagesInputPopup
-              fileIncludedIn={incl}
-              packageIncludedIn={inclusions}
+              fileIncludedIn={inclusionsInDirectories}
+              packageIncludedIn={inclusionsInRepositories}
               displayInput={displayInput}
               file={file}
               setFile={setFile}
@@ -286,7 +297,7 @@ export default function AllPackages() {
         )}
         <DetailsPopup
           open={openEdit}
-          pkge={item}
+          pkge={pkge}
           onSave={(f) => handleSave(f)}
           onClose={handleEditClose}
           isAdd={false}

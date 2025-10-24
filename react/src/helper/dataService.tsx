@@ -1,14 +1,15 @@
-const api: string = "http://localhost:8000/data";
+const API: string = "http://localhost:8000/data";
+const FILE_ENDING: string = "repo_cfg";
 
-//////////
+/////////
 /* GET */
 /////////
 
-export async function getPackagesFromRepo(
-  repo: string = "some"
+export async function getAllPackagesFromRepository(
+  repository: string
 ): Promise<string[][]> {
-  const res = await fetch(`${api}/${repo}.repo_cfg`);
-  const text = await res.text();
+  const response = await fetch(`${API}/${repository}.${FILE_ENDING}`);
+  const text = await response.text();
 
   var textByCategory = text.split("\n\n#");
   var txt: string[][] = textByCategory.map((t) => t.split("\n"));
@@ -20,154 +21,151 @@ export async function getPackagesFromRepo(
   return txt;
 }
 
-export async function getAvailableRepos(): Promise<string[]> {
-  return await fetch(`${api}`).then(async (response) => {
+export async function getAllRepositories(): Promise<string[]> {
+  return await fetch(`${API}`).then(async (response) => {
     const data = await response.json();
     return data;
   });
 }
 
-export async function getAllPackages(): Promise<string[]> {
-  return await fetch(`${api}/all`).then(async (response) => {
+export async function getAllPackagesOverall(): Promise<string[]> {
+  return await fetch(`${API}/all`).then(async (response) => {
     const data = await response.json();
     return data;
   });
 }
 
-export async function getPackageInclusions(pkge: string): Promise<string[]> {
-  return await fetch(`${api}/pkge/${pkge}`).then(async (response) => {
+export async function getRepositoriesOfPackage(pkge: string): Promise<string[]> {
+  return await fetch(`${API}/pkge/${pkge}`).then(async (response) => {
     const data = await response.json();
     return data;
   });
 }
 
-export async function getFileFromDirectory(
+export async function getPackageFileFromDirectory(
   directory: string,
   pkge: string
 ): Promise<File | null> {
-  return await fetch(`${api}/dir/${directory}/${pkge}`).then(async (res) => {
-    const content_type = res.headers.get("Content-Type");
-    if (content_type == "application/octet-stream") {
-      const data = await res.blob();
-      return new File([data], pkge);
-    } else {
-      return null;
+  return await fetch(`${API}/dir/${directory}/${pkge}`).then(
+    async (response) => {
+      const content_type = response.headers.get("Content-Type");
+      if (content_type == "application/octet-stream") {
+        const data = await response.blob();
+        return new File([data], pkge);
+      } else {
+        return null;
+      }
     }
-  });
+  );
 }
 
-export async function getIncludedDirectories(pkge: string): Promise<string[]> {
-  return await fetch(`${api}/dir/pkge/${pkge}`).then(async (res) => {
-    const data = await res.json();
+export async function getDirectoriesIncludingPkge(pkge: string): Promise<string[]> {
+  return await fetch(`${API}/dir/pkge/${pkge}`).then(async (response) => {
+    const data = await response.json();
     return data;
   });
 }
 
-export async function getOrphanedFiles(): Promise<string[]> {
-  return await fetch(`${api}/dir/file/orphans`).then(async (res) => {
-    const data = await res.json();
+export async function getOrphanedFiles(): Promise<OrphanedFile[]> {
+  return await fetch(`${API}/dir/file/orphans`).then(async (response) => {
+    const data = await response.json();
     return data;
   });
 }
 
-export async function getOrphanedPackages(): Promise<string[]> {
-  return await fetch(`${api}/dir/pkge/orphans`).then(async (res) => {
-    const data = await res.json();
+export async function getOrphanedPackages(): Promise<OrphanedPackage[]> {
+  return await fetch(`${API}/dir/pkge/orphans`).then(async (response) => {
+    const data = await response.json();
     return data;
   });
 }
 
-////////////
+///////////
 /* PATCH */
 ///////////
 
-export async function updatePackage(
+export async function updatePackageInRepository(
   pkge: string,
   updatedPackage: string,
   repository: string
 ): Promise<string[]> {
   const body = JSON.stringify({
-    updatePackage: updatedPackage,
+    updatePackageInRepository: updatedPackage,
     repository: repository,
   });
-  return await fetch(`${api}/pkge/${pkge}`, {
+  return await fetch(`${API}/pkge/${pkge}`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
     body,
-  }).then(async (res) => {
-    const data = await res.json();
+  }).then(async (response) => {
+    const data = await response.json();
     return data;
   });
 }
 
-export async function movePackage(
+export async function movePackageToRepository(
   pkge: string,
   repository: string,
-  o_idx: number,
-  i_idx: number
+  outerIndex: number,
+  innerIndex: number
 ) {
   const body = JSON.stringify({
     repository: repository,
-    outer_index: o_idx,
-    inner_index: i_idx,
+    outer_index: outerIndex,
+    inner_index: innerIndex,
   });
-  return await fetch(`${api}/move/pkge/${pkge}`, {
+  return await fetch(`${API}/move/pkge/${pkge}`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
     body,
-  }).then(async (res) => {
-    const data = await res.json();
+  }).then(async (response) => {
+    const data = await response.json();
     return data;
   });
 }
 
-type RenameFileResponse = {
-  old_name: string;
-  new_name: string;
-};
-
-export async function renameFile(
+export async function renameFileInDirectory(
   directory: string,
   pkge: string
 ): Promise<RenameFileResponse> {
-  return await fetch(`${api}/dir/${directory}/${pkge}`, {
+  return await fetch(`${API}/dir/${directory}/${pkge}`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
-  }).then(async (res) => {
-    const data = await res.json();
+  }).then(async (response) => {
+    const data = await response.json();
     return data;
   });
 }
 
-///////////
+//////////
 /* POST */
 //////////
 
-export async function uploadFile(directory: string, file: File) {
+export async function uploadFileToDirectory(directory: string, file: File) {
   const formData = new FormData();
   formData.append("file", file);
-  return await fetch(`${api}/dir/${directory}`, {
+  return await fetch(`${API}/dir/${directory}`, {
     method: "POST",
     body: formData,
-  }).then(async (res) => {
-    const data = await res.json();
+  }).then(async (response) => {
+    const data = await response.json();
     return data;
   });
 }
 
-export async function addPackageToRepo(
+export async function addPackageToRepository(
   pkge: string,
-  repo: string,
-  insertIdx: number
+  repository: string,
+  insertIndex: number
 ): Promise<string[][]> {
   // ensure Content-Type is set and body keys match required shape/order
   const body = JSON.stringify({
     item: pkge,
-    file_name: repo,
-    subTitleIndex: insertIdx,
+    file_name: repository,
+    subTitleIndex: insertIndex,
   });
 
-  return await fetch(`${api}`, {
+  return await fetch(`${API}`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body,
@@ -177,15 +175,15 @@ export async function addPackageToRepo(
   });
 }
 
-export async function createNewDirectoryInRepo(
-  repo: string,
+export async function addDirectoryToRepository(
+  repository: string,
   directory: string
 ): Promise<CreateDirectoryResponse> {
   const body = JSON.stringify({
     directory: directory,
   });
 
-  return await fetch(`${api}/new/${repo}`, {
+  return await fetch(`${API}/new/${repository}`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body,
@@ -195,56 +193,75 @@ export async function createNewDirectoryInRepo(
   });
 }
 
+////////////
+/* DELETE */
+////////////
+
+export async function removePackageFromRepository(
+  pkge: string,
+  repository: string
+): Promise<string[]> {
+  return await fetch(`${API}/pkge/${pkge}/${repository}`, {
+    method: "DELETE",
+  }).then(async (response) => {
+    const data = await response.json();
+    return data;
+  });
+}
+
+export async function removeFileFromDirectory(
+  directory: string,
+  pkge: string
+): Promise<RemovePackageResponse> {
+  return await fetch(`${API}/dir/${directory}/${pkge}`, {
+    method: "DELETE",
+  }).then(async (response) => {
+    const data = await response.json();
+    return data;
+  });
+}
+
+export async function removeDirectoryFromRepository(repository: string, directory: string) {
+  const body = JSON.stringify({
+    directory: directory.trim(),
+  });
+  return await fetch(`${API}/new/${repository}`, {
+    method: "DELETE",
+    headers: { "Content-Type": "application/json" },
+    body,
+  }).then(async (response) => {
+    const data = await response.text();
+    return data;
+  });
+}
+
+///////////
+/* Types */
+///////////
+
+export type OrphanedFile = {
+  name: string;
+  directory: string;
+};
+
+export type OrphanedPackage = {
+  name: string;
+  repository: string[];
+};
+
+export type RenameFileResponse = {
+  old_name: string;
+  new_name: string;
+};
+
 export type CreateDirectoryResponse = {
   added: string;
   index: number;
   directory: string;
 };
 
-/////////////
-/* DELETE */
-////////////
-
-export async function removePackageFromRepo(
-  pkge: string,
-  repo: string
-): Promise<string[]> {
-  return await fetch(`${api}/pkge/${pkge}/${repo}`, { method: "DELETE" }).then(
-    async (response) => {
-      const data = await response.json();
-      return data;
-    }
-  );
-}
-
 export type RemovePackageResponse = {
   directory: string;
   package: string;
   deleted: boolean;
 };
-
-export async function removePackageFromDirectory(
-  directory: string,
-  pkge: string
-): Promise<RemovePackageResponse> {
-  return await fetch(`${api}/dir/${directory}/${pkge}`, {
-    method: "DELETE",
-  }).then(async (res) => {
-    const data = await res.json();
-    return data;
-  });
-}
-
-export async function removeDirectory(repository: string, directory: string) {
-  const body = JSON.stringify({
-    directory: directory.trim(),
-  });
-  return await fetch(`${api}/new/${repository}`, {
-    method: "DELETE",
-    headers: { "Content-Type": "application/json" },
-    body,
-  }).then(async (res) => {
-    const data = await res.text();
-    return data;
-  });
-}

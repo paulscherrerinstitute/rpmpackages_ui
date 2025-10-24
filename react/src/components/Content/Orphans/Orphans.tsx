@@ -5,15 +5,19 @@ import { useState, useEffect } from "react";
 import {
   getOrphanedFiles,
   getOrphanedPackages,
+  type OrphanedFile,
+  type OrphanedPackage,
 } from "../../../helper/dataService";
 
 export function Orphans() {
-  const [fileOrphans, setFileOrphans] = useState<string[]>([]);
-  const [pkgeOrphans, setPkgeOrphans] = useState<string[]>([]);
+  const [fileOrphans, setFileOrphans] = useState<OrphanedFile[]>([]);
+  const [pkgeOrphans, setPkgeOrphans] = useState<OrphanedPackage[]>([]);
 
   const fetchData = async () => {
-    setFileOrphans(await getOrphanedFiles());
-    setPkgeOrphans(await getOrphanedPackages());
+    const o_f = await getOrphanedFiles();
+    setFileOrphans(o_f);
+    const o_p = await getOrphanedPackages();
+    setPkgeOrphans(o_p);
   };
 
   useEffect(() => {
@@ -24,23 +28,31 @@ export function Orphans() {
     <Box component="main" sx={styles.main}>
       <Box sx={o_styles.wrapper}>
         <Box>
-          <Typography variant="h6">File Orphans (No Package within Repos associated )</Typography>
+          <Typography variant="h6">
+            File Orphans (No Package within Repos associated )
+          </Typography>
           <Box>
             <Table>
               {fileOrphans.map((o) => (
                 <TableRow>
-                  <TableCell>{o}</TableCell>
+                  <TableCell>
+                    {o.name} - {o.directory}
+                  </TableCell>
                 </TableRow>
               ))}
             </Table>
           </Box>
         </Box>
         <Box>
-          <Typography variant="h6">Package Orphans (No file associated)</Typography>
+          <Typography variant="h6">
+            Package Orphans (No file associated)
+          </Typography>
           <Table>
             {pkgeOrphans.map((o) => (
               <TableRow>
-                <TableCell>{o}</TableCell>
+                <TableCell>
+                  {o.name} - {o.repository}
+                </TableCell>
               </TableRow>
             ))}
           </Table>

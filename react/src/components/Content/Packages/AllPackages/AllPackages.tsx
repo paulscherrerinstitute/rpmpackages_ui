@@ -7,6 +7,7 @@ import {
   TableCell,
   TableHead,
   TableRow,
+  TextField,
   Tooltip,
   Typography,
 } from "@mui/material";
@@ -176,25 +177,40 @@ export default function AllPackages() {
     );
   }, [inclusionsInDirectories]);
 
+  const [packageSearch, setPackageSearch] = useState("");
+  const updatePackageSearch = (e: React.ChangeEvent<any>) => {
+    if (e.target && e.target.value) {
+      setPackageSearch(e.target.value);
+    } else setPackageSearch("");
+  };
+
   return (
     <Box sx={styles.main}>
       <h2>All Packages</h2>
       <Box>
+        <TextField
+          variant="standard"
+          value={packageSearch}
+          onChange={updatePackageSearch}
+        />
         <Table>
           <TableBody>
-            {data.map((pkge, i) => (
-              <TableRow key={`list-${i}`} hover>
-                <TableCell>
-                  <Typography
-                    sx={styles.clickButton}
-                    key={pkge}
-                    onClick={() => openPopup(pkge)}
-                  >
-                    {pkge}
-                  </Typography>
-                </TableCell>
-              </TableRow>
-            ))}
+            {data.map(
+              (pkge, i) =>
+                (pkge.includes(packageSearch) || packageSearch.length == 0) && (
+                  <TableRow key={`list-${i}`} hover>
+                    <TableCell>
+                      <Typography
+                        sx={styles.clickButton}
+                        key={pkge}
+                        onClick={() => openPopup(pkge)}
+                      >
+                        {pkge}
+                      </Typography>
+                    </TableCell>
+                  </TableRow>
+                )
+            )}
           </TableBody>
         </Table>
       </Box>

@@ -57,7 +57,6 @@ export default function AllPackagesInputPopup({
   };
 
   const handleRemoveAll = async () => {
-    console.log("REMOVE ALL", packageIncludedIn, fileIncludedIn);
     packageIncludedIn.forEach(async (pkge) => {
       var withoutEnd = pkge.replace(".repo_cfg", "");
       if (fileIncludedIn.includes(withoutEnd) && file != null) {

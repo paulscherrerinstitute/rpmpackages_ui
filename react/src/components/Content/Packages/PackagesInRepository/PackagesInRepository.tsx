@@ -152,7 +152,6 @@ export default function PackagesInRepository() {
 
   useEffect(() => {
     setHasLoaded(false);
-    console.log(hasLoaded);
     fetchData();
   }, []); // runs once when component mounts
 
@@ -165,7 +164,6 @@ export default function PackagesInRepository() {
         setHasLoaded(true);
         // Cleanup in case of rerenders or navigation
       }
-      console.log(element);
     }
   }, [fetchData]);
 
@@ -234,7 +232,6 @@ export default function PackagesInRepository() {
 
   const shallShowAnimation = (pkg: string) =>{
     const urlHash = window.location.hash.replace("#", "");
-    console.log(urlHash);
     if(pkg == urlHash)
     return pir_styles.highlightSx
   }

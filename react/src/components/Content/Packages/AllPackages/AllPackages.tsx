@@ -33,6 +33,7 @@ import { useNavigate } from "react-router-dom";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import AddIcon from "@mui/icons-material/Add";
+import ClearIcon from "@mui/icons-material/Clear";
 import { AddDetails } from "../../Details/AddDetails/AddRepository";
 import {
   DetailsPopup,
@@ -184,15 +185,28 @@ export default function AllPackages() {
     } else setPackageSearch("");
   };
 
+  const clearPackageSearch = () => setPackageSearch("");
+
   return (
     <Box sx={styles.main}>
-      <h2>All Packages</h2>
-      <Box>
-        <TextField
-          variant="standard"
-          value={packageSearch}
-          onChange={updatePackageSearch}
-        />
+      <Box sx={ap_styles.body}>
+        <Box sx={ap_styles.titleWrapper}>
+          <Typography variant="h5">All Packages</Typography>
+          <Box sx={ap_styles.searchWrapper}>
+            <TextField
+              variant="standard"
+              value={packageSearch}
+              onChange={updatePackageSearch}
+              label="Search Packages"
+            />
+            <Tooltip title="Clear search">
+              <ClearIcon
+                onClick={clearPackageSearch}
+                sx={styles.clickButtonBig}
+              />
+            </Tooltip>
+          </Box>
+        </Box>
         <Table>
           <TableBody>
             {data.map(

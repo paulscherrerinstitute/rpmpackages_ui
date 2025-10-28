@@ -1,20 +1,5 @@
 import { type SxProps, type Theme } from "@mui/material";
 
-export const wrapper: SxProps<Theme> = {
-  display: "flex",
-  flexDirection: "column",
-  padding: 1,
-  marginTop: 0.5,
-  width: "100%",
-  overflowX: "clip",
-  "& > div": {
-    marginBlock: 2,
-  },
-  "& > * > table": {
-    tableLayout: "fixed",
-  },
-};
-
 export const titleWrapper: SxProps<Theme> = {
   display: "flex",
   flexDirection: "row",
@@ -30,5 +15,17 @@ export const searchWrapper: SxProps<Theme> = {
   "& > svg": {
     marginInlineStart: 2,
     cursor: "pointer",
+  },
+};
+
+export const body: SxProps<Theme> = {
+  display: "flex",
+  flexDirection: "column",
+  padding: 1,
+  marginTop: 0.5,
+  width: "100%",
+  overflowX: "clip",
+  "& > table": {
+    tableLayout: "fixed",
   },
 };

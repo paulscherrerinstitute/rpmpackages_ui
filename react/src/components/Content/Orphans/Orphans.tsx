@@ -14,11 +14,15 @@ import { useState, useEffect } from "react";
 import {
   getOrphanedFiles,
   getOrphanedPackages,
+  removeFileFromDirectory,
+  addPackageToRepository,
   type OrphanedFile,
   type OrphanedPackage,
 } from "../../../helper/dataService";
 import { useNavigate } from "react-router-dom";
 import ClearIcon from "@mui/icons-material/Clear";
+import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
+import AddIcon from "@mui/icons-material/Add";
 
 export function Orphans() {
   const [fileOrphans, setFileOrphans] = useState<OrphanedFile[]>([]);
@@ -55,16 +59,28 @@ export function Orphans() {
   const clearFoSearch = () => setFoSearch("");
   const clearPoSearch = () => setPoSearch("");
 
+  const deleteOrphanedFile = async (o: OrphanedFile) => {
+    await removeFileFromDirectory(o.directory, o.name);
+    await fetchData();
+  };
+
   useEffect(() => {
     fetchData();
   }, []);
+
+  const addOrphanedFile = async (o: OrphanedFile) => {
+    await addPackageToRepository(o.name, o.directory, -1);
+    await fetchData();
+  };
 
   return (
     <Box component="main" sx={styles.main}>
       <Box sx={o_styles.wrapper}>
         <Box>
           <Box sx={o_styles.titleWrapper}>
-            <Typography variant="h6">File Orphans</Typography>
+            <Typography variant="h6">
+              File Orphans (No associated package within any repository)
+            </Typography>
             <Box sx={o_styles.searchWrapper}>
               <TextField
                 variant="standard"
@@ -84,11 +100,25 @@ export function Orphans() {
                   (o) =>
                     (o.name.includes(foSearch) || foSearch.length == 0) && (
                       <TableRow key={o.name} hover>
-                        <TableCell>
-                          {o.name} - {o.directory}
+                        <TableCell>{o.name}</TableCell>
+                        <TableCell>{o.directory}</TableCell>
+                        <TableCell sx={o_styles.fileOrphanIcons}>
+                          <Tooltip title="Add Orphaned File to repository">
+                            <AddIcon onClick={() => addOrphanedFile(o)} />
+                          </Tooltip>
+                          <Tooltip title="Delete Orphaned file completely">
+                            <DeleteOutlineIcon
+                              onClick={() => deleteOrphanedFile(o)}
+                            />
+                          </Tooltip>
                         </TableCell>
                       </TableRow>
                     )
+                )}
+                {fileOrphans.length == 0 && (
+                  <TableRow hover>
+                    <TableCell>NO ORPHANED FILE DETECTED</TableCell>
+                  </TableRow>
                 )}
               </TableBody>
             </Table>
@@ -96,7 +126,9 @@ export function Orphans() {
         </Box>
         <Box>
           <Box sx={o_styles.titleWrapper}>
-            <Typography variant="h6">Package Orphans</Typography>
+            <Typography variant="h6">
+              Package Orphans (No associated file to a package in a repository)
+            </Typography>
             <Box sx={o_styles.searchWrapper}>
               <TextField
                 variant="standard"
@@ -119,11 +151,19 @@ export function Orphans() {
                       hover
                       onClick={() => navigateToPackage(o)}
                     >
+                      <TableCell>{o.name}</TableCell>
                       <TableCell>
-                        {o.name} - {o.repository}
+                        {o.repository.map((repos) => (
+                          <span key={repos}>{`${repos}, `}</span>
+                        ))}
                       </TableCell>
                     </TableRow>
                   )
+              )}
+              {pkgeOrphans.length == 0 && (
+                <TableRow hover>
+                  <TableCell>NO ORPHANED PACKAGE DETECTED</TableCell>
+                </TableRow>
               )}
             </TableBody>
           </Table>

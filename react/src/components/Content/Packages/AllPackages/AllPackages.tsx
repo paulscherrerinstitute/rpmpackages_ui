@@ -135,8 +135,10 @@ export default function AllPackages() {
   };
 
   const fetchInclusionsInDirectories = async () => {
-    var inclDirectories = await getDirectoriesIncludingPkge(pkge);
-    setInclusionsInDirectories(inclDirectories);
+    if(pkge){
+      var inclDirectories = await getDirectoriesIncludingPkge(pkge);
+      setInclusionsInDirectories(inclDirectories);
+    }
   };
 
   const fetchFile = async () => {

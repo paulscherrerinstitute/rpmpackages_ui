@@ -13,12 +13,12 @@ FILE_ENDING = ".repo_cfg"
 #############
 
 
-class FileOrphan(BaseModel):
+class PackageFile(BaseModel):
     name: str
     directory: str
 
 
-class PackageOrphan(BaseModel):
+class Package(BaseModel):
     name: str
     repository: list[str]
 
@@ -89,24 +89,25 @@ async def list_files() -> list[str]:
 
 # Get list of files without a mention in a repository
 @router.get("/data/dir/file/orphans", response_class=JSONResponse)
-async def list_orphaned_files() -> list[FileOrphan]:
-    complete_list: list[str] = get_all_packages()
-    orphans: list[FileOrphan] = []
+async def list_orphaned_files() -> list[PackageFile]:
+    complete_list: list[PackageFile] = get_all_packages_with_repos()
+    orphans: list[PackageFile] = []
     for directory in get_repo_directories():
         file_path = os.path.join(REPO_DIR, directory)
+
         for file in os.listdir(file_path):
-            if file not in complete_list:
-                file_orphan: FileOrphan = FileOrphan(name=file, directory=directory)
-                orphans.append(file_orphan)
+            current: PackageFile = PackageFile(name=file, directory=directory)
+            if current not in complete_list:
+                orphans.append(current)
 
     return orphans
 
 
 # Get list of packages without a corresponding file
 @router.get("/data/dir/pkge/orphans", response_class=JSONResponse)
-async def list_orphaned_pkge() -> list[PackageOrphan]:
+async def list_orphaned_pkge() -> list[Package]:
     complete_list: list[str] = []
-    orphans: list[PackageOrphan] = []
+    orphans: list[Package] = []
 
     for directory in get_repo_directories():
         file_path = os.path.join(REPO_DIR, directory)
@@ -115,7 +116,7 @@ async def list_orphaned_pkge() -> list[PackageOrphan]:
 
     for package in get_all_packages():
         if package not in complete_list:
-            package_orphan: PackageOrphan = PackageOrphan(
+            package_orphan: Package = Package(
                 name=package, repository=get_specific_package(package)
             )
             orphans.append(package_orphan)
@@ -297,6 +298,8 @@ async def create_item(request: CreateRequest) -> list[list[str]]:
     item = request.item
     idx = request.subTitleIndex
     file_name = request.file_name
+    if FILE_ENDING not in file_name:
+        file_name += FILE_ENDING
 
     file_path = os.path.join(REPO_DIR, file_name)
     if not os.path.isfile(file_path):
@@ -306,6 +309,8 @@ async def create_item(request: CreateRequest) -> list[list[str]]:
     txt = [t.split("\n") for t in text_by_category]
     txt = [[line for line in t if len(line) > 0] for t in txt]
 
+    if idx == -1:
+        idx = len(text_by_category) - 1
     if len(txt) > 0 and len(txt) >= idx:
         # Append item to specified place
         (txt[idx]).append(item)
@@ -397,6 +402,23 @@ def get_all_packages() -> list[str]:
                     if isIncluded == True:
                         unique_pkges.append(pk)
     return unique_pkges
+
+
+def get_all_packages_with_repos() -> list[PackageFile]:
+    files = os.listdir(REPO_DIR)
+    packages: list[PackageFile] = []
+    for f in files:
+        file_path = os.path.join(REPO_DIR, f)
+        if os.path.isfile(file_path):
+            first_arr = assemble_repo(file_path)
+            contents = list(map(split_lines, first_arr))
+            dir = f.replace(".repo_cfg", "")
+
+            for category in contents:
+                for pkge in category:
+                    packages.append(PackageFile(name=pkge, directory=dir))
+
+    return packages
 
 
 def get_specific_package(pkge: str) -> list[str]:

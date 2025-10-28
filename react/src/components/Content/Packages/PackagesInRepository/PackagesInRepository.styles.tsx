@@ -59,15 +59,32 @@ export const listButtons: SxProps<Theme> = {
 
 const highlightFade = keyframes`
   0% {
-    background-color: #9eb9c5ff; /* Light yellow (MUI's yellow[200]) */
+    background-color: #9eb9c5ff;
   }
   100% {
     background-color: transparent;
   }
 `;
 
-export const highlightSx: SxProps<Theme> = (theme) => ({
+export const highlightSx: SxProps<Theme> = () => ({
   animation: `${highlightFade} 5s ease-out`,
   transition: "background-color 5s ease-out",
   borderRadius: "4px",
 });
+
+export const body: SxProps<Theme> = {
+  display: "flex",
+  flexDirection: "column",
+  padding: 1,
+  width: "95vw",
+  overflowX: "clip",
+};
+
+export const searchWrapper: SxProps<Theme> = {
+  display: "flex",
+  flexDirection: "row",
+  alignItems: "end",
+  "& > svg": {
+    marginInlineStart: 2,
+  },
+};

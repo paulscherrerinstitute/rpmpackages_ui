@@ -32,3 +32,13 @@ export const searchWrapper: SxProps<Theme> = {
     cursor: "pointer",
   },
 };
+
+export const fileOrphanIcons: SxProps<Theme> = {
+  "& > svg": {
+    marginInline: 0.5,
+    cursor: "pointer",
+  },
+  display: "flex",
+  flexDirection: "row",
+  justifyContent: "center"
+};

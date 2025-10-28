@@ -32,6 +32,7 @@ import {
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import AddIcon from "@mui/icons-material/Add";
+import ClearIcon from "@mui/icons-material/Clear";
 
 export default function PackagesInRepository() {
   // Display List
@@ -80,7 +81,7 @@ export default function PackagesInRepository() {
 
   const handleSubtitleButtonClick = async () => {
     setAddOpen(true);
-    await fetchFile();
+
   };
 
   const handleSubtitleClose = () => setAddOpen(false);
@@ -230,24 +231,51 @@ export default function PackagesInRepository() {
     await fetchFile();
   };
 
-  const shallShowAnimation = (pkg: string) =>{
+  const shallShowAnimation = (pkg: string) => {
     const urlHash = window.location.hash.replace("#", "");
-    if(pkg == urlHash)
-    return pir_styles.highlightSx
-  }
+    if (pkg == urlHash) return pir_styles.highlightSx;
+  };
+
+  const [packageSearch, setPackageSearch] = useState("");
+  const updatePackageSearch = (e: React.ChangeEvent<any>) => {
+    if (e.target && e.target.value) {
+      setPackageSearch(e.target.value);
+    } else setPackageSearch("");
+  };
+
+  const clearPackageSearch = () => setPackageSearch("");
 
   return (
     <Box sx={styles.main}>
       {permPath.length > 0 && !isNotFound && (
-        <Box sx={styles.body}>
+        <Box sx={pir_styles.body}>
           <Box sx={styles.packageTitle}>
-            <h2>Packages for {permPath.toUpperCase()}</h2>
+            <Typography variant="h5">
+              Packages for {permPath.toUpperCase()}
+            </Typography>
             <Tooltip title="Add subtitle">
-              <AddIcon
+              <Button
                 sx={styles.clickButtonBig}
                 onClick={handleSubtitleButtonClick}
-              />
+                variant="outlined"
+              >
+                Add Subtitle
+              </Button>
             </Tooltip>
+            <Box sx={pir_styles.searchWrapper}>
+              <TextField
+                variant="standard"
+                value={packageSearch}
+                onChange={updatePackageSearch}
+                label="Search Packages"
+              />
+              <Tooltip title="Clear search">
+                <ClearIcon
+                  onClick={clearPackageSearch}
+                  sx={styles.clickButtonBig}
+                />
+              </Tooltip>
+            </Box>
             <SubtitleDialog
               open={addOpen}
               onClose={handleSubtitleClose}
@@ -280,6 +308,8 @@ export default function PackagesInRepository() {
               <List>
                 {item.map(
                   (pkg, innerIdx) =>
+                    (pkg.includes(packageSearch) ||
+                      packageSearch.length == 0) &&
                     innerIdx != 0 && (
                       <ListItem
                         id={pkg}
@@ -289,7 +319,9 @@ export default function PackagesInRepository() {
                         onDragStart={(e) => handleDragStart(e, pkg)}
                         sx={pir_styles.listItem(pkg == dragging)}
                       >
-                        <ListItemText sx={shallShowAnimation(pkg)}>{pkg}</ListItemText>
+                        <ListItemText sx={shallShowAnimation(pkg)}>
+                          {pkg}
+                        </ListItemText>
                         <Box sx={pir_styles.listButtons}>
                           {!pkg.includes("#") && (
                             <Tooltip title="Edit package">

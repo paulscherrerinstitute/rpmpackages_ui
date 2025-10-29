@@ -40,6 +40,7 @@ import {
   type DetailsForm,
 } from "../../Details/DetailsPopup/DetailsPopup";
 import AllPackagesInputPopup from "../../Details/AllPackagesInputPopup/AllPackagesInputPopup";
+import { SearchResultsEmpty } from "../../Details/SearchResultsEmpty/SearchResultsEmpty";
 
 export default function AllPackages() {
   const [data, setData] = useState<string[]>([]);
@@ -135,7 +136,7 @@ export default function AllPackages() {
   };
 
   const fetchInclusionsInDirectories = async () => {
-    if(pkge){
+    if (pkge) {
       var inclDirectories = await getDirectoriesIncludingPkge(pkge);
       setInclusionsInDirectories(inclDirectories);
     }
@@ -188,6 +189,14 @@ export default function AllPackages() {
   };
 
   const clearPackageSearch = () => setPackageSearch("");
+  const mapDataForSearchResults = (arr: string[]) => {
+    var mapped = arr.map((f) => {
+      return {
+        name: f,
+      };
+    });
+    return mapped;
+  };
 
   return (
     <Box sx={styles.main}>
@@ -211,9 +220,10 @@ export default function AllPackages() {
         </Box>
         <Table>
           <TableBody>
-            {data.map(
-              (pkge, i) =>
-                (pkge.includes(packageSearch) || packageSearch.length == 0) && (
+            {data.map((pkge, i) => (
+              <>
+                {(pkge.includes(packageSearch) ||
+                  packageSearch.length == 0) && (
                   <TableRow key={`list-${i}`} hover>
                     <TableCell>
                       <Typography
@@ -225,8 +235,16 @@ export default function AllPackages() {
                       </Typography>
                     </TableCell>
                   </TableRow>
-                )
-            )}
+                )}
+              </>
+            ))}
+            <SearchResultsEmpty
+              allResults={mapDataForSearchResults(data)}
+              searchField={packageSearch}
+              onEmpty="No packages found in any repository"
+              onNoMatch="No Match"
+              onEmptyColor="rgba(255, 0, 0, 0.05)"
+            />
           </TableBody>
         </Table>
       </Box>

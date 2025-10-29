@@ -106,20 +106,18 @@ async def list_orphaned_files() -> list[PackageFile]:
 # Get list of packages without a corresponding file
 @router.get("/data/dir/pkge/orphans", response_class=JSONResponse)
 async def list_orphaned_pkge() -> list[Package]:
-    complete_list: list[str] = []
+    complete_list: list[Package] = []
     orphans: list[Package] = []
 
     for directory in get_repo_directories():
         file_path = os.path.join(REPO_DIR, directory)
         for file in os.listdir(file_path):
-            complete_list.append(file)
+            complete_list.append(Package(name=file, repository=[directory]))
 
-    for package in get_all_packages():
-        if package not in complete_list:
-            package_orphan: Package = Package(
-                name=package, repository=get_specific_package(package)
-            )
-            orphans.append(package_orphan)
+    for package in get_all_packages_with_repos():
+        p: Package = Package(name=package.name, repository=[package.directory])
+        if p not in complete_list and "rpm" in p.name:
+            orphans.append(p)
 
     return orphans
 

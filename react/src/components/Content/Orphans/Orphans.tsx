@@ -23,6 +23,7 @@ import { useNavigate } from "react-router-dom";
 import ClearIcon from "@mui/icons-material/Clear";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import AddIcon from "@mui/icons-material/Add";
+import { SearchResultsEmpty } from "../Details/SearchResultsEmpty/SearchResultsEmpty";
 
 export function Orphans() {
   const [fileOrphans, setFileOrphans] = useState<OrphanedFile[]>([]);
@@ -115,11 +116,12 @@ export function Orphans() {
                       </TableRow>
                     )
                 )}
-                {fileOrphans.length == 0 && (
-                  <TableRow hover>
-                    <TableCell>NO ORPHANED FILE DETECTED</TableCell>
-                  </TableRow>
-                )}
+                <SearchResultsEmpty
+                  allResults={fileOrphans}
+                  searchField={foSearch}
+                  onEmpty="No Orphans"
+                  onNoMatch="No Match"
+                />
               </TableBody>
             </Table>
           </Box>
@@ -152,19 +154,16 @@ export function Orphans() {
                       onClick={() => navigateToPackage(o)}
                     >
                       <TableCell>{o.name}</TableCell>
-                      <TableCell>
-                        {o.repository.map((repos) => (
-                          <span key={repos}>{`${repos}, `}</span>
-                        ))}
-                      </TableCell>
+                      <TableCell>{o.repository}</TableCell>
                     </TableRow>
                   )
               )}
-              {pkgeOrphans.length == 0 && (
-                <TableRow hover>
-                  <TableCell>NO ORPHANED PACKAGE DETECTED</TableCell>
-                </TableRow>
-              )}
+              <SearchResultsEmpty
+                allResults={pkgeOrphans}
+                searchField={poSearch}
+                onEmpty="No Orphans"
+                onNoMatch="No Match"
+              />
             </TableBody>
           </Table>
         </Box>

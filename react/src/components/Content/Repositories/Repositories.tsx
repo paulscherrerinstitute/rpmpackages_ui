@@ -1,6 +1,5 @@
 import {
   Box,
-  Toolbar,
   Table,
   TableBody,
   TableCell,
@@ -15,6 +14,7 @@ import * as styles from "../Content.styles";
 import { useNavigate } from "react-router-dom";
 import * as r_styles from "./Repositories.styles";
 import ClearIcon from "@mui/icons-material/Clear";
+import { SearchResultsEmpty } from "../Details/SearchResultsEmpty/SearchResultsEmpty";
 
 export function Repositories() {
   const [availableRepos, setAvailableRepos] = useState<string[]>([]);
@@ -36,6 +36,12 @@ export function Repositories() {
   };
 
   const clearRepoSearch = () => setRepoSearch("");
+  const mapAvailableRepos = (arr: string[]) => {
+    var mapped = arr.map((f) => {
+      return { name: f };
+    });
+    return mapped;
+  };
 
   return (
     <Box component="main" sx={styles.main}>
@@ -70,6 +76,13 @@ export function Repositories() {
                   </TableRow>
                 )
             )}
+            <SearchResultsEmpty
+              allResults={mapAvailableRepos(availableRepos)}
+              searchField={repoSearch}
+              onEmpty="No .repo_cfg files found"
+              onNoMatch="No Match"
+              onEmptyColor="rgba(255, 0, 0, 0.05)"
+            />
           </TableBody>
         </Table>
       </Box>

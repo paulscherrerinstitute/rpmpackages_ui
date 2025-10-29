@@ -40,5 +40,5 @@ export const fileOrphanIcons: SxProps<Theme> = {
   },
   display: "flex",
   flexDirection: "row",
-  justifyContent: "center"
+  justifyContent: "center",
 };

@@ -33,6 +33,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import AddIcon from "@mui/icons-material/Add";
 import ClearIcon from "@mui/icons-material/Clear";
+import { SearchResultsEmpty } from "../../Details/SearchResultsEmpty/SearchResultsEmpty";
 
 export default function PackagesInRepository() {
   // Display List
@@ -81,7 +82,6 @@ export default function PackagesInRepository() {
 
   const handleSubtitleButtonClick = async () => {
     setAddOpen(true);
-
   };
 
   const handleSubtitleClose = () => setAddOpen(false);
@@ -244,6 +244,14 @@ export default function PackagesInRepository() {
   };
 
   const clearPackageSearch = () => setPackageSearch("");
+  const mapPackagesForSearchResults = (arr: string[]) => {
+    var mapped = arr.map((f) => {
+      return {
+        name: f,
+      };
+    });
+    return mapped;
+  };
 
   return (
     <Box sx={styles.main}>
@@ -343,6 +351,13 @@ export default function PackagesInRepository() {
                       </ListItem>
                     )
                 )}
+                <SearchResultsEmpty
+                  allResults={mapPackagesForSearchResults(item)}
+                  searchField={packageSearch}
+                  onEmpty="No package"
+                  onNoMatch="No Match"
+                  treatAsList
+                />
               </List>
             </Box>
           ))}

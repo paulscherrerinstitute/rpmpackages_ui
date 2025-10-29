@@ -220,11 +220,10 @@ export default function AllPackages() {
         </Box>
         <Table>
           <TableBody>
-            {data.map((pkge, i) => (
-              <>
-                {(pkge.includes(packageSearch) ||
-                  packageSearch.length == 0) && (
-                  <TableRow key={`list-${i}`} hover>
+            {data.map(
+              (pkge, i) =>
+                (pkge.includes(packageSearch) || packageSearch.length == 0) && (
+                  <TableRow key={`${pkge}-${i}`} hover>
                     <TableCell>
                       <Typography
                         sx={styles.clickButton}
@@ -235,9 +234,8 @@ export default function AllPackages() {
                       </Typography>
                     </TableCell>
                   </TableRow>
-                )}
-              </>
-            ))}
+                )
+            )}
             <SearchResultsEmpty
               allResults={mapDataForSearchResults(data)}
               searchField={packageSearch}

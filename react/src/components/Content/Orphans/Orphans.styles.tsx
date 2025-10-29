@@ -42,3 +42,29 @@ export const fileOrphanIcons: SxProps<Theme> = {
   flexDirection: "row",
   justifyContent: "center",
 };
+
+export const packageOrphanIcons: SxProps<Theme> = {
+  "& > svg": {
+    marginInline: 0.75,
+  },
+  display: "flex",
+  flexDirection: "row",
+  justifyContent: "end",
+};
+
+// UploadFileDialog
+export const dialogueWrapper: SxProps<Theme> = {
+  display: "flex",
+  flexDirection: "column",
+  padding: 2,
+  "& > * > button": {
+    margin: 2,
+    width: "10vw",
+  },
+  "& > div": {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+};

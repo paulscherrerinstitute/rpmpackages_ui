@@ -46,7 +46,7 @@ export function AddDetails({
   const handleAdd = async () => {
     const res: CreateDirectoryResponse = await addDirectoryToRepository(
       newRepo,
-      "Added via Overiew"
+      "Added via Overview"
     );
     await addPackageToRepository(item, newRepo, res.index);
     handleClose();

@@ -76,6 +76,8 @@ async def list_files() -> list[str]:
                 element not in file_list
                 and not os.path.isdir(os.path.join(REPO_DIR, element))
                 and FILE_ENDING in element
+                # ignore legacy .repo_cfgn-Files
+                and FILE_ENDING + "n" not in element
             ):
                 file_list.append(element)
         return file_list
@@ -410,7 +412,7 @@ def get_all_packages_with_repos() -> list[PackageFile]:
         if os.path.isfile(file_path):
             first_arr = assemble_repo(file_path)
             contents = list(map(split_lines, first_arr))
-            dir = f.replace(".repo_cfg", "")
+            dir = f.replace(FILE_ENDING, "")
 
             for category in contents:
                 for pkge in category:
@@ -423,8 +425,13 @@ def get_specific_package(pkge: str) -> list[str]:
     files = os.listdir(REPO_DIR)
     includedIn: list[str] = []
     for f in files:
+        print(f)
         file_path = os.path.join(REPO_DIR, f)
-        if os.path.isfile(file_path):
+        if (
+            os.path.isfile(file_path)
+            and FILE_ENDING in file_path
+            and not FILE_ENDING + "n" in file_path
+        ):
 
             # GET DATA
             first_arr = assemble_repo(file_path)

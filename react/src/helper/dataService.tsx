@@ -1,5 +1,6 @@
+import { permittedFileEnding } from "../components/helpers/NavbarHelper";
+
 const API: string = "http://localhost:8000/data";
-const FILE_ENDING: string = "repo_cfg";
 
 /////////
 /* GET */
@@ -8,7 +9,7 @@ const FILE_ENDING: string = "repo_cfg";
 export async function getAllPackagesFromRepository(
   repository: string
 ): Promise<string[][]> {
-  const response = await fetch(`${API}/${repository}.${FILE_ENDING}`);
+  const response = await fetch(`${API}/${repository}${permittedFileEnding}`);
   const text = await response.text();
 
   var textByCategory = text.split("\n\n#");
@@ -35,7 +36,9 @@ export async function getAllPackagesOverall(): Promise<string[]> {
   });
 }
 
-export async function getRepositoriesOfPackage(pkge: string): Promise<string[]> {
+export async function getRepositoriesOfPackage(
+  pkge: string
+): Promise<string[]> {
   return await fetch(`${API}/pkge/${pkge}`).then(async (response) => {
     const data = await response.json();
     return data;
@@ -59,7 +62,9 @@ export async function getPackageFileFromDirectory(
   );
 }
 
-export async function getDirectoriesIncludingPkge(pkge: string): Promise<string[]> {
+export async function getDirectoriesIncludingPkge(
+  pkge: string
+): Promise<string[]> {
   return await fetch(`${API}/dir/pkge/${pkge}`).then(async (response) => {
     const data = await response.json();
     return data;
@@ -201,9 +206,12 @@ export async function removePackageFromRepository(
   pkge: string,
   repository: string
 ): Promise<string[]> {
-  return await fetch(`${API}/pkge/${pkge}/${repository}.${FILE_ENDING}`, {
-    method: "DELETE",
-  }).then(async (response) => {
+  return await fetch(
+    `${API}/pkge/${pkge}/${repository}.${permittedFileEnding}`,
+    {
+      method: "DELETE",
+    }
+  ).then(async (response) => {
     const data = await response.json();
     return data;
   });
@@ -221,7 +229,10 @@ export async function removeFileFromDirectory(
   });
 }
 
-export async function removeDirectoryFromRepository(repository: string, directory: string) {
+export async function removeDirectoryFromRepository(
+  repository: string,
+  directory: string
+) {
   const body = JSON.stringify({
     directory: directory.trim(),
   });

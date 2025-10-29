@@ -41,6 +41,7 @@ import {
 } from "../../Details/DetailsPopup/DetailsPopup";
 import AllPackagesInputPopup from "../../Details/AllPackagesInputPopup/AllPackagesInputPopup";
 import { SearchResultsEmpty } from "../../Details/SearchResultsEmpty/SearchResultsEmpty";
+import { permittedFileEnding } from "../../../helpers/NavbarHelper";
 
 export default function AllPackages() {
   const [data, setData] = useState<string[]>([]);
@@ -59,21 +60,15 @@ export default function AllPackages() {
   const navigate = useNavigate();
 
   const fetchData = async () => {
-    try {
-      const resultData = await getAllPackagesOverall();
-      setData(resultData.sort((a, b) => a.localeCompare(b)));
-    } catch (err) {
-      console.error("Error loading data:", err);
-    }
+    setIsLoading(true);
+    const resultData = await getAllPackagesOverall();
+    setData(resultData.sort((a, b) => a.localeCompare(b)));
+    setIsLoading(false);
   };
 
   const fetchInclusionData = async (pk: string) => {
-    try {
-      const resultData = await getRepositoriesOfPackage(pk);
-      setinclusionsInRepositories(resultData);
-    } catch (err) {
-      console.error("Error loading data:", err);
-    }
+    const resultData = await getRepositoriesOfPackage(pk);
+    setinclusionsInRepositories(resultData);
   };
 
   const openPopup = (pk: string) => {
@@ -131,8 +126,8 @@ export default function AllPackages() {
     inclusionsInRepositories.forEach(async (rep) => {
       await updatePackageInRepository(pkge, pk, rep);
     });
-    await fetchData;
-    await fetchInclusionData;
+    await fetchData();
+    fetchInclusionData;
   };
 
   const fetchInclusionsInDirectories = async () => {
@@ -197,6 +192,8 @@ export default function AllPackages() {
     });
     return mapped;
   };
+
+  const [isLoading, setIsLoading] = useState(true);
 
   return (
     <Box sx={styles.main}>
@@ -298,7 +295,7 @@ export default function AllPackages() {
                       <Typography
                         sx={styles.clickButton}
                         onClick={() =>
-                          navigate(`/Packages/${i.replace(".repo_cfg", "")}`)
+                          navigate(`/Packages/${i.replace(permittedFileEnding, "")}`)
                         }
                       >
                         {i}
@@ -310,11 +307,11 @@ export default function AllPackages() {
                     >
                       {Array.isArray(inclusionsInDirectories) &&
                         !inclusionsInDirectories.includes(
-                          i.replace(".repo_cfg", "")
+                          i.replace(permittedFileEnding, "")
                         ) && <Box sx={ap_styles.noFile}>No File detected.</Box>}
                       {Array.isArray(inclusionsInDirectories) &&
                         inclusionsInDirectories.includes(
-                          i.replace(".repo_cfg", "")
+                          i.replace(permittedFileEnding, "")
                         ) && <Box sx={ap_styles.isFile}>File detected.</Box>}
                       <Tooltip
                         sx={styles.clickButtonBig}

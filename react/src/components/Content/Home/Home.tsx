@@ -4,7 +4,8 @@ import { useNavigate } from "react-router-dom";
 
 export function Home() {
   const navigate = useNavigate();
-  const url = "{someServer}";
+  const URL = "SERVERNAME";
+  const GITHUB_URL = "https://github.com/paulscherrerinstitute/rpmpackages_ui"
 
   return (
     <Box component="main" sx={styles.main}>
@@ -14,14 +15,14 @@ export function Home() {
         <Box>
           <h3 onClick={() => navigate("/Repositories")}>Repositories</h3>
           <Typography>
-            All repositories on {url} are shown here. By clicking on it, you can
+            All repositories on {URL} are shown here. By clicking on it, you can
             edit the repositories and its packages.
           </Typography>
         </Box>
         <Box>
           <h3 onClick={() => navigate("/Packages")}>Packages</h3>
           <Typography>
-            All Packages that exist on {url} - by pressing on them, you can view
+            All Packages that exist on {URL} - by pressing on them, you can view
             details and in which repositories they are.
           </Typography>
         </Box>
@@ -29,8 +30,11 @@ export function Home() {
       <Box>
         <h2>Documentation</h2>
         <Typography>
-          The Documentation is located at{" "}
-          <a href="">Somewhere (Over the Rainbow)</a>
+          The Documentation is located{" "}
+          <a href={GITHUB_URL}>
+            here
+          </a>
+          .
         </Typography>
         <Box>
           <h2>Acknoledgements</h2>

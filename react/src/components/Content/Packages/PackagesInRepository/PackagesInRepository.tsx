@@ -34,6 +34,7 @@ import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import AddIcon from "@mui/icons-material/Add";
 import ClearIcon from "@mui/icons-material/Clear";
 import { SearchResultsEmpty } from "../../Details/SearchResultsEmpty/SearchResultsEmpty";
+import { permittedFileEnding } from "../../../helpers/NavbarHelper";
 
 export default function PackagesInRepository() {
   // Display List
@@ -95,12 +96,12 @@ export default function PackagesInRepository() {
   };
 
   const handleSubtitleRemove = async (directory: string) => {
-    await removeDirectoryFromRepository(permPath + ".repo_cfg", directory);
+    await removeDirectoryFromRepository(permPath + permittedFileEnding, directory);
     await fetchData();
   };
 
   const handleSubtitleAdd = async (newSubtitle: string) => {
-    const path = permPath + ".repo_cfg";
+    const path = permPath + permittedFileEnding;
     await addDirectoryToRepository(path, newSubtitle);
     setAddOpen(false);
     await fetchData();
@@ -131,7 +132,7 @@ export default function PackagesInRepository() {
     } else {
       pk = `${form.name}-${form.version}.${form.distribution}.${form.architecture}.rpm`;
     }
-    var repo_path = `${permPath}.repo_cfg`;
+    var repo_path = `${permPath}${permittedFileEnding}`;
     await updatePackageInRepository(pkge, pk, repo_path);
     if (file != null) {
       await uploadFileToDirectory(permPath, file);
@@ -146,7 +147,7 @@ export default function PackagesInRepository() {
     } else {
       pk = `${form.name}-${form.version}.${form.distribution}.${form.architecture}.rpm`;
     }
-    var repo_path = `${permPath}.repo_cfg`;
+    var repo_path = `${permPath}${permittedFileEnding}`;
     await addPackageToRepository(pk, repo_path, outerIdx);
     fetchData();
   };
@@ -218,7 +219,7 @@ export default function PackagesInRepository() {
     if (dragging != "") {
       await movePackageToRepository(
         dragging,
-        permPath + ".repo_cfg",
+        permPath + permittedFileEnding,
         o_idx,
         i_idx
       );
@@ -231,9 +232,10 @@ export default function PackagesInRepository() {
     await fetchFile();
   };
 
-  const shallShowAnimation = (pkg: string) => {
+  const shouldShowAnimation = (pkg: string) => {
     const urlHash = window.location.hash.replace("#", "");
-    if (pkg == urlHash) return pir_styles.highlightSx;
+    if (pkg == urlHash) return true;
+    return false;
   };
 
   const [packageSearch, setPackageSearch] = useState("");
@@ -325,11 +327,12 @@ export default function PackagesInRepository() {
                         key={`${outerIdx}-${innerIdx}-${pkg}`}
                         draggable
                         onDragStart={(e) => handleDragStart(e, pkg)}
-                        sx={pir_styles.listItem(pkg == dragging)}
+                        sx={pir_styles.listItem(
+                          pkg == dragging,
+                          shouldShowAnimation(pkg)
+                        )}
                       >
-                        <ListItemText sx={shallShowAnimation(pkg)}>
-                          {pkg}
-                        </ListItemText>
+                        <ListItemText>{pkg}</ListItemText>
                         <Box sx={pir_styles.listButtons}>
                           {!pkg.includes("#") && (
                             <Tooltip title="Edit package">

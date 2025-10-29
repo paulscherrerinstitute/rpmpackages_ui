@@ -38,7 +38,10 @@ export const formWrapper: SxProps<Theme> = {
   },
 };
 
-export const listItem = (isSelected: boolean): SxProps<Theme> => ({
+export const listItem = (
+  isSelected: boolean,
+  showAnimation: boolean
+): SxProps<Theme> => ({
   "&:hover": {
     background: "rgba(130, 130, 130, 0.1)",
     cursor: "grab",
@@ -47,6 +50,9 @@ export const listItem = (isSelected: boolean): SxProps<Theme> => ({
     background: "rgba(130, 130, 130, 1)",
   },
   borderBottom: isSelected ? "2px solid black" : "none",
+  animation: showAnimation ? `${highlightFade} 5s ease-out` : "none",
+  transition: showAnimation ? "background-color 5s ease-out" : "none",
+  borderRadius: showAnimation ? "4px" : "",
 });
 
 export const listButtons: SxProps<Theme> = {

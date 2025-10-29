@@ -7,6 +7,7 @@ export const NavItems = [
   { key: "Home", path: "/Home", component: Home },
   { key: "Repositories", path: "/Repositories", component: Repositories },
   { key: "Packages", path: "/Packages", component: Packages },
-  { key: "Orphans", path: "/Orphans", component: Orphans}
+  { key: "Orphans", path: "/Orphans", component: Orphans },
 ];
 export const Title = "RPM PACKAGES";
+export const permittedFileEnding = ".repo_cfg";

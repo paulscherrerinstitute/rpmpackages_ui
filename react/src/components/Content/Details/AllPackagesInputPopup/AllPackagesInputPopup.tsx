@@ -8,6 +8,7 @@ import {
   removeFileFromDirectory,
   uploadFileToDirectory,
 } from "../../../../helper/dataService";
+import { permittedFileEnding } from "../../../helpers/NavbarHelper";
 
 export default function AllPackagesInputPopup({
   displayInput,
@@ -48,7 +49,7 @@ export default function AllPackagesInputPopup({
 
   const handleAddAll = async () => {
     packageIncludedIn.forEach(async (pkge) => {
-      var withoutEnd = pkge.replace(".repo_cfg", "");
+      var withoutEnd = pkge.replace(permittedFileEnding, "");
       if (!fileIncludedIn.includes(withoutEnd) && file != null) {
         await uploadFileToDirectory(withoutEnd, file);
         updatePackages();
@@ -58,7 +59,7 @@ export default function AllPackagesInputPopup({
 
   const handleRemoveAll = async () => {
     packageIncludedIn.forEach(async (pkge) => {
-      var withoutEnd = pkge.replace(".repo_cfg", "");
+      var withoutEnd = pkge.replace(permittedFileEnding, "");
       if (fileIncludedIn.includes(withoutEnd) && file != null) {
         await removeFileFromDirectory(withoutEnd, file.name);
         updatePackages();
@@ -73,7 +74,7 @@ export default function AllPackagesInputPopup({
       if (f) {
         setFile(f);
         packageIncludedIn.forEach(async (pkge) => {
-          var withoutEnd = pkge.replace(".repo_cfg", "");
+          var withoutEnd = pkge.replace(permittedFileEnding, "");
           if (!fileIncludedIn.includes(withoutEnd) && f.name != null) {
             await uploadFileToDirectory(withoutEnd, f);
           }

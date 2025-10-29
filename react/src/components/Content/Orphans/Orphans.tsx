@@ -30,6 +30,7 @@ import AddIcon from "@mui/icons-material/Add";
 import { SearchResultsEmpty } from "../Details/SearchResultsEmpty/SearchResultsEmpty";
 import LaunchIcon from "@mui/icons-material/Launch";
 import { FileInput } from "../Details/FileInput/FileInput";
+import { permittedFileEnding } from "../../helpers/NavbarHelper";
 
 export function Orphans() {
   const [fileOrphans, setFileOrphans] = useState<OrphanedFile[]>([]);
@@ -129,7 +130,7 @@ export function Orphans() {
                   (o) =>
                     (o.name.includes(foSearch) || foSearch.length == 0) && (
                       <TableRow
-                        key={`${o.directory.replace(".repo_cfg", "")}-${
+                        key={`${o.directory.replace(permittedFileEnding, "")}-${
                           o.name
                         }`}
                         hover
@@ -180,7 +181,7 @@ export function Orphans() {
             <TableBody>
               {pkgeOrphans.map(
                 (o) =>
-                  (o.name.includes(poSearch) || poSearch.length == 0) && (
+                  ((o.name.includes(poSearch) && poSearch.length > 0) || poSearch.length == 0) && (
                     <TableRow key={`${o.repository}-${o.name}`} hover>
                       <TableCell>{o.name}</TableCell>
                       <TableCell>{o.repository}</TableCell>
@@ -232,7 +233,7 @@ function UploadFileDialog({ open, pkge, onClose }: UploadFileDialogProps) {
   const handleSave = async () => {
     if (file)
       await uploadFileToDirectory(
-        pkge.repository[0].replace(".repo_cfg", ""),
+        pkge.repository[0].replace(permittedFileEnding, ""),
         file
       );
     onClose();

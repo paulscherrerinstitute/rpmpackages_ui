@@ -1,0 +1,87 @@
+from fastapi import APIRouter, HTTPException
+from fastapi.responses import PlainTextResponse, JSONResponse
+import os
+from .dataService import REPO_DIR, FILE_ENDING, read_file
+from .routers_types import RepositoryRequest, RepositoryResponse
+import shutil
+
+router = APIRouter()
+
+ROUTER_PATH = "/data/repository"
+
+
+## Create repository and folder
+@router.post(ROUTER_PATH + "/new")
+async def create_repository(
+    request: RepositoryRequest,
+) -> RepositoryResponse:
+    folder_path = os.path.join(REPO_DIR, request.repository)
+    repository_path = os.path.join(REPO_DIR, request.repository + FILE_ENDING)
+
+    if folder_path:
+        os.mkdir(folder_path)
+    if repository_path:
+        with open(repository_path, "w") as fp:
+            pass
+    return RepositoryResponse(
+        repository=request.repository,
+        repository_location=repository_path,
+        folder_location=folder_path,
+    )
+
+
+# Get All Repositories
+@router.get(ROUTER_PATH, response_class=JSONResponse)
+async def list_files() -> list[str]:
+    try:
+        file_list: list[str] = []
+        for element in os.listdir(REPO_DIR):
+            if (
+                element not in file_list
+                and not os.path.isdir(os.path.join(REPO_DIR, element))
+                and FILE_ENDING in element
+                # ignore legacy .repo_cfgn-Files
+                and FILE_ENDING + "n" not in element
+            ):
+                file_list.append(element)
+        return file_list
+    except FileNotFoundError:
+        raise HTTPException(status_code=404, detail="Directory not found")
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=f"Error reading directory: {str(e)}"
+        )
+
+
+# Get packages from specific repository
+@router.get(ROUTER_PATH + "/{file_name}", response_class=PlainTextResponse)
+async def get_data(file_name: str) -> PlainTextResponse:
+    file_path = os.path.join(REPO_DIR, file_name)
+
+    if not os.path.isfile(file_path):
+        raise HTTPException(status_code=404, detail="File not found")
+
+    try:
+        contents = read_file(file_path)
+        return PlainTextResponse(content=contents, media_type="text/plain")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error reading file: {str(e)}")
+
+
+# Delete Repository and Folder
+@router.delete(ROUTER_PATH + "/{repository}")
+async def snap_repository_and_folder(repository: str):  # -> RepositoryResponse:
+    repository_path = os.path.join(REPO_DIR, repository + FILE_ENDING)
+    folder_path = os.path.join(REPO_DIR, repository)
+    print(repository_path, folder_path)
+
+    if repository_path:
+        os.remove(repository_path)
+    if folder_path:
+        shutil.rmtree(folder_path)
+
+    return RepositoryResponse(
+        repository=repository,
+        repository_location=repository_path,
+        folder_location=folder_path,
+    )

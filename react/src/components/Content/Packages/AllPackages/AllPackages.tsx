@@ -60,10 +60,8 @@ export default function AllPackages() {
   const navigate = useNavigate();
 
   const fetchData = async () => {
-    setIsLoading(true);
     const resultData = await getAllPackagesOverall();
     setData(resultData.sort((a, b) => a.localeCompare(b)));
-    setIsLoading(false);
   };
 
   const fetchInclusionData = async (pk: string) => {
@@ -143,6 +141,7 @@ export default function AllPackages() {
         inclusionsInDirectories[0],
         pkge
       );
+      console.log(pk);
       setFile(pk);
     }
   };
@@ -194,8 +193,6 @@ export default function AllPackages() {
     });
     return mapped;
   };
-
-  const [isLoading, setIsLoading] = useState(true);
 
   return (
     <Box sx={styles.main}>

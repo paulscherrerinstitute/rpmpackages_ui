@@ -9,7 +9,9 @@ const API: string = "http://localhost:8000/data";
 export async function getAllPackagesFromRepository(
   repository: string
 ): Promise<string[][]> {
-  const response = await fetch(`${API}/${repository}${permittedFileEnding}`);
+  const response = await fetch(
+    `${API}/repository/${repository}${permittedFileEnding}`
+  );
   const text = await response.text();
 
   var textByCategory = text.split("\n\n#");
@@ -23,14 +25,14 @@ export async function getAllPackagesFromRepository(
 }
 
 export async function getAllRepositories(): Promise<string[]> {
-  return await fetch(`${API}`).then(async (response) => {
+  return await fetch(`${API}/repository`).then(async (response) => {
     const data = await response.json();
     return data;
   });
 }
 
 export async function getAllPackagesOverall(): Promise<string[]> {
-  return await fetch(`${API}/all`).then(async (response) => {
+  return await fetch(`${API}/package/all`).then(async (response) => {
     const data = await response.json();
     return data;
   });
@@ -39,7 +41,7 @@ export async function getAllPackagesOverall(): Promise<string[]> {
 export async function getRepositoriesOfPackage(
   pkge: string
 ): Promise<string[]> {
-  return await fetch(`${API}/pkge/${pkge}`).then(async (response) => {
+  return await fetch(`${API}/package/${pkge}`).then(async (response) => {
     const data = await response.json();
     return data;
   });
@@ -49,7 +51,7 @@ export async function getPackageFileFromDirectory(
   directory: string,
   pkge: string
 ): Promise<File | null> {
-  return await fetch(`${API}/dir/${directory}/${pkge}`).then(
+  return await fetch(`${API}/files/${directory}/${pkge}`).then(
     async (response) => {
       const content_type = response.headers.get("Content-Type");
       if (content_type == "application/octet-stream") {
@@ -65,21 +67,21 @@ export async function getPackageFileFromDirectory(
 export async function getDirectoriesIncludingPkge(
   pkge: string
 ): Promise<string[]> {
-  return await fetch(`${API}/dir/pkge/${pkge}`).then(async (response) => {
+  return await fetch(`${API}/files/pkge/${pkge}`).then(async (response) => {
     const data = await response.json();
     return data;
   });
 }
 
 export async function getOrphanedFiles(): Promise<OrphanedFile[]> {
-  return await fetch(`${API}/dir/file/orphans`).then(async (response) => {
+  return await fetch(`${API}/files/orphans`).then(async (response) => {
     const data = await response.json();
     return data;
   });
 }
 
 export async function getOrphanedPackages(): Promise<OrphanedPackage[]> {
-  return await fetch(`${API}/dir/pkge/orphans`).then(async (response) => {
+  return await fetch(`${API}/package/orphans`).then(async (response) => {
     const data = await response.json();
     return data;
   });
@@ -98,7 +100,7 @@ export async function updatePackageInRepository(
     updatePackageInRepository: updatedPackage,
     repository: repository,
   });
-  return await fetch(`${API}/pkge/${pkge}`, {
+  return await fetch(`${API}/package/${pkge}`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
     body,
@@ -119,7 +121,7 @@ export async function movePackageToRepository(
     outer_index: outerIndex,
     inner_index: innerIndex,
   });
-  return await fetch(`${API}/move/pkge/${pkge}`, {
+  return await fetch(`${API}/package/${pkge}/move`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
     body,
@@ -133,7 +135,7 @@ export async function renameFileInDirectory(
   directory: string,
   pkge: string
 ): Promise<RenameFileResponse> {
-  return await fetch(`${API}/dir/${directory}/${pkge}`, {
+  return await fetch(`${API}/files/${directory}/${pkge}`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
   }).then(async (response) => {
@@ -149,7 +151,7 @@ export async function renameFileInDirectory(
 export async function uploadFileToDirectory(directory: string, file: File) {
   const formData = new FormData();
   formData.append("file", file);
-  return await fetch(`${API}/dir/${directory}`, {
+  return await fetch(`${API}/files/${directory}`, {
     method: "POST",
     body: formData,
   }).then(async (response) => {
@@ -170,7 +172,7 @@ export async function addPackageToRepository(
     subTitleIndex: insertIndex,
   });
 
-  return await fetch(`${API}`, {
+  return await fetch(`${API}/package/new`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body,
@@ -188,7 +190,7 @@ export async function addSubtitlteToRepository(
     directory: directory,
   });
 
-  return await fetch(`${API}/new/${repository}`, {
+  return await fetch(`${API}/directory/${repository}`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body,
@@ -223,7 +225,7 @@ export async function removePackageFromRepository(
   repository: string
 ): Promise<string[]> {
   return await fetch(
-    `${API}/pkge/${pkge}/${repository}${permittedFileEnding}`,
+    `${API}/package/${pkge}/${repository}${permittedFileEnding}`,
     {
       method: "DELETE",
     }
@@ -237,7 +239,7 @@ export async function removeFileFromDirectory(
   directory: string,
   pkge: string
 ): Promise<RemovePackageResponse> {
-  return await fetch(`${API}/dir/${directory}/${pkge}`, {
+  return await fetch(`${API}/files/${directory}/${pkge}`, {
     method: "DELETE",
   }).then(async (response) => {
     const data = await response.json();
@@ -252,7 +254,7 @@ export async function removeDirectoryFromRepository(
   const body = JSON.stringify({
     directory: directory.trim(),
   });
-  return await fetch(`${API}/new/${repository}`, {
+  return await fetch(`${API}/directory/${repository}`, {
     method: "DELETE",
     headers: { "Content-Type": "application/json" },
     body,
@@ -265,9 +267,12 @@ export async function removeDirectoryFromRepository(
 export async function removeRepositoryAndFolder(
   repository: string
 ): Promise<RepositoryResponse> {
-  return await fetch(`${API}/${repository.replace(permittedFileEnding, "")}`, {
-    method: "DELETE",
-  }).then(async (res) => {
+  return await fetch(
+    `${API}/repository/${repository.replace(permittedFileEnding, "")}`,
+    {
+      method: "DELETE",
+    }
+  ).then(async (res) => {
     const data = await res.json();
     return data;
   });

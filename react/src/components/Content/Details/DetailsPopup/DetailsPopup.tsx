@@ -44,8 +44,6 @@ export function DetailsPopup({
     architecture: "",
   });
 
-  const [hasBeenSaved, setHasBeenSaved] = useState(false);
-
   const handleChange = (e: React.ChangeEvent<any>) => {
     const { name, value } = e.target; // fixed to e.target.name and e.target.value
     setFormData(
@@ -87,7 +85,7 @@ export function DetailsPopup({
           distribution: "",
           architecture: "",
         });
-        if(setFile) setFile(null);
+        if (setFile) setFile(null);
       } else {
         setFormData({
           name: getPName(),
@@ -203,8 +201,6 @@ export function DetailsPopup({
   function handleSave() {
     if (isAdd && onAdd) onAdd(formData);
     else onSave(formData);
-
-    setHasBeenSaved(true);
     onClose();
   }
 

@@ -29,3 +29,7 @@ export const body: SxProps<Theme> = {
     tableLayout: "fixed",
   },
 };
+
+export const buttonWrapper: SxProps<Theme> = {
+  "& > button": { marginInline: 1 },
+};

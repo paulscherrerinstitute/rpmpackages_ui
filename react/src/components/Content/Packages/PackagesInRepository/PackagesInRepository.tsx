@@ -96,7 +96,10 @@ export default function PackagesInRepository() {
   };
 
   const handleSubtitleRemove = async (directory: string) => {
-    await removeDirectoryFromRepository(permPath + permittedFileEnding, directory);
+    await removeDirectoryFromRepository(
+      permPath + permittedFileEnding,
+      directory
+    );
     await fetchData();
   };
 
@@ -240,9 +243,7 @@ export default function PackagesInRepository() {
 
   const [packageSearch, setPackageSearch] = useState("");
   const updatePackageSearch = (e: React.ChangeEvent<any>) => {
-    if (e.target && e.target.value) {
-      setPackageSearch(e.target.value);
-    } else setPackageSearch("");
+    if (e.target) setPackageSearch(e.target.value);
   };
 
   const clearPackageSearch = () => setPackageSearch("");

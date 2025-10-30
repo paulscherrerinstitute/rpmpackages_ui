@@ -7,6 +7,7 @@ import {
   Typography,
   TextField,
   Tooltip,
+  Button,
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import { getAllRepositories } from "../../../helper/dataService";
@@ -15,6 +16,10 @@ import { useNavigate } from "react-router-dom";
 import * as r_styles from "./Repositories.styles";
 import ClearIcon from "@mui/icons-material/Clear";
 import { SearchResultsEmpty } from "../Details/SearchResultsEmpty/SearchResultsEmpty";
+import {
+  RepositoryActionPopup,
+  type Action,
+} from "./RepositoryActionsPopup/RepositoryActionsPopup";
 
 export function Repositories() {
   const [availableRepos, setAvailableRepos] = useState<string[]>([]);
@@ -30,9 +35,7 @@ export function Repositories() {
 
   const [repoSearch, setRepoSearch] = useState("");
   const updateRepoSearch = (e: React.ChangeEvent<any>) => {
-    if (e.target && e.target.value) {
-      setRepoSearch(e.target.value);
-    } else setRepoSearch("");
+    if (e.target) setRepoSearch(e.target.value);
   };
 
   const clearRepoSearch = () => setRepoSearch("");
@@ -43,11 +46,34 @@ export function Repositories() {
     return mapped;
   };
 
+  const [openActionPopup, setOpenActionPopup] = useState<boolean>(false);
+  const [action, setAction] = useState<Action>("None");
+
+  const clickActionPopup = (act: Action) => {
+    setOpenActionPopup(true);
+    setAction(act);
+  };
+
+  const closeActionPopup = () => {
+    setOpenActionPopup(false);
+  };
+
   return (
     <Box component="main" sx={styles.main}>
       <Box sx={r_styles.body}>
         <Box sx={r_styles.titleWrapper}>
           <Typography variant="h5">Available Repositories</Typography>
+          <Box sx={r_styles.buttonWrapper}>
+            <Button variant="outlined" onClick={() => clickActionPopup("Add")}>
+              Add Repo
+            </Button>
+            <Button
+              variant="outlined"
+              onClick={() => clickActionPopup("Remove")}
+            >
+              Delete Repo
+            </Button>
+          </Box>
           <Box sx={r_styles.searchWrapper}>
             <TextField
               variant="standard"
@@ -59,6 +85,11 @@ export function Repositories() {
               <ClearIcon onClick={clearRepoSearch} sx={styles.clickButtonBig} />
             </Tooltip>
           </Box>
+          <RepositoryActionPopup
+            action={action}
+            open={openActionPopup}
+            onClose={closeActionPopup}
+          />
         </Box>
         <Table>
           <TableBody>

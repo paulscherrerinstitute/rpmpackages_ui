@@ -34,7 +34,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import AddIcon from "@mui/icons-material/Add";
 import ClearIcon from "@mui/icons-material/Clear";
-import { AddDetails } from "../../Details/AddDetails/AddRepository";
+import { AddDetails } from "../../Details/AddRepository/AddRepository";
 import {
   DetailsPopup,
   type DetailsForm,
@@ -171,6 +171,10 @@ export default function AllPackages() {
   }, [open]);
 
   useEffect(() => {
+    fetchFile();
+  }, [pkge]);
+
+  useEffect(() => {
     setDisplayInput(
       inclusionsInDirectories.length != inclusionsInRepositories.length
     );
@@ -178,9 +182,7 @@ export default function AllPackages() {
 
   const [packageSearch, setPackageSearch] = useState("");
   const updatePackageSearch = (e: React.ChangeEvent<any>) => {
-    if (e.target && e.target.value) {
-      setPackageSearch(e.target.value);
-    } else setPackageSearch("");
+    if (e.target) setPackageSearch(e.target.value);
   };
 
   const clearPackageSearch = () => setPackageSearch("");
@@ -295,7 +297,9 @@ export default function AllPackages() {
                       <Typography
                         sx={styles.clickButton}
                         onClick={() =>
-                          navigate(`/Packages/${i.replace(permittedFileEnding, "")}`)
+                          navigate(
+                            `/Packages/${i.replace(permittedFileEnding, "")}`
+                          )
                         }
                       >
                         {i}

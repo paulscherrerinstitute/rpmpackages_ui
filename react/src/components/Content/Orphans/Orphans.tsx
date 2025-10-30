@@ -38,16 +38,12 @@ export function Orphans() {
 
   const [poSearch, setPoSearch] = useState("");
   const updatePoSearch = (e: React.ChangeEvent<any>) => {
-    if (e.target && e.target.value) {
-      setPoSearch(e.target.value);
-    } else setPoSearch("");
+    if (e.target) setPoSearch(e.target.value);
   };
 
   const [foSearch, setFoSearch] = useState("");
   const updateFoSearch = (e: React.ChangeEvent<any>) => {
-    if (e.target && e.target.value) {
-      setFoSearch(e.target.value);
-    } else setFoSearch("");
+    if (e.target) setFoSearch(e.target.value);
   };
 
   const navigate = useNavigate();
@@ -181,7 +177,8 @@ export function Orphans() {
             <TableBody>
               {pkgeOrphans.map(
                 (o) =>
-                  ((o.name.includes(poSearch) && poSearch.length > 0) || poSearch.length == 0) && (
+                  ((o.name.includes(poSearch) && poSearch.length > 0) ||
+                    poSearch.length == 0) && (
                     <TableRow key={`${o.repository}-${o.name}`} hover>
                       <TableCell>{o.name}</TableCell>
                       <TableCell>{o.repository}</TableCell>

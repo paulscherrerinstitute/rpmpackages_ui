@@ -13,14 +13,14 @@ import { useState, useEffect } from "react";
 import {
   addPackageToRepository,
   addSubtitlteToRepository,
-  getPackageFileFromDirectory,
+  getFileFromFolderForPackage,
   getAllPackagesFromRepository,
   movePackageToRepository,
-  removeDirectoryFromRepository,
-  removeFileFromDirectory,
+  removeSubtitleFromRepository,
+  removeFileFromFolder,
   removePackageFromRepository,
   updatePackageInRepository,
-  uploadFileToDirectory,
+  uploadFileToFolder,
 } from "../../../../helper/dataService";
 import * as styles from "../../Content.styles";
 import * as pir_styles from "./PackagesInRepository.styles";
@@ -96,7 +96,7 @@ export default function PackagesInRepository() {
   };
 
   const handleSubtitleRemove = async (directory: string) => {
-    await removeDirectoryFromRepository(
+    await removeSubtitleFromRepository(
       permPath + permittedFileEnding,
       directory
     );
@@ -121,7 +121,7 @@ export default function PackagesInRepository() {
 
   const fetchFile = async () => {
     try {
-      const res = await getPackageFileFromDirectory(permPath, pkge);
+      const res = await getFileFromFolderForPackage(permPath, pkge);
       setFile(res);
     } catch (err) {
       console.error("Error loading data:", err);
@@ -138,7 +138,7 @@ export default function PackagesInRepository() {
     var repo_path = `${permPath}${permittedFileEnding}`;
     await updatePackageInRepository(pkge, pk, repo_path);
     if (file != null) {
-      await uploadFileToDirectory(permPath, file);
+      await uploadFileToFolder(permPath, file);
     }
     await fetchData();
   };
@@ -231,7 +231,7 @@ export default function PackagesInRepository() {
   };
 
   const handleRemoveFile = async (file: File) => {
-    await removeFileFromDirectory(permPath, file.name);
+    await removeFileFromFolder(permPath, file.name);
     await fetchFile();
   };
 

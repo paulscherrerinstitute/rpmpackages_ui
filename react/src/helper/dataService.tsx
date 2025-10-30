@@ -2,52 +2,50 @@ import { permittedFileEnding } from "../components/helpers/NavbarHelper";
 
 const API: string = "http://localhost:8000/data";
 
-/////////
-/* GET */
-/////////
+/////////////
+// DIRECTORY
+/////////////
 
-export async function getAllPackagesFromRepository(
-  repository: string
-): Promise<string[][]> {
-  const response = await fetch(
-    `${API}/repository/${repository}${permittedFileEnding}`
-  );
-  const text = await response.text();
+export async function addSubtitlteToRepository(
+  repository: string,
+  directory: string
+): Promise<CreateDirectoryResponse> {
+  const body = JSON.stringify({
+    directory: directory,
+  });
 
-  var textByCategory = text.split("\n\n#");
-  var txt: string[][] = textByCategory.map((t) => t.split("\n"));
-  txt = txt.map((t) =>
-    t.filter((tChild) => {
-      return tChild.length > 0;
-    })
-  );
-  return txt;
-}
-
-export async function getAllRepositories(): Promise<string[]> {
-  return await fetch(`${API}/repository`).then(async (response) => {
-    const data = await response.json();
+  return await fetch(`${API}/directory/${repository}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body,
+  }).then(async (response) => {
+    const data: CreateDirectoryResponse = await response.json();
     return data;
   });
 }
 
-export async function getAllPackagesOverall(): Promise<string[]> {
-  return await fetch(`${API}/package/all`).then(async (response) => {
-    const data = await response.json();
+export async function removeSubtitleFromRepository(
+  repository: string,
+  directory: string
+) {
+  const body = JSON.stringify({
+    directory: directory.trim(),
+  });
+  return await fetch(`${API}/directory/${repository}`, {
+    method: "DELETE",
+    headers: { "Content-Type": "application/json" },
+    body,
+  }).then(async (response) => {
+    const data = await response.text();
     return data;
   });
 }
 
-export async function getRepositoriesOfPackage(
-  pkge: string
-): Promise<string[]> {
-  return await fetch(`${API}/package/${pkge}`).then(async (response) => {
-    const data = await response.json();
-    return data;
-  });
-}
+/////////////
+// Files
+/////////////
 
-export async function getPackageFileFromDirectory(
+export async function getFileFromFolderForPackage(
   directory: string,
   pkge: string
 ): Promise<File | null> {
@@ -64,7 +62,7 @@ export async function getPackageFileFromDirectory(
   );
 }
 
-export async function getDirectoriesIncludingPkge(
+export async function getFoldersIncludingFileForPackage(
   pkge: string
 ): Promise<string[]> {
   return await fetch(`${API}/files/pkge/${pkge}`).then(async (response) => {
@@ -80,16 +78,69 @@ export async function getOrphanedFiles(): Promise<OrphanedFile[]> {
   });
 }
 
+export async function renameFileInFolder(
+  directory: string,
+  pkge: string
+): Promise<RenameFileResponse> {
+  return await fetch(`${API}/files/${directory}/${pkge}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+  }).then(async (response) => {
+    const data = await response.json();
+    return data;
+  });
+}
+
+export async function uploadFileToFolder(directory: string, file: File) {
+  const formData = new FormData();
+  formData.append("file", file);
+  return await fetch(`${API}/files/${directory}`, {
+    method: "POST",
+    body: formData,
+  }).then(async (response) => {
+    const data = await response.json();
+    return data;
+  });
+}
+
+export async function removeFileFromFolder(
+  directory: string,
+  pkge: string
+): Promise<RemovePackageResponse> {
+  return await fetch(`${API}/files/${directory}/${pkge}`, {
+    method: "DELETE",
+  }).then(async (response) => {
+    const data = await response.json();
+    return data;
+  });
+}
+
+/////////////
+// Package
+/////////////
+
+export async function getAllUniquePackagesOverAll(): Promise<string[]> {
+  return await fetch(`${API}/package/all`).then(async (response) => {
+    const data = await response.json();
+    return data;
+  });
+}
+
+export async function getRepositoriesOfPackage(
+  pkge: string
+): Promise<string[]> {
+  return await fetch(`${API}/package/${pkge}`).then(async (response) => {
+    const data = await response.json();
+    return data;
+  });
+}
+
 export async function getOrphanedPackages(): Promise<OrphanedPackage[]> {
   return await fetch(`${API}/package/orphans`).then(async (response) => {
     const data = await response.json();
     return data;
   });
 }
-
-///////////
-/* PATCH */
-///////////
 
 export async function updatePackageInRepository(
   pkge: string,
@@ -131,35 +182,6 @@ export async function movePackageToRepository(
   });
 }
 
-export async function renameFileInDirectory(
-  directory: string,
-  pkge: string
-): Promise<RenameFileResponse> {
-  return await fetch(`${API}/files/${directory}/${pkge}`, {
-    method: "PATCH",
-    headers: { "Content-Type": "application/json" },
-  }).then(async (response) => {
-    const data = await response.json();
-    return data;
-  });
-}
-
-//////////
-/* POST */
-//////////
-
-export async function uploadFileToDirectory(directory: string, file: File) {
-  const formData = new FormData();
-  formData.append("file", file);
-  return await fetch(`${API}/files/${directory}`, {
-    method: "POST",
-    body: formData,
-  }).then(async (response) => {
-    const data = await response.json();
-    return data;
-  });
-}
-
 export async function addPackageToRepository(
   pkge: string,
   repository: string,
@@ -182,20 +204,46 @@ export async function addPackageToRepository(
   });
 }
 
-export async function addSubtitlteToRepository(
-  repository: string,
-  directory: string
-): Promise<CreateDirectoryResponse> {
-  const body = JSON.stringify({
-    directory: directory,
+export async function removePackageFromRepository(
+  pkge: string,
+  repository: string
+): Promise<string[]> {
+  return await fetch(
+    `${API}/package/${pkge}/${repository}${permittedFileEnding}`,
+    {
+      method: "DELETE",
+    }
+  ).then(async (response) => {
+    const data = await response.json();
+    return data;
   });
+}
 
-  return await fetch(`${API}/directory/${repository}`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body,
-  }).then(async (response) => {
-    const data: CreateDirectoryResponse = await response.json();
+export async function getAllPackagesFromRepository(
+  repository: string
+): Promise<string[][]> {
+  const response = await fetch(
+    `${API}/package/repository/${repository}${permittedFileEnding}`
+  );
+  const text = await response.text();
+
+  var textByCategory = text.split("\n\n#");
+  var txt: string[][] = textByCategory.map((t) => t.split("\n"));
+  txt = txt.map((t) =>
+    t.filter((tChild) => {
+      return tChild.length > 0;
+    })
+  );
+  return txt;
+}
+
+/////////////
+// Repository
+/////////////
+
+export async function getAllRepositories(): Promise<string[]> {
+  return await fetch(`${API}/repository`).then(async (response) => {
+    const data = await response.json();
     return data;
   });
 }
@@ -212,54 +260,6 @@ export async function addRepositoryAndFolder(
     body,
   }).then(async (res) => {
     const data = await res.json();
-    return data;
-  });
-}
-
-////////////
-/* DELETE */
-////////////
-
-export async function removePackageFromRepository(
-  pkge: string,
-  repository: string
-): Promise<string[]> {
-  return await fetch(
-    `${API}/package/${pkge}/${repository}${permittedFileEnding}`,
-    {
-      method: "DELETE",
-    }
-  ).then(async (response) => {
-    const data = await response.json();
-    return data;
-  });
-}
-
-export async function removeFileFromDirectory(
-  directory: string,
-  pkge: string
-): Promise<RemovePackageResponse> {
-  return await fetch(`${API}/files/${directory}/${pkge}`, {
-    method: "DELETE",
-  }).then(async (response) => {
-    const data = await response.json();
-    return data;
-  });
-}
-
-export async function removeDirectoryFromRepository(
-  repository: string,
-  directory: string
-) {
-  const body = JSON.stringify({
-    directory: directory.trim(),
-  });
-  return await fetch(`${API}/directory/${repository}`, {
-    method: "DELETE",
-    headers: { "Content-Type": "application/json" },
-    body,
-  }).then(async (response) => {
-    const data = await response.text();
     return data;
   });
 }

@@ -52,22 +52,6 @@ async def list_files() -> list[str]:
             status_code=500, detail=f"Error reading directory: {str(e)}"
         )
 
-
-# Get packages from specific repository
-@router.get(ROUTER_PATH + "/{file_name}", response_class=PlainTextResponse)
-async def get_data(file_name: str) -> PlainTextResponse:
-    file_path = os.path.join(REPO_DIR, file_name)
-
-    if not os.path.isfile(file_path):
-        raise HTTPException(status_code=404, detail="File not found")
-
-    try:
-        contents = read_file(file_path)
-        return PlainTextResponse(content=contents, media_type="text/plain")
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error reading file: {str(e)}")
-
-
 # Delete Repository and Folder
 @router.delete(ROUTER_PATH + "/{repository}")
 async def snap_repository_and_folder(repository: str):  # -> RepositoryResponse:

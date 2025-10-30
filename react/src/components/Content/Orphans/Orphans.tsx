@@ -16,12 +16,12 @@ import { useState, useEffect } from "react";
 import {
   getOrphanedFiles,
   getOrphanedPackages,
-  removeFileFromDirectory,
+  removeFileFromFolder,
   addPackageToRepository,
   type OrphanedFile,
   type OrphanedPackage,
   removePackageFromRepository,
-  uploadFileToDirectory,
+  uploadFileToFolder,
 } from "../../../helper/dataService";
 import { useNavigate } from "react-router-dom";
 import ClearIcon from "@mui/icons-material/Clear";
@@ -64,7 +64,7 @@ export function Orphans() {
   const clearPoSearch = () => setPoSearch("");
 
   const deleteOrphanedFile = async (o: OrphanedFile) => {
-    await removeFileFromDirectory(o.directory, o.name);
+    await removeFileFromFolder(o.directory, o.name);
     await fetchData();
   };
 
@@ -228,7 +228,7 @@ function UploadFileDialog({ open, pkge, onClose }: UploadFileDialogProps) {
 
   const handleSave = async () => {
     if (file)
-      await uploadFileToDirectory(
+      await uploadFileToFolder(
         pkge.repository[0].replace(permittedFileEnding, ""),
         file
       );

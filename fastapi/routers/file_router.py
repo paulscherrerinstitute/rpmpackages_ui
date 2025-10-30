@@ -13,6 +13,24 @@ router = APIRouter()
 ROUTE_PATH = "/data/files"
 
 
+# Get list of folders where a file for the specified package exists
+@router.get(ROUTE_PATH + "/pkge/{package}", response_class=JSONResponse)
+async def list_folders_containing_pkge(package: str) -> list[str]:
+    try:
+        contained_in: list[str] = []
+        directory_list: list[str] = get_repo_directories()
+        for directory in directory_list:
+            directory_path = os.path.join(REPO_DIR, directory)
+            for file in os.listdir(directory_path):
+                if file == package and not os.path.isdir(file):
+                    contained_in.append(directory)
+                    break
+        return contained_in
+    except Exception as e:
+        print(e)
+        return []
+
+
 # Rename File in Folder
 @router.patch(ROUTE_PATH + "/{directory}/{package}")
 async def rename_file(directory: str, package: str) -> RenamePackageResponse:
@@ -40,7 +58,7 @@ async def upload_file(directory: str, file: UploadFile) -> bytes:
     return content
 
 
-# Get package File from Folder
+# Get File from Folder by Packagename
 @router.get(ROUTE_PATH + "/{directory}/{package}")
 async def get_files(directory: str, package: str):
     file_path = os.path.join(REPO_DIR, directory)
@@ -69,27 +87,7 @@ async def remove(directory: str, package: str) -> DeleteFileResponse:
 
     return DeleteFileResponse(directory=directory, package=package, deleted=is_deleted)
 
-
-# Get list of folders where a package has a file
-@router.get(ROUTE_PATH + "/pkge/{package}", response_class=JSONResponse)
-async def list_folders_containing_pkge(package: str) -> list[str]:
-    try:
-        contained_in: list[str] = []
-        directory_list: list[str] = get_repo_directories()
-        for directory in directory_list:
-            directory_path = os.path.join(REPO_DIR, directory)
-            for file in os.listdir(directory_path):
-                if file == package and not os.path.isdir(file):
-                    contained_in.append(directory)
-                    break
-        return contained_in
-    except Exception as e:
-        print(e)
-        return []
-
-    # Get list of files without a mention in a repository
-
-
+# List Files that do not have an associated Package
 @router.get(ROUTE_PATH + "/orphans", response_class=JSONResponse)
 async def list_orphaned_files() -> list[PackageFile]:
     complete_list: list[PackageFile] = get_all_packages_with_repos()

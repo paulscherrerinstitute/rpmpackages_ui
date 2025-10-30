@@ -5,8 +5,8 @@ import { useEffect, useState, useRef, type ChangeEvent } from "react";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import {
-  removeFileFromDirectory,
-  uploadFileToDirectory,
+  removeFileFromFolder,
+  uploadFileToFolder,
 } from "../../../../helper/dataService";
 import { permittedFileEnding } from "../../../helpers/NavbarHelper";
 
@@ -51,7 +51,7 @@ export default function AllPackagesInputPopup({
     packageIncludedIn.forEach(async (pkge) => {
       var withoutEnd = pkge.replace(permittedFileEnding, "");
       if (!fileIncludedIn.includes(withoutEnd) && file != null) {
-        await uploadFileToDirectory(withoutEnd, file);
+        await uploadFileToFolder(withoutEnd, file);
         updatePackages();
       }
     });
@@ -61,7 +61,7 @@ export default function AllPackagesInputPopup({
     packageIncludedIn.forEach(async (pkge) => {
       var withoutEnd = pkge.replace(permittedFileEnding, "");
       if (fileIncludedIn.includes(withoutEnd) && file != null) {
-        await removeFileFromDirectory(withoutEnd, file.name);
+        await removeFileFromFolder(withoutEnd, file.name);
         updatePackages();
       }
     });
@@ -76,7 +76,7 @@ export default function AllPackagesInputPopup({
         packageIncludedIn.forEach(async (pkge) => {
           var withoutEnd = pkge.replace(permittedFileEnding, "");
           if (!fileIncludedIn.includes(withoutEnd) && f.name != null) {
-            await uploadFileToDirectory(withoutEnd, f);
+            await uploadFileToFolder(withoutEnd, f);
           }
         });
       }

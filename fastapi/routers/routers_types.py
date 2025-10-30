@@ -33,11 +33,11 @@ class PatchRequest(BaseModel):
     repository: str
 
 
-class DirectoryRequest(BaseModel):
+class SubtitleRequest(BaseModel):
     directory: str
 
 
-class CreateDirectoryResponse(BaseModel):
+class CreateSubtitleResponse(BaseModel):
     added: bool
     directory: str
     index: int

@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, PlainTextResponse
 import os
 from .dataService import (
     REPO_DIR,
@@ -125,6 +125,21 @@ async def list_orphaned_pkge() -> list[Package]:
         if p not in complete_list and "rpm" in p.name:
             orphans.append(p)
     return orphans
+
+
+# Get packages from specific repository
+@router.get(ROUTE_PATH + "/repository/{file_name}", response_class=PlainTextResponse)
+async def get_data(file_name: str) -> PlainTextResponse:
+    file_path = os.path.join(REPO_DIR, file_name)
+
+    if not os.path.isfile(file_path):
+        raise HTTPException(status_code=404, detail="File not found")
+
+    try:
+        contents = read_file(file_path)
+        return PlainTextResponse(content=contents, media_type="text/plain")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error reading file: {str(e)}")
 
 
 # Get list of repositories where a package is included

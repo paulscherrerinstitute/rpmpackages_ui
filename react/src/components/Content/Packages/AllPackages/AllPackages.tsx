@@ -15,9 +15,9 @@ import * as styles from "../../Content.styles";
 import * as ap_styles from "./AllPackages.styles";
 import { useEffect, useState } from "react";
 import {
-  getAllPackagesOverall,
-  getPackageFileFromDirectory,
-  getDirectoriesIncludingPkge,
+  getAllUniquePackagesOverAll,
+  getFileFromFolderForPackage,
+  getFoldersIncludingFileForPackage,
   getRepositoriesOfPackage,
   removePackageFromRepository,
   updatePackageInRepository,
@@ -60,7 +60,7 @@ export default function AllPackages() {
   const navigate = useNavigate();
 
   const fetchData = async () => {
-    const resultData = await getAllPackagesOverall();
+    const resultData = await getAllUniquePackagesOverAll();
     setData(resultData.sort((a, b) => a.localeCompare(b)));
   };
 
@@ -130,14 +130,14 @@ export default function AllPackages() {
 
   const fetchInclusionsInDirectories = async () => {
     if (pkge) {
-      var inclDirectories = await getDirectoriesIncludingPkge(pkge);
+      var inclDirectories = await getFoldersIncludingFileForPackage(pkge);
       setInclusionsInDirectories(inclDirectories);
     }
   };
 
   const fetchFile = async () => {
     if (inclusionsInDirectories.length > 0) {
-      const pk = await getPackageFileFromDirectory(
+      const pk = await getFileFromFolderForPackage(
         inclusionsInDirectories[0],
         pkge
       );

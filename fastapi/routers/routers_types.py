@@ -16,6 +16,11 @@ class RenamePackageResponse(BaseModel):
     new_name: str
 
 
+class RenameRequest(BaseModel):
+    new_name: str
+    directory: str
+
+
 class DeleteFileResponse(BaseModel):
     directory: str
     package: str

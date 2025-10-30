@@ -6,6 +6,7 @@ from .routers_types import (
     RenamePackageResponse,
     DeleteFileResponse,
     PackageFile,
+    RenameRequest,
 )
 
 router = APIRouter()
@@ -32,16 +33,18 @@ async def list_folders_containing_pkge(package: str) -> list[str]:
 
 
 # Rename File in Folder
-@router.patch(ROUTE_PATH + "/{directory}/{package}")
-async def rename_file(directory: str, package: str) -> RenamePackageResponse:
-    file_path = os.path.join(REPO_DIR, directory)
+@router.patch(ROUTE_PATH + "/{package}")
+async def rename_file(package: str, request: RenameRequest) -> RenamePackageResponse:
+    file_path = os.path.join(REPO_DIR, request.directory)
 
     for element in os.listdir(file_path):
         if element == package and ".rpm" in element:
-            os.rename(element, package)
-            return RenamePackageResponse(old_name=element, new_name=package)
+            element_path = os.path.join(file_path, element)
+            new_path = os.path.join(file_path, request.new_name)
+            os.rename(element_path, new_path)
+            return RenamePackageResponse(old_name=package, new_name=request.new_name)
 
-    return RenamePackageResponse(old_name=element, new_name="")
+    return RenamePackageResponse(old_name=package, new_name="")
 
 
 # Upload File to Folder
@@ -86,6 +89,7 @@ async def remove(directory: str, package: str) -> DeleteFileResponse:
         is_deleted = True
 
     return DeleteFileResponse(directory=directory, package=package, deleted=is_deleted)
+
 
 # List Files that do not have an associated Package
 @router.get(ROUTE_PATH + "/orphans", response_class=JSONResponse)

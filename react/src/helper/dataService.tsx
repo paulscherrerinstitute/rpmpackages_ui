@@ -79,12 +79,18 @@ export async function getOrphanedFiles(): Promise<OrphanedFile[]> {
 }
 
 export async function renameFileInFolder(
-  directory: string,
-  pkge: string
+  pkge: string,
+  new_name: string,
+  directory: string
 ): Promise<RenameFileResponse> {
-  return await fetch(`${API}/files/${directory}/${pkge}`, {
+  const body = JSON.stringify({
+    new_name: new_name,
+    directory: directory,
+  });
+  return await fetch(`${API}/files/${pkge}`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
+    body,
   }).then(async (response) => {
     const data = await response.json();
     return data;

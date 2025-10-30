@@ -21,6 +21,7 @@ import {
   removePackageFromRepository,
   updatePackageInRepository,
   uploadFileToFolder,
+  renameFileInFolder,
 } from "../../../../helper/dataService";
 import * as styles from "../../Content.styles";
 import * as pir_styles from "./PackagesInRepository.styles";
@@ -139,6 +140,11 @@ export default function PackagesInRepository() {
     await updatePackageInRepository(pkge, pk, repo_path);
     if (file != null) {
       await uploadFileToFolder(permPath, file);
+      await renameFileInFolder(
+        pkge,
+        pk,
+        repo_path.replace(permittedFileEnding, "")
+      );
     }
     await fetchData();
   };

@@ -20,6 +20,7 @@ import {
   getFoldersIncludingFileForPackage,
   getRepositoriesOfPackage,
   removePackageFromRepository,
+  renameFileInFolder,
   updatePackageInRepository,
 } from "../../../../helper/dataService";
 import {
@@ -123,6 +124,7 @@ export default function AllPackages() {
     }
     inclusionsInRepositories.forEach(async (rep) => {
       await updatePackageInRepository(pkge, pk, rep);
+      await renameFileInFolder(pkge, pk, rep.replace(permittedFileEnding, ""));
     });
     await fetchData();
     fetchInclusionData;

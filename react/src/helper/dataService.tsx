@@ -180,7 +180,7 @@ export async function addPackageToRepository(
   });
 }
 
-export async function addDirectoryToRepository(
+export async function addSubtitlteToRepository(
   repository: string,
   directory: string
 ): Promise<CreateDirectoryResponse> {
@@ -198,6 +198,22 @@ export async function addDirectoryToRepository(
   });
 }
 
+export async function addRepositoryAndFolder(
+  repository: string
+): Promise<RepositoryResponse> {
+  const body = JSON.stringify({
+    repository: repository,
+  });
+  return await fetch(`${API}/repository/new`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body,
+  }).then(async (res) => {
+    const data = await res.json();
+    return data;
+  });
+}
+
 ////////////
 /* DELETE */
 ////////////
@@ -207,7 +223,7 @@ export async function removePackageFromRepository(
   repository: string
 ): Promise<string[]> {
   return await fetch(
-    `${API}/pkge/${pkge}/${repository}.${permittedFileEnding}`,
+    `${API}/pkge/${pkge}/${repository}${permittedFileEnding}`,
     {
       method: "DELETE",
     }
@@ -246,6 +262,17 @@ export async function removeDirectoryFromRepository(
   });
 }
 
+export async function removeRepositoryAndFolder(
+  repository: string
+): Promise<RepositoryResponse> {
+  return await fetch(`${API}/${repository.replace(permittedFileEnding, "")}`, {
+    method: "DELETE",
+  }).then(async (res) => {
+    const data = await res.json();
+    return data;
+  });
+}
+
 ///////////
 /* Types */
 ///////////
@@ -275,4 +302,10 @@ export type RemovePackageResponse = {
   directory: string;
   package: string;
   deleted: boolean;
+};
+
+export type RepositoryResponse = {
+  repository: string;
+  repository_location: string;
+  folder_location: string;
 };

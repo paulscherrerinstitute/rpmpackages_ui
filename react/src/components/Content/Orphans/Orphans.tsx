@@ -78,7 +78,6 @@ export function Orphans() {
   };
 
   const removeOrphanedPackage = async (o: OrphanedPackage) => {
-    console.log("Remove", o);
     await removePackageFromRepository(o.name, o.repository[0]);
     await fetchData();
   };

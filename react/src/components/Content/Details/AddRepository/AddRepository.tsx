@@ -12,7 +12,7 @@ import {
 import {
   getAllRepositories,
   addPackageToRepository,
-  addDirectoryToRepository,
+  addSubtitlteToRepository,
   type CreateDirectoryResponse,
 } from "../../../../helper/dataService";
 import * as styles from "./AddRepository.styles";
@@ -44,7 +44,7 @@ export function AddDetails({
   };
 
   const handleAdd = async () => {
-    const res: CreateDirectoryResponse = await addDirectoryToRepository(
+    const res: CreateDirectoryResponse = await addSubtitlteToRepository(
       newRepo,
       "Added via Overview"
     );

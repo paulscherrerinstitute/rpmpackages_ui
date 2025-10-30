@@ -2,6 +2,7 @@ from fastapi import APIRouter, HTTPException, UploadFile
 from fastapi.responses import PlainTextResponse, JSONResponse, FileResponse
 from pydantic import BaseModel
 import os
+import shutil
 
 router = APIRouter()
 
@@ -59,6 +60,16 @@ class CreateRequest(BaseModel):
     item: str
     file_name: str
     subTitleIndex: int
+
+
+class RepositoryRequest(BaseModel):
+    repository: str
+
+
+class RepositoryResponse(BaseModel):
+    repository: str
+    repository_location: str
+    folder_location: str
 
 
 #################
@@ -242,7 +253,26 @@ async def get_all_pkg() -> list[str]:
     return get_all_packages()
 
 
-# Create add directory in repository
+# Delete Repository and Folder
+@router.delete("/data/{repository}")
+async def snap_repository_and_folder(repository: str):  # -> RepositoryResponse:
+    repository_path = os.path.join(REPO_DIR, repository + FILE_ENDING)
+    folder_path = os.path.join(REPO_DIR, repository)
+    print(repository_path, folder_path)
+
+    if repository_path:
+        os.remove(repository_path)
+    if folder_path:
+        shutil.rmtree(folder_path)
+
+    return RepositoryResponse(
+        repository=repository,
+        repository_location=repository_path,
+        folder_location=folder_path,
+    )
+
+
+# Create add subtitle in repository
 @router.post("/data/new/{repository}")
 async def create_dir(
     repository: str, request: DirectoryRequest
@@ -252,6 +282,7 @@ async def create_dir(
         raise HTTPException(status_code=404, detail="File not found")
 
     text_by_category: list[str] = assemble_repo(file_path)
+    print(len(text_by_category))
 
     for idx, txt_cat in enumerate(text_by_category):
         if request.directory in txt_cat:
@@ -259,10 +290,14 @@ async def create_dir(
                 added=False, directory=request.directory, index=idx
             )
 
-    text_by_category.append(" " + request.directory)
-    reassenbled_txt = reassemble_repo(text_by_category)
+    if len(text_by_category) == 1 and text_by_category[0] == "":
+        reassenbled_txt = "# " + request.directory
+    else:
+        text_by_category.append(" " + request.directory)
+        reassenbled_txt = reassemble_repo(text_by_category)
 
     write_file(file_path, reassenbled_txt)
+    print(reassenbled_txt)
     idx = len(text_by_category) - 1
     return CreateDirectoryResponse(added=True, index=idx, directory=request.directory)
 
@@ -340,6 +375,23 @@ async def delete_item_repos(repository: str, file_name: str) -> list[str]:
         raise HTTPException(status_code=500, detail=f"Error reading file: {str(e)}")
 
     return [repository, file_name]
+
+
+@router.post("/data/repository/new")
+async def create_repository(request: RepositoryRequest) -> RepositoryResponse:
+    folder_path = os.path.join(REPO_DIR, request.repository)
+    repository_path = os.path.join(REPO_DIR, request.repository + FILE_ENDING)
+
+    if folder_path:
+        os.mkdir(folder_path)
+    if repository_path:
+        with open(repository_path, "w") as fp:
+            pass
+    return RepositoryResponse(
+        repository=request.repository,
+        repository_location=repository_path,
+        folder_location=folder_path,
+    )
 
 
 #########################

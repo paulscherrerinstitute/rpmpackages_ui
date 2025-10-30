@@ -12,7 +12,11 @@ import {
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import * as styles from "./RepositoryActionsPopup.styles";
-import { getAllRepositories } from "../../../../helper/dataService";
+import {
+  addRepositoryAndFolder,
+  getAllRepositories,
+  removeRepositoryAndFolder,
+} from "../../../../helper/dataService";
 
 export function RepositoryActionPopup({
   action,
@@ -58,6 +62,7 @@ function ActionPopupAdd({ onClose }: ActionPopupElementProps) {
 
   const addRepository = () => {
     console.log("ADD", repository);
+    if (repository) addRepositoryAndFolder(repository);
     onClose();
   };
   return (
@@ -77,7 +82,7 @@ function ActionPopupAdd({ onClose }: ActionPopupElementProps) {
 }
 
 function ActionPopupRemove({ open, onClose }: ActionPopupElementProps) {
-  const [repositories, setRepositories] = useState<string[]>(["a", "b", "c"]);
+  const [repositories, setRepositories] = useState<string[]>([]);
   const [selectedRepository, setSelectedRepository] = useState<string>("");
 
   const handleRepositoryChange = (e: SelectChangeEvent) => {
@@ -94,7 +99,7 @@ function ActionPopupRemove({ open, onClose }: ActionPopupElementProps) {
   }, [open]);
 
   const removeRepository = () => {
-    console.log("REMOVE", selectedRepository);
+    if (selectedRepository) removeRepositoryAndFolder(selectedRepository);
     onClose();
   };
 

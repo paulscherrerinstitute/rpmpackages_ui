@@ -12,7 +12,7 @@ import {
 import { useState, useEffect } from "react";
 import {
   addPackageToRepository,
-  addDirectoryToRepository,
+  addSubtitlteToRepository,
   getPackageFileFromDirectory,
   getAllPackagesFromRepository,
   movePackageToRepository,
@@ -105,7 +105,7 @@ export default function PackagesInRepository() {
 
   const handleSubtitleAdd = async (newSubtitle: string) => {
     const path = permPath + permittedFileEnding;
-    await addDirectoryToRepository(path, newSubtitle);
+    await addSubtitlteToRepository(path, newSubtitle);
     setAddOpen(false);
     await fetchData();
   };
@@ -294,77 +294,82 @@ export default function PackagesInRepository() {
               repoName={permPath}
             />
           </Box>
-          {data.map((item, outerIdx) => (
-            <Box
-              key={`category-${outerIdx}-${item[0]}`}
-              sx={pir_styles.outerList}
-            >
-              <Box
-                onDragEnter={() => handleDragEnter(outerIdx, 1)}
-                sx={pir_styles.titleList}
-              >
-                <h3>{formatTitle(item[0])}</h3>
-                <Box sx={pir_styles.listButtons}>
-                  <Tooltip title="Add package to subtitle">
-                    <AddIcon onClick={() => handleAdd(item, outerIdx)} />
-                  </Tooltip>
-                  <Tooltip title="Remove subtitle">
-                    <DeleteOutlineIcon
-                      sx={styles.clickButtonBig}
-                      onClick={() => handleSubtitleRemove(item[0])}
+          {data.map(
+            (item, outerIdx) =>
+              item.length > 0 && (
+                <Box
+                  key={`category-${outerIdx}-${item[0]}`}
+                  sx={pir_styles.outerList}
+                >
+                  <Box
+                    onDragEnter={() => handleDragEnter(outerIdx, 1)}
+                    sx={pir_styles.titleList}
+                  >
+                    <h3>{formatTitle(item[0])}</h3>
+                    <Box sx={pir_styles.listButtons}>
+                      <Tooltip title="Add package to subtitle">
+                        <AddIcon onClick={() => handleAdd(item, outerIdx)} />
+                      </Tooltip>
+                      <Tooltip title="Remove subtitle">
+                        <DeleteOutlineIcon
+                          sx={styles.clickButtonBig}
+                          onClick={() => handleSubtitleRemove(item[0])}
+                        />
+                      </Tooltip>
+                    </Box>
+                  </Box>
+                  <List>
+                    {item.map(
+                      (pkg, innerIdx) =>
+                        (pkg.includes(packageSearch) ||
+                          packageSearch.length == 0) &&
+                        innerIdx != 0 && (
+                          <ListItem
+                            id={pkg}
+                            onDragEnter={() =>
+                              handleDragEnter(outerIdx, innerIdx)
+                            }
+                            key={`${outerIdx}-${innerIdx}-${pkg}`}
+                            draggable
+                            onDragStart={(e) => handleDragStart(e, pkg)}
+                            sx={pir_styles.listItem(
+                              pkg == dragging,
+                              shouldShowAnimation(pkg)
+                            )}
+                          >
+                            <ListItemText>{pkg}</ListItemText>
+                            <Box sx={pir_styles.listButtons}>
+                              {!pkg.includes("#") && (
+                                <Tooltip title="Edit package">
+                                  <EditIcon
+                                    sx={styles.clickButton}
+                                    onClick={() => handleButtonClick(pkg)}
+                                  />
+                                </Tooltip>
+                              )}
+                              {!pkg.includes("#") && (
+                                <Tooltip title="Delete package">
+                                  <DeleteOutlineIcon
+                                    sx={styles.clickButton}
+                                    onClick={() => handleRemove(pkg)}
+                                  />
+                                </Tooltip>
+                              )}
+                            </Box>
+                          </ListItem>
+                        )
+                    )}
+                    <SearchResultsEmpty
+                      allResults={mapPackagesForSearchResults(item)}
+                      searchField={packageSearch}
+                      onEmpty="No package"
+                      onNoMatch="No Match"
+                      treatAsList
                     />
-                  </Tooltip>
+                  </List>
                 </Box>
-              </Box>
-              <List>
-                {item.map(
-                  (pkg, innerIdx) =>
-                    (pkg.includes(packageSearch) ||
-                      packageSearch.length == 0) &&
-                    innerIdx != 0 && (
-                      <ListItem
-                        id={pkg}
-                        onDragEnter={() => handleDragEnter(outerIdx, innerIdx)}
-                        key={`${outerIdx}-${innerIdx}-${pkg}`}
-                        draggable
-                        onDragStart={(e) => handleDragStart(e, pkg)}
-                        sx={pir_styles.listItem(
-                          pkg == dragging,
-                          shouldShowAnimation(pkg)
-                        )}
-                      >
-                        <ListItemText>{pkg}</ListItemText>
-                        <Box sx={pir_styles.listButtons}>
-                          {!pkg.includes("#") && (
-                            <Tooltip title="Edit package">
-                              <EditIcon
-                                sx={styles.clickButton}
-                                onClick={() => handleButtonClick(pkg)}
-                              />
-                            </Tooltip>
-                          )}
-                          {!pkg.includes("#") && (
-                            <Tooltip title="Delete package">
-                              <DeleteOutlineIcon
-                                sx={styles.clickButton}
-                                onClick={() => handleRemove(pkg)}
-                              />
-                            </Tooltip>
-                          )}
-                        </Box>
-                      </ListItem>
-                    )
-                )}
-                <SearchResultsEmpty
-                  allResults={mapPackagesForSearchResults(item)}
-                  searchField={packageSearch}
-                  onEmpty="No package"
-                  onNoMatch="No Match"
-                  treatAsList
-                />
-              </List>
-            </Box>
-          ))}
+              )
+          )}
           <DetailsPopup
             open={popupOpen}
             isAdd={isAdd}

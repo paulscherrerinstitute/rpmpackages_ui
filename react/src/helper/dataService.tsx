@@ -1,6 +1,6 @@
 import { permittedFileEnding } from "../components/helpers/NavbarHelper";
 
-const API: string = "http://localhost:8000/data";
+const API: string = "http://localhost:8080/data";
 
 /////////////
 // DIRECTORY

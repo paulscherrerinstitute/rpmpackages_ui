@@ -104,3 +104,12 @@ export const subtitleTitleWrapper: SxProps<Theme> = {
     marginInline: 1,
   },
 };
+
+export const errorWrapper: SxProps<Theme> = {
+  display: "flex",
+  flexDirection: "column",
+  justifyContent: "center",
+  padding: 1,
+  borderRadius: "7px",
+  backgroundColor: "rgba(255, 0, 0, 0.1)",
+};

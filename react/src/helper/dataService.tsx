@@ -232,6 +232,9 @@ export async function getAllPackagesFromRepository(
     `${API}/package/repository/${repository}${permittedFileEnding}`
   );
   const text = await response.text();
+  if (text.includes("File not found")) {
+    return JSON.parse(text).detail;
+  }
 
   var textByCategory = text.split("\n\n#");
   var txt: string[][] = textByCategory.map((t) => t.split("\n"));

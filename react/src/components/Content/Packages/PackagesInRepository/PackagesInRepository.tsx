@@ -47,13 +47,14 @@ export default function PackagesInRepository() {
   if (data.length > 0) isNotFound = data[0][0] == "<!doctype html>";
 
   // Display Popup
-  const [popupOpen, setPopupOpen] = useState(false);
-  const [isAdd, setIsAdd] = useState(false);
-  const [pkge, setPkge] = useState("");
+  const [popupOpen, setPopupOpen] = useState<boolean>(false);
+  const [isAdd, setIsAdd] = useState<boolean>(false);
+  const [pkge, setPkge] = useState<string>("");
 
-  const [hasLoaded, setHasLoaded] = useState(false);
+  const [hasLoaded, setHasLoaded] = useState<boolean>(false);
+  const [hasError, setHasError] = useState<boolean>(false);
 
-  const [outerIdx, setOuterIdx] = useState(-1);
+  const [outerIdx, setOuterIdx] = useState<number>(-1);
   const [item, setItem] = useState<string[]>([]);
   const [addOpen, setAddOpen] = useState(false);
 
@@ -114,7 +115,12 @@ export default function PackagesInRepository() {
   const fetchData = async () => {
     try {
       const resultData = await getAllPackagesFromRepository(permPath);
-      setData(resultData);
+      if (typeof resultData == "string" && resultData == "File not found") {
+        setHasError(true);
+        setData([]);
+      } else {
+        setData(resultData);
+      }
     } catch (err) {
       console.error("Error loading data:", err);
     }
@@ -163,6 +169,7 @@ export default function PackagesInRepository() {
 
   useEffect(() => {
     setHasLoaded(false);
+    setHasError(false);
     fetchData();
   }, []); // runs once when component mounts
 
@@ -270,15 +277,18 @@ export default function PackagesInRepository() {
             <Typography variant="h5">
               Packages for {permPath.toUpperCase()}
             </Typography>
-            <Tooltip title="Add subtitle">
-              <Button
-                sx={styles.clickButtonBig}
-                onClick={handleSubtitleButtonClick}
-                variant="outlined"
-              >
-                Add Subtitle
-              </Button>
-            </Tooltip>
+
+            {!hasError && (
+              <Tooltip title="Add subtitle">
+                <Button
+                  sx={styles.clickButtonBig}
+                  onClick={handleSubtitleButtonClick}
+                  variant="outlined"
+                >
+                  Add Subtitle
+                </Button>
+              </Tooltip>
+            )}
             <Box sx={pir_styles.searchWrapper}>
               <TextField
                 variant="standard"
@@ -375,6 +385,14 @@ export default function PackagesInRepository() {
                   </List>
                 </Box>
               )
+          )}
+          {hasError && (
+            <Box sx={pir_styles.errorWrapper}>
+              Unexpected Error: The facility "{permPath}" cannot be located.
+              Verify that the repository "{permPath}
+              {permittedFileEnding}" exists within the servers configured
+              directory: "SOME_DIRECTORY_CONST"
+            </Box>
           )}
           <DetailsPopup
             open={popupOpen}

@@ -143,7 +143,6 @@ export default function AllPackages() {
         inclusionsInDirectories[0],
         pkge
       );
-      console.log(pk);
       setFile(pk);
     }
   };
@@ -256,6 +255,9 @@ export default function AllPackages() {
             </Tooltip>
             <Tooltip title="Delete in all repositories">
               <DeleteOutlineIcon onClick={handleRemoveAll} />
+            </Tooltip>
+            <Tooltip title="Close">
+              <ClearIcon onClick={handleClose}/>
             </Tooltip>
           </Box>
         </Box>

@@ -27,6 +27,7 @@ export const dialogueWrapper: SxProps<Theme> = {
   "& > div": {
     padding: 3,
   },
+  width: "100%",
 };
 
 export const formWrapper: SxProps<Theme> = {
@@ -92,5 +93,14 @@ export const searchWrapper: SxProps<Theme> = {
   alignItems: "end",
   "& > svg": {
     marginInlineStart: 2,
+  },
+};
+
+export const subtitleTitleWrapper: SxProps<Theme> = {
+  display: "flex",
+  flexDirection: "row",
+  alignItems: "center",
+  "& > svg": {
+    marginInline: 1,
   },
 };

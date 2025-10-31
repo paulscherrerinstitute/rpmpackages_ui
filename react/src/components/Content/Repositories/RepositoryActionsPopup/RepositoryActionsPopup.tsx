@@ -7,16 +7,19 @@ import {
   MenuItem,
   Select,
   TextField,
+  Tooltip,
   Typography,
   type SelectChangeEvent,
 } from "@mui/material";
 import { useEffect, useState } from "react";
-import * as styles from "./RepositoryActionsPopup.styles";
+import * as rap_styles from "./RepositoryActionsPopup.styles";
+import * as styles from "../../Content.styles";
 import {
   addRepositoryAndFolder,
   getAllRepositories,
   removeRepositoryAndFolder,
 } from "../../../../helper/dataService";
+import ClearIcon from "@mui/icons-material/Clear";
 
 export function RepositoryActionPopup({
   action,
@@ -28,8 +31,8 @@ export function RepositoryActionPopup({
   }, []);
   return (
     <Dialog open={open} onClose={onClose}>
-      <Box sx={styles.wrapper}>
-        <Box sx={styles.content}>
+      <Box sx={rap_styles.wrapper}>
+        <Box sx={rap_styles.content}>
           {action == "Add" && <ActionPopupAdd open={open} onClose={onClose} />}
           {action == "Remove" && (
             <ActionPopupRemove open={open} onClose={onClose} />
@@ -53,30 +56,50 @@ type ActionPopupElementProps = {
 
 export type Action = "Add" | "Remove" | "None";
 
-function ActionPopupAdd({ onClose }: ActionPopupElementProps) {
+function ActionPopupAdd({ open, onClose }: ActionPopupElementProps) {
   const [repository, setRepository] = useState("");
+  const [isDisabled, setIsDisabled] = useState<boolean>(false);
 
   const updateRepository = (e: React.ChangeEvent<any>) => {
     if (e.target) setRepository(e.target.value);
+    if (e.target.value == "") setIsDisabled(true);
+    else setIsDisabled(false);
   };
 
   const addRepository = () => {
-    console.log("ADD", repository);
     if (repository) addRepositoryAndFolder(repository);
     onClose();
   };
+
+  useEffect(() => {
+    if (open) {
+      setIsDisabled(true);
+    }
+  }, [open]);
+
   return (
     <Box>
-      <Typography variant="h6">Add new Repository</Typography>
+      <Box sx={rap_styles.clearWrapper}>
+        <Typography variant="h6">Add new Repository</Typography>
+        <Tooltip title="Close">
+          <ClearIcon onClick={onClose} sx={styles.clickButtonBig} />
+        </Tooltip>
+      </Box>
       <TextField
         variant="standard"
         value={repository}
         onChange={updateRepository}
         label="Repository"
       />
-      <Button variant="outlined" onClick={addRepository}>
-        Add
-      </Button>
+      <Box sx={rap_styles.buttonWrapper}>
+        <Button
+          variant="outlined"
+          disabled={isDisabled}
+          onClick={addRepository}
+        >
+          Add
+        </Button>
+      </Box>
     </Box>
   );
 }
@@ -84,8 +107,11 @@ function ActionPopupAdd({ onClose }: ActionPopupElementProps) {
 function ActionPopupRemove({ open, onClose }: ActionPopupElementProps) {
   const [repositories, setRepositories] = useState<string[]>([]);
   const [selectedRepository, setSelectedRepository] = useState<string>("");
+  const [isDisabled, setIsDisabled] = useState<boolean>(false);
 
   const handleRepositoryChange = (e: SelectChangeEvent) => {
+    if (e.target.value != "") setIsDisabled(false);
+    else setIsDisabled(true);
     setSelectedRepository(e.target.value as string);
   };
 
@@ -95,7 +121,10 @@ function ActionPopupRemove({ open, onClose }: ActionPopupElementProps) {
   };
 
   useEffect(() => {
-    if (open) fetchData();
+    if (open) {
+      fetchData();
+      setIsDisabled(true);
+    }
   }, [open]);
 
   const removeRepository = () => {
@@ -104,8 +133,13 @@ function ActionPopupRemove({ open, onClose }: ActionPopupElementProps) {
   };
 
   return (
-    <Box sx={styles.selectWrapper}>
-      <Typography variant="h6">Remove Repository</Typography>
+    <Box sx={rap_styles.selectWrapper}>
+      <Box sx={rap_styles.clearWrapper}>
+        <Typography variant="h6">Remove Repository</Typography>
+        <Tooltip title="Close">
+          <ClearIcon onClick={onClose} sx={styles.clickButtonBig} />
+        </Tooltip>
+      </Box>
       <FormControl fullWidth>
         <InputLabel id="select-label">Repositories</InputLabel>
         <Select
@@ -120,9 +154,15 @@ function ActionPopupRemove({ open, onClose }: ActionPopupElementProps) {
           ))}
         </Select>
       </FormControl>
-      <Button variant="outlined" onClick={removeRepository}>
-        Remove
-      </Button>
+      <Box sx={rap_styles.buttonWrapper}>
+        <Button
+          variant="outlined"
+          disabled={isDisabled}
+          onClick={removeRepository}
+        >
+          Remove
+        </Button>
+      </Box>
     </Box>
   );
 }

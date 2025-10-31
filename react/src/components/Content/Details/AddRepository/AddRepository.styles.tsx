@@ -20,3 +20,11 @@ export const formControl: SxProps<Theme> = {
     width: "10vw",
   },
 };
+
+export const clearWrapper: SxProps<Theme> = {
+  display: "flex",
+  flexDirection: "row",
+  alignItems: "center",
+  justifyContent: "space-between",
+  marginBottom: 2
+};

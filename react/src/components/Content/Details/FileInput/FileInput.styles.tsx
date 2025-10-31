@@ -10,19 +10,19 @@ export const wrapper: SxProps<Theme> = {
 export const existWrapper: SxProps<Theme> = {
   display: "flex",
   flexDirection: "row",
-  "& > *":{
-    marginInline: 2
-  }
+  "& > *": {
+    marginInline: 2,
+  },
 };
 
-export const fileMessage: SxProps<Theme> = {
+export const fileMessage: SxProps<Theme> ={
   "& > *": {
     display: "flex",
     justifyContent: "center",
-    marginInline: 20,
-    padding: 1
+    marginInline: 5,
+    padding: 1,
   },
-  marginBlock: 1
+  marginBlock: 1,
 };
 
 export const noFile: SxProps<Theme> = {
@@ -30,9 +30,9 @@ export const noFile: SxProps<Theme> = {
 };
 
 export const isFile: SxProps<Theme> = {
-  backgroundColor: "rgba(0, 255, 0, 0.2)"
-}
+  backgroundColor: "rgba(0, 255, 0, 0.2)",
+};
 
 export const isFileSave: SxProps<Theme> = {
-  backgroundColor: "rgba(255, 150, 0, 0.2)"
-}
+  backgroundColor: "rgba(255, 150, 0, 0.2)",
+};

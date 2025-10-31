@@ -8,6 +8,7 @@ import {
   InputLabel,
   type SelectChangeEvent,
   Button,
+  Tooltip,
 } from "@mui/material";
 import {
   getAllRepositories,
@@ -15,8 +16,10 @@ import {
   addSubtitlteToRepository,
   type CreateDirectoryResponse,
 } from "../../../../helper/dataService";
-import * as styles from "./AddRepository.styles";
+import * as ar_styles from "./AddRepository.styles";
+import * as styles from "../../Content.styles";
 import { useEffect, useState } from "react";
+import ClearIcon from "@mui/icons-material/Clear";
 
 export function AddDetails({
   open,
@@ -26,6 +29,7 @@ export function AddDetails({
 }: AddDetails) {
   const [availableRepos, setAvailableRepos] = useState<string[]>([]);
   const [newRepo, setNewRepo] = useState("");
+  const [isDisabled, setIsDisabled] = useState<boolean>(false);
 
   const fetchRepos = async () => {
     const res = await getAllRepositories();
@@ -33,6 +37,8 @@ export function AddDetails({
   };
 
   const handleChange = (event: SelectChangeEvent) => {
+    if (event.target.value != "") setIsDisabled(false);
+    else setIsDisabled(true);
     setNewRepo(event.target.value as string);
   };
 
@@ -53,15 +59,24 @@ export function AddDetails({
   };
 
   useEffect(() => {
+    setIsDisabled(true);
+  }, []);
+
+  useEffect(() => {
     setNewRepo("");
     fetchRepos();
   }, [open]);
 
   return (
     <Dialog open={open} onClose={handleClose} fullWidth>
-      <Box sx={styles.dialogueWrapper}>
-        <Box sx={styles.formWrapper}>
-          <Typography variant="h6">{item}</Typography>
+      <Box sx={ar_styles.dialogueWrapper}>
+        <Box sx={ar_styles.formWrapper}>
+          <Box sx={ar_styles.clearWrapper}>
+            <Typography variant="h6">{item}</Typography>
+            <Tooltip title="Close">
+              <ClearIcon sx={styles.clickButtonBig} onClick={handleClose} />
+            </Tooltip>
+          </Box>
           <FormControl fullWidth>
             <InputLabel id="select-label">Repositories</InputLabel>
             <Select
@@ -77,8 +92,13 @@ export function AddDetails({
                 </MenuItem>
               ))}
             </Select>
-            <Box sx={styles.formControl}>
-              <Button color="primary" onClick={handleAdd}>
+            <Box sx={ar_styles.formControl}>
+              <Button
+                color="primary"
+                variant="outlined"
+                disabled={isDisabled}
+                onClick={handleAdd}
+              >
                 Add
               </Button>
             </Box>

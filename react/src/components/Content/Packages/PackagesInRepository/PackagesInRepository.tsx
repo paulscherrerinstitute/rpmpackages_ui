@@ -416,23 +416,42 @@ function SubtitleDialog({
   onAdd: (val: string) => void;
   repoName: string;
 }) {
-  const [localValue, setLocalValue] = useState("");
+  const [localValue, setLocalValue] = useState<string>("");
+  const [isDisabled, setIsDisabled] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (open) setIsDisabled(true);
+    if (!open) setLocalValue("");
+  }, [open]);
+
+  useEffect(() => {
+    if (localValue != "") setIsDisabled(false);
+    else setIsDisabled(true);
+  }, [localValue]);
+
   return (
     <Dialog open={open} onClose={onClose}>
       <Box sx={pir_styles.dialogueWrapper}>
         <Box sx={pir_styles.formWrapper}>
-          <Typography variant="h6">
-            Add Subtitle to {repoName.toUpperCase()}
-          </Typography>
+          <Box sx={pir_styles.subtitleTitleWrapper}>
+            <Typography variant="h6">
+              Add Subtitle to {repoName.toUpperCase()}
+            </Typography>
+            <Tooltip title="Close">
+              <ClearIcon sx={styles.clickButtonBig} onClick={onClose} />
+            </Tooltip>
+          </Box>
           <TextField
             value={localValue}
             onChange={(e) => setLocalValue(e.target.value)}
           />
           <Button
+            variant="outlined"
             onClick={() => {
               onAdd(localValue.trim());
               setLocalValue("");
             }}
+            disabled={isDisabled}
           >
             Add
           </Button>

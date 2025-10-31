@@ -225,6 +225,7 @@ export function Orphans() {
 
 function UploadFileDialog({ open, pkge, onClose }: UploadFileDialogProps) {
   const [file, setFile] = useState<File | null>(null);
+  const [isDisabled, setIsDisabled] = useState<boolean>(false);
 
   const handleSave = async () => {
     if (file)
@@ -239,11 +240,23 @@ function UploadFileDialog({ open, pkge, onClose }: UploadFileDialogProps) {
     setFile(null);
   };
 
+  useEffect(() => {
+    if (file != null) setIsDisabled(false);
+    else setIsDisabled(true);
+  }, [file]);
+
+  useEffect(() => {
+    if (open) setIsDisabled(true);
+  }, [open]);
+
   return (
     <Dialog open={open} onClose={onClose} fullWidth>
       <Box sx={o_styles.dialogueWrapper}>
-        <Box>
+        <Box sx={o_styles.dialogueTitleWrapper}>
           <Typography variant="h6">{pkge.name}</Typography>
+          <Tooltip title="Close">
+            <ClearIcon sx={styles.clickButtonBig} onClick={onClose} />
+          </Tooltip>
         </Box>
         <Box>
           <FileInput
@@ -253,8 +266,8 @@ function UploadFileDialog({ open, pkge, onClose }: UploadFileDialogProps) {
             removeFile={handleRemove}
           />
         </Box>
-        <Box>
-          <Button variant="contained" onClick={handleSave}>
+        <Box sx={o_styles.dialogueButtonWrapper}>
+          <Button variant="outlined" disabled={isDisabled} onClick={handleSave}>
             Add
           </Button>
         </Box>

@@ -11,8 +11,10 @@ import {
   DialogActions,
   Button,
   Box,
+  Tooltip,
 } from "@mui/material";
-import * as styles from "./DetailsPopup.styles";
+import * as dp_styles from "./DetailsPopup.styles";
+import * as styles from "../../Content.styles";
 import { useEffect, useState } from "react";
 import {
   getName,
@@ -21,6 +23,7 @@ import {
   getArchitecture,
   getVersionNote,
 } from "../../../helpers/DetailsHelper";
+import ClearIcon from "@mui/icons-material/Clear";
 import { FileInput } from "../FileInput/FileInput";
 
 export function DetailsPopup({
@@ -43,6 +46,7 @@ export function DetailsPopup({
     distribution: "",
     architecture: "",
   });
+  const [isSaveDisabled, setIsSaveDisabled] = useState<boolean>(false);
 
   const handleChange = (e: React.ChangeEvent<any>) => {
     const { name, value } = e.target; // fixed to e.target.name and e.target.value
@@ -53,6 +57,21 @@ export function DetailsPopup({
           [name]: value,
         } as DetailsForm)
     );
+  };
+
+  useEffect(() => {
+    if (formData) checkIfShouldBeDisabled();
+  }, [formData]);
+
+  const checkIfShouldBeDisabled = () => {
+    if (
+      formData.name != "" &&
+      formData.version != "" &&
+      formData.distribution != "" &&
+      formData.architecture != ""
+    ) {
+      setIsSaveDisabled(false);
+    } else setIsSaveDisabled(true);
   };
 
   const getPName = () => {
@@ -86,6 +105,7 @@ export function DetailsPopup({
           architecture: "",
         });
         if (setFile) setFile(null);
+        setIsSaveDisabled(true);
       } else {
         setFormData({
           name: getPName(),
@@ -109,13 +129,18 @@ export function DetailsPopup({
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
-      {!isAdd && <DialogTitle>{pkge} </DialogTitle>}
-      {isAdd && <DialogTitle>ADD to {addProps?.data[0]}</DialogTitle>}
+      <Box sx={dp_styles.dialogTitleWrapper}>
+        {!isAdd && <DialogTitle>{pkge} </DialogTitle>}
+        {isAdd && <DialogTitle>ADD to {addProps?.data[0]}</DialogTitle>}
+        <Tooltip title="Close">
+          <ClearIcon sx={styles.clickButtonBig} onClick={onClose} />
+        </Tooltip>
+      </Box>
       <DialogContent dividers>
         <Box onSubmit={handleSave} id="package-form" component="form">
           <Table>
             <TableHead>
-              <TableRow sx={styles.tableHead}>
+              <TableRow sx={dp_styles.tableHead}>
                 <TableCell>Package Name</TableCell>
                 <TableCell>Version</TableCell>
                 <TableCell>Version-Note</TableCell>
@@ -128,6 +153,7 @@ export function DetailsPopup({
                 <TableCell>
                   <TextField
                     variant="standard"
+                    required
                     label={getPName() === "" ? "(empty)" : getPName()}
                     value={formData.name}
                     name="name"
@@ -137,6 +163,7 @@ export function DetailsPopup({
                 <TableCell>
                   <TextField
                     variant="standard"
+                    required
                     label={getPVersion() === "" ? "(empty)" : getPVersion()}
                     value={formData.version}
                     name="version"
@@ -157,6 +184,7 @@ export function DetailsPopup({
                 <TableCell>
                   <TextField
                     variant="standard"
+                    required
                     label={
                       getPDistribution() === "" ? "(empty)" : getPDistribution()
                     }
@@ -171,6 +199,7 @@ export function DetailsPopup({
                     label={
                       getPArchitecture() === "" ? "(empty)" : getPArchitecture()
                     }
+                    required
                     value={formData.architecture}
                     name="architecture"
                     onChange={handleChange}
@@ -190,7 +219,11 @@ export function DetailsPopup({
         </Box>
       </DialogContent>
       <DialogActions>
-        <Button onClick={handleSave} form="package-form">
+        <Button
+          onClick={handleSave}
+          disabled={isSaveDisabled}
+          form="package-form"
+        >
           Save
         </Button>
         <Button onClick={onClose}>Cancel</Button>

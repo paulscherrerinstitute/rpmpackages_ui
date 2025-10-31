@@ -40,7 +40,8 @@ export const fileOrphanIcons: SxProps<Theme> = {
   },
   display: "flex",
   flexDirection: "row",
-  justifyContent: "center",
+  marginInline: 0.5,
+  justifyContent: "end",
 };
 
 export const packageOrphanIcons: SxProps<Theme> = {
@@ -61,10 +62,24 @@ export const dialogueWrapper: SxProps<Theme> = {
     margin: 2,
     width: "10vw",
   },
-  "& > div": {
+  "& > *": {
     display: "flex",
     flexDirection: "column",
-    alignItems: "center",
     justifyContent: "center",
   },
+};
+
+export const dialogueTitleWrapper: SxProps<Theme> = {
+  display: "flex",
+  flexDirection: "row",
+  alignItems: "center",
+  justifyContent: "space-between",
+  paddingBottom: 0.75,
+  borderBottom: "1px solid rgba(150, 150, 150, 0.3)",
+};
+
+export const dialogueButtonWrapper: SxProps<Theme> = {
+  display: "flex",
+  flexDirection: "row",
+  justifyContent: "center",
 };

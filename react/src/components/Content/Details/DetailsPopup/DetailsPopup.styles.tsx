@@ -13,3 +13,12 @@ export const tableBody: SxProps<Theme> = {
   },
 };
 
+export const dialogTitleWrapper: SxProps<Theme> = {
+  display: "flex",
+  flexDirection: "row",
+  alignItems: "center",
+  justifyContent: "space-between",
+  "& > svg": {
+    marginInline: 2,
+  },
+};

@@ -20,6 +20,7 @@ import {
   addPackageToRepository,
   removePackageFromRepository,
   uploadFileToFolder,
+  getBackendHealth,
 } from "../../../services/dataService";
 import {
   type OrphanedFile,
@@ -33,6 +34,7 @@ import AddIcon from "@mui/icons-material/Add";
 import { SearchResultsEmpty } from "../Details/SearchResultsEmpty/SearchResultsEmpty";
 import LaunchIcon from "@mui/icons-material/Launch";
 import { FileInput } from "../Details/FileInput/FileInput";
+import { ErrorBar } from "../Details/ErrorBar";
 
 const PERMITTED_FILE_ENDING: string =
   (window as EnvWindow)._env_?.RPM_PACKAGES_CONFIG_ENDING ?? ".repo_cfg";
@@ -51,13 +53,20 @@ export function Orphans() {
     if (e.target) setFoSearch(e.target.value);
   };
 
+  const [isBackendHealthy, setIsBackendHealthy] = useState<boolean>(true);
+
   const navigate = useNavigate();
 
   const fetchData = async () => {
-    const o_f = await getOrphanedFiles();
-    setFileOrphans(o_f);
-    const o_p = await getOrphanedPackages();
-    setPkgeOrphans(o_p);
+    getBackendHealth().then(async (val) => {
+      if (val == "Alive and Well!") {
+        const o_f = await getOrphanedFiles();
+        setFileOrphans(o_f);
+        const o_p = await getOrphanedPackages();
+        setPkgeOrphans(o_p);
+        setIsBackendHealthy(true);
+      } else setIsBackendHealthy(false);
+    });
   };
 
   const navigateToPackage = (o: OrphanedPackage) => {
@@ -105,6 +114,7 @@ export function Orphans() {
 
   return (
     <Box component="main" sx={styles.main}>
+      <ErrorBar open={!isBackendHealthy}/>
       <Box sx={o_styles.wrapper}>
         <Box>
           <Box sx={o_styles.titleWrapper}>

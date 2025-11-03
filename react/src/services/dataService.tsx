@@ -8,9 +8,40 @@ import {
   type EnvWindow,
 } from "./dataService.types";
 
-const API = (window as EnvWindow)._env_?.RPM_PACKAGES_BACKEND_URL + "/data";
+const env = (window as EnvWindow)._env_;
+const API = env?.RPM_PACKAGES_BACKEND_URL + "/data";
 const PERMITTED_FILE_ENDING: string =
-  (window as EnvWindow)._env_?.RPM_PACKAGES_CONFIG_ENDING ?? ".repo_cfg";
+  env?.RPM_PACKAGES_CONFIG_ENDING ?? ".repo_cfg";
+
+///////////
+// Health
+///////////
+
+export async function getBackendHealth(): Promise<string> {
+  const health_url = env?.RPM_PACKAGES_BACKEND_URL;
+  try {
+    const health = await fetch(`${health_url}/health`).then(async (res) => {
+      const data = res.json();
+      return data;
+    });
+    if (health) {
+      console.info(
+        "[" + new Date().toISOString() + "]",
+        "BACKEND: ",
+        health.message
+      );
+      return health.message;
+    }
+    return "";
+  } catch {
+    console.info(
+      "[" + new Date().toISOString() + "]",
+      "BACKEND:",
+      "Dead and definitely not well"
+    );
+    return "Does not feel so good";
+  }
+}
 
 /////////////
 // DIRECTORY

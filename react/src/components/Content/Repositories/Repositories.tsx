@@ -20,17 +20,27 @@ import {
   RepositoryActionPopup,
   type Action,
 } from "./RepositoryActionsPopup/RepositoryActionsPopup";
+import { getBackendHealth } from "../../../services/dataService";
+import { ErrorBar } from "../Details/ErrorBar";
 
 export function Repositories() {
   const [availableRepos, setAvailableRepos] = useState<string[]>([]);
   const navigate = useNavigate();
+  const [backendIsHealthy, setBackendIsHealthy] = useState<boolean>(true);
 
   useEffect(() => {
     async function fetchData() {
       const repos = await getAllRepositories();
       setAvailableRepos(repos);
     }
-    fetchData();
+    getBackendHealth().then((val) => {
+      if (val == "Alive and Well!") {
+        fetchData();
+        setBackendIsHealthy(true);
+      } else {
+        setBackendIsHealthy(false);
+      }
+    });
   }, []);
 
   const [repoSearch, setRepoSearch] = useState("");
@@ -61,6 +71,7 @@ export function Repositories() {
   return (
     <Box component="main" sx={styles.main}>
       <Box sx={r_styles.body}>
+        <ErrorBar open={!backendIsHealthy}/>
         <Box sx={r_styles.titleWrapper}>
           <Typography variant="h5">Available Repositories</Typography>
           <Box sx={r_styles.buttonWrapper}>

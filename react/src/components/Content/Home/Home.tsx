@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 export function Home() {
   const navigate = useNavigate();
   const URL = "SERVERNAME";
-  const GITHUB_URL = "https://github.com/paulscherrerinstitute/rpmpackages_ui"
+  const GITHUB_URL = "https://github.com/paulscherrerinstitute/rpmpackages_ui";
 
   return (
     <Box component="main" sx={styles.main}>
@@ -30,11 +30,7 @@ export function Home() {
       <Box>
         <h2>Documentation</h2>
         <Typography>
-          The Documentation is located{" "}
-          <a href={GITHUB_URL}>
-            here
-          </a>
-          .
+          The Documentation is located <a href={GITHUB_URL}>here</a>.
         </Typography>
         <Box>
           <h2>Acknoledgements</h2>

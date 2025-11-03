@@ -9,9 +9,9 @@ touch ./env-config.js
 
 # Add assignment
 echo "window._env_ = {" >> ./env-config.js
-
 # Loop through all environment variables
-for varname in $(printenv | grep -o 'RPM_PACKAGES_PUBLIC[^=]*' | sort -u); do
+for varname in $(printenv | grep -o 'RPM_PACKAGES[^=]*' | sort -u); do
+  printf "%s\n" "$varname"
   # Read the value of the environment variable
   value="${!varname}"
 

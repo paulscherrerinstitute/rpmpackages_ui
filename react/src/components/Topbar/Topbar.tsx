@@ -13,7 +13,7 @@ import MenuIcon from "@mui/icons-material/Menu";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
-import { NavItems, Title } from "../helpers/NavbarHelper";
+import { NAV_ITEMS, TITLE } from "../helpers/NavbarHelper";
 import { useNavigate } from "react-router-dom";
 import * as styles from "./Topbar.styles";
 
@@ -38,11 +38,11 @@ export default function Topbar(props: Props) {
   const drawer = (
     <Box onClick={handleDrawerToggle} sx={{ textAlign: "center" }}>
       <Typography variant="h6" sx={{ my: 2 }}>
-        {Title}
+        {TITLE}
       </Typography>
       <Divider />
       <List>
-        {NavItems.map((item) => (
+        {NAV_ITEMS.map((item) => (
           <ListItem key={item.key} disablePadding>
             <ListItemButton
               sx={styles.topBarButton}
@@ -78,10 +78,10 @@ export default function Topbar(props: Props) {
             component="div"
             sx={{ flexGrow: 1, display: { xs: "none", sm: "block" } }}
           >
-            {Title}
+            {TITLE}
           </Typography>
           <Box sx={{ display: { xs: "none", sm: "block" } }}>
-            {NavItems.map((item) => (
+            {NAV_ITEMS.map((item) => (
               <Button
                 key={item.key}
                 sx={styles.topBarButton}

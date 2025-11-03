@@ -22,6 +22,7 @@ import {
   updatePackageInRepository,
   uploadFileToFolder,
   renameFileInFolder,
+  type EnvWindow,
 } from "../../../../helper/dataService";
 import * as styles from "../../Content.styles";
 import * as pir_styles from "./PackagesInRepository.styles";
@@ -35,7 +36,9 @@ import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import AddIcon from "@mui/icons-material/Add";
 import ClearIcon from "@mui/icons-material/Clear";
 import { SearchResultsEmpty } from "../../Details/SearchResultsEmpty/SearchResultsEmpty";
-import { permittedFileEnding } from "../../../helpers/NavbarHelper";
+
+const PERMITTED_FILE_ENDING: string =
+  (window as EnvWindow)._env_?.RPM_PACKAGES_CONFIG_ENDING ?? ".repo_cfg";
 
 export default function PackagesInRepository() {
   // Display List
@@ -99,14 +102,14 @@ export default function PackagesInRepository() {
 
   const handleSubtitleRemove = async (directory: string) => {
     await removeSubtitleFromRepository(
-      permPath + permittedFileEnding,
+      permPath + PERMITTED_FILE_ENDING,
       directory
     );
     await fetchData();
   };
 
   const handleSubtitleAdd = async (newSubtitle: string) => {
-    const path = permPath + permittedFileEnding;
+    const path = permPath + PERMITTED_FILE_ENDING;
     await addSubtitlteToRepository(path, newSubtitle);
     setAddOpen(false);
     await fetchData();
@@ -142,14 +145,14 @@ export default function PackagesInRepository() {
     } else {
       pk = `${form.name}-${form.version}.${form.distribution}.${form.architecture}.rpm`;
     }
-    var repo_path = `${permPath}${permittedFileEnding}`;
+    var repo_path = `${permPath}${PERMITTED_FILE_ENDING}`;
     await updatePackageInRepository(pkge, pk, repo_path);
     if (file != null) {
       await uploadFileToFolder(permPath, file);
       await renameFileInFolder(
         pkge,
         pk,
-        repo_path.replace(permittedFileEnding, "")
+        repo_path.replace(PERMITTED_FILE_ENDING, "")
       );
     }
     await fetchData();
@@ -162,7 +165,7 @@ export default function PackagesInRepository() {
     } else {
       pk = `${form.name}-${form.version}.${form.distribution}.${form.architecture}.rpm`;
     }
-    var repo_path = `${permPath}${permittedFileEnding}`;
+    var repo_path = `${permPath}${PERMITTED_FILE_ENDING}`;
     await addPackageToRepository(pk, repo_path, outerIdx);
     fetchData();
   };
@@ -235,7 +238,7 @@ export default function PackagesInRepository() {
     if (dragging != "") {
       await movePackageToRepository(
         dragging,
-        permPath + permittedFileEnding,
+        permPath + PERMITTED_FILE_ENDING,
         o_idx,
         i_idx
       );
@@ -390,7 +393,7 @@ export default function PackagesInRepository() {
             <Box sx={pir_styles.errorWrapper}>
               Unexpected Error: The facility "{permPath}" cannot be located.
               Verify that the repository "{permPath}
-              {permittedFileEnding}" exists within the servers configured
+              {PERMITTED_FILE_ENDING}" exists within the servers configured
               directory: "SOME_DIRECTORY_CONST"
             </Box>
           )}

@@ -1,10 +1,12 @@
-import { permittedFileEnding } from "../components/helpers/NavbarHelper";
-
-const API: string = "http://localhost:8080/data";
+const API = (window as EnvWindow)._env_?.RPM_PACKAGES_BACKEND_URL + "/data";
+const PERMITTED_FILE_ENDING: string =
+  (window as EnvWindow)._env_?.RPM_PACKAGES_CONFIG_ENDING ?? ".repo_cfg";
 
 /////////////
 // DIRECTORY
 /////////////
+
+const DIRECTORY_PATH = API + "/directory";
 
 export async function addSubtitlteToRepository(
   repository: string,
@@ -14,7 +16,7 @@ export async function addSubtitlteToRepository(
     directory: directory,
   });
 
-  return await fetch(`${API}/directory/${repository}`, {
+  return await fetch(`${DIRECTORY_PATH}/${repository}`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body,
@@ -31,7 +33,7 @@ export async function removeSubtitleFromRepository(
   const body = JSON.stringify({
     directory: directory.trim(),
   });
-  return await fetch(`${API}/directory/${repository}`, {
+  return await fetch(`${DIRECTORY_PATH}/${repository}`, {
     method: "DELETE",
     headers: { "Content-Type": "application/json" },
     body,
@@ -45,11 +47,13 @@ export async function removeSubtitleFromRepository(
 // Files
 /////////////
 
+const FILES_PATH = API + "/files";
+
 export async function getFileFromFolderForPackage(
   directory: string,
   pkge: string
 ): Promise<File | null> {
-  return await fetch(`${API}/files/${directory}/${pkge}`).then(
+  return await fetch(`${FILES_PATH}/${directory}/${pkge}`).then(
     async (response) => {
       const content_type = response.headers.get("Content-Type");
       if (content_type == "application/octet-stream") {
@@ -65,14 +69,14 @@ export async function getFileFromFolderForPackage(
 export async function getFoldersIncludingFileForPackage(
   pkge: string
 ): Promise<string[]> {
-  return await fetch(`${API}/files/pkge/${pkge}`).then(async (response) => {
+  return await fetch(`${FILES_PATH}/pkge/${pkge}`).then(async (response) => {
     const data = await response.json();
     return data;
   });
 }
 
 export async function getOrphanedFiles(): Promise<OrphanedFile[]> {
-  return await fetch(`${API}/files/orphans`).then(async (response) => {
+  return await fetch(`${FILES_PATH}/orphans`).then(async (response) => {
     const data = await response.json();
     return data;
   });
@@ -87,7 +91,7 @@ export async function renameFileInFolder(
     new_name: new_name,
     directory: directory,
   });
-  return await fetch(`${API}/files/${pkge}`, {
+  return await fetch(`${FILES_PATH}/${pkge}`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
     body,
@@ -100,7 +104,7 @@ export async function renameFileInFolder(
 export async function uploadFileToFolder(directory: string, file: File) {
   const formData = new FormData();
   formData.append("file", file);
-  return await fetch(`${API}/files/${directory}`, {
+  return await fetch(`${FILES_PATH}/${directory}`, {
     method: "POST",
     body: formData,
   }).then(async (response) => {
@@ -113,7 +117,7 @@ export async function removeFileFromFolder(
   directory: string,
   pkge: string
 ): Promise<RemovePackageResponse> {
-  return await fetch(`${API}/files/${directory}/${pkge}`, {
+  return await fetch(`${FILES_PATH}/${directory}/${pkge}`, {
     method: "DELETE",
   }).then(async (response) => {
     const data = await response.json();
@@ -125,8 +129,10 @@ export async function removeFileFromFolder(
 // Package
 /////////////
 
+const PACKAGE_PATH = API + "/package";
+
 export async function getAllUniquePackagesOverAll(): Promise<string[]> {
-  return await fetch(`${API}/package/all`).then(async (response) => {
+  return await fetch(`${PACKAGE_PATH}/all`).then(async (response) => {
     const data = await response.json();
     return data;
   });
@@ -135,14 +141,14 @@ export async function getAllUniquePackagesOverAll(): Promise<string[]> {
 export async function getRepositoriesOfPackage(
   pkge: string
 ): Promise<string[]> {
-  return await fetch(`${API}/package/${pkge}`).then(async (response) => {
+  return await fetch(`${PACKAGE_PATH}/${pkge}`).then(async (response) => {
     const data = await response.json();
     return data;
   });
 }
 
 export async function getOrphanedPackages(): Promise<OrphanedPackage[]> {
-  return await fetch(`${API}/package/orphans`).then(async (response) => {
+  return await fetch(`${PACKAGE_PATH}/orphans`).then(async (response) => {
     const data = await response.json();
     return data;
   });
@@ -157,7 +163,7 @@ export async function updatePackageInRepository(
     updatePackageInRepository: updatedPackage,
     repository: repository,
   });
-  return await fetch(`${API}/package/${pkge}`, {
+  return await fetch(`${PACKAGE_PATH}/${pkge}`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
     body,
@@ -178,7 +184,7 @@ export async function movePackageToRepository(
     outer_index: outerIndex,
     inner_index: innerIndex,
   });
-  return await fetch(`${API}/package/${pkge}/move`, {
+  return await fetch(`${PACKAGE_PATH}/${pkge}/move`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
     body,
@@ -200,7 +206,7 @@ export async function addPackageToRepository(
     subTitleIndex: insertIndex,
   });
 
-  return await fetch(`${API}/package/new`, {
+  return await fetch(`${PACKAGE_PATH}/new`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body,
@@ -215,7 +221,7 @@ export async function removePackageFromRepository(
   repository: string
 ): Promise<string[]> {
   return await fetch(
-    `${API}/package/${pkge}/${repository}${permittedFileEnding}`,
+    `${PACKAGE_PATH}/${pkge}/${repository}${PERMITTED_FILE_ENDING}`,
     {
       method: "DELETE",
     }
@@ -229,7 +235,7 @@ export async function getAllPackagesFromRepository(
   repository: string
 ): Promise<string[][]> {
   const response = await fetch(
-    `${API}/package/repository/${repository}${permittedFileEnding}`
+    `${PACKAGE_PATH}/repository/${repository}${PERMITTED_FILE_ENDING}`
   );
   const text = await response.text();
   if (text.includes("File not found")) {
@@ -250,8 +256,10 @@ export async function getAllPackagesFromRepository(
 // Repository
 /////////////
 
+const REPOSITORY_PATH = API + "/repository";
+
 export async function getAllRepositories(): Promise<string[]> {
-  return await fetch(`${API}/repository`).then(async (response) => {
+  return await fetch(`${REPOSITORY_PATH}`).then(async (response) => {
     const data = await response.json();
     return data;
   });
@@ -263,7 +271,7 @@ export async function addRepositoryAndFolder(
   const body = JSON.stringify({
     repository: repository,
   });
-  return await fetch(`${API}/repository/new`, {
+  return await fetch(`${REPOSITORY_PATH}/new`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body,
@@ -277,7 +285,7 @@ export async function removeRepositoryAndFolder(
   repository: string
 ): Promise<RepositoryResponse> {
   return await fetch(
-    `${API}/repository/${repository.replace(permittedFileEnding, "")}`,
+    `${REPOSITORY_PATH}/${repository.replace(PERMITTED_FILE_ENDING, "")}`,
     {
       method: "DELETE",
     }
@@ -323,3 +331,10 @@ export type RepositoryResponse = {
   repository_location: string;
   folder_location: string;
 };
+
+export interface EnvWindow extends Window {
+  _env_?: {
+    RPM_PACKAGES_BACKEND_URL: string;
+    RPM_PACKAGES_CONFIG_ENDING: string;
+  };
+}

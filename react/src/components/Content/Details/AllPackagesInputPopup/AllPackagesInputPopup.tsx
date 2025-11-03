@@ -7,8 +7,10 @@ import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import {
   removeFileFromFolder,
   uploadFileToFolder,
+  type EnvWindow,
 } from "../../../../helper/dataService";
-import { permittedFileEnding } from "../../../helpers/NavbarHelper";
+const PERMITTED_FILE_ENDING: string =
+  (window as EnvWindow)._env_?.RPM_PACKAGES_CONFIG_ENDING ?? ".repo_cfg";
 
 export default function AllPackagesInputPopup({
   displayInput,
@@ -49,7 +51,7 @@ export default function AllPackagesInputPopup({
 
   const handleAddAll = async () => {
     packageIncludedIn.forEach(async (pkge) => {
-      var withoutEnd = pkge.replace(permittedFileEnding, "");
+      var withoutEnd = pkge.replace(PERMITTED_FILE_ENDING, "");
       if (!fileIncludedIn.includes(withoutEnd) && file != null) {
         await uploadFileToFolder(withoutEnd, file);
         updatePackages();
@@ -59,7 +61,7 @@ export default function AllPackagesInputPopup({
 
   const handleRemoveAll = async () => {
     packageIncludedIn.forEach(async (pkge) => {
-      var withoutEnd = pkge.replace(permittedFileEnding, "");
+      var withoutEnd = pkge.replace(PERMITTED_FILE_ENDING, "");
       if (fileIncludedIn.includes(withoutEnd) && file != null) {
         await removeFileFromFolder(withoutEnd, file.name);
         updatePackages();
@@ -74,7 +76,7 @@ export default function AllPackagesInputPopup({
       if (f) {
         setFile(f);
         packageIncludedIn.forEach(async (pkge) => {
-          var withoutEnd = pkge.replace(permittedFileEnding, "");
+          var withoutEnd = pkge.replace(PERMITTED_FILE_ENDING, "");
           if (!fileIncludedIn.includes(withoutEnd) && f.name != null) {
             await uploadFileToFolder(withoutEnd, f);
           }

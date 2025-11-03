@@ -22,6 +22,7 @@ import {
   removePackageFromRepository,
   renameFileInFolder,
   updatePackageInRepository,
+  type EnvWindow,
 } from "../../../../helper/dataService";
 import {
   getArchitecture,
@@ -42,7 +43,9 @@ import {
 } from "../../Details/DetailsPopup/DetailsPopup";
 import AllPackagesInputPopup from "../../Details/AllPackagesInputPopup/AllPackagesInputPopup";
 import { SearchResultsEmpty } from "../../Details/SearchResultsEmpty/SearchResultsEmpty";
-import { permittedFileEnding } from "../../../helpers/NavbarHelper";
+
+const PERMITTED_FILE_ENDING: string =
+  (window as EnvWindow)._env_?.RPM_PACKAGES_CONFIG_ENDING ?? ".repo_cfg";
 
 export default function AllPackages() {
   const [data, setData] = useState<string[]>([]);
@@ -124,7 +127,11 @@ export default function AllPackages() {
     }
     inclusionsInRepositories.forEach(async (rep) => {
       await updatePackageInRepository(pkge, pk, rep);
-      await renameFileInFolder(pkge, pk, rep.replace(permittedFileEnding, ""));
+      await renameFileInFolder(
+        pkge,
+        pk,
+        rep.replace(PERMITTED_FILE_ENDING, "")
+      );
     });
     await fetchData();
     fetchInclusionData;
@@ -257,7 +264,7 @@ export default function AllPackages() {
               <DeleteOutlineIcon onClick={handleRemoveAll} />
             </Tooltip>
             <Tooltip title="Close">
-              <ClearIcon onClick={handleClose}/>
+              <ClearIcon onClick={handleClose} />
             </Tooltip>
           </Box>
         </Box>
@@ -299,7 +306,7 @@ export default function AllPackages() {
                         sx={styles.clickButton}
                         onClick={() =>
                           navigate(
-                            `/Packages/${i.replace(permittedFileEnding, "")}`
+                            `/Packages/${i.replace(PERMITTED_FILE_ENDING, "")}`
                           )
                         }
                       >
@@ -312,11 +319,11 @@ export default function AllPackages() {
                     >
                       {Array.isArray(inclusionsInDirectories) &&
                         !inclusionsInDirectories.includes(
-                          i.replace(permittedFileEnding, "")
+                          i.replace(PERMITTED_FILE_ENDING, "")
                         ) && <Box sx={ap_styles.noFile}>No File detected.</Box>}
                       {Array.isArray(inclusionsInDirectories) &&
                         inclusionsInDirectories.includes(
-                          i.replace(permittedFileEnding, "")
+                          i.replace(PERMITTED_FILE_ENDING, "")
                         ) && <Box sx={ap_styles.isFile}>File detected.</Box>}
                       <Tooltip
                         sx={styles.clickButtonBig}

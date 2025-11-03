@@ -60,13 +60,16 @@ export default function AllPackagesInputPopup({
   };
 
   const handleRemoveAll = async () => {
-    packageIncludedIn.forEach(async (pkge) => {
-      var withoutEnd = pkge.replace(PERMITTED_FILE_ENDING, "");
-      if (fileIncludedIn.includes(withoutEnd) && file != null) {
-        await removeFileFromFolder(withoutEnd, file.name);
-        updatePackages();
-      }
-    });
+    var prompt = confirm("Do you want to delete all instances of this everywhere?")
+    if(prompt){
+      packageIncludedIn.forEach(async (pkge) => {
+        var withoutEnd = pkge.replace(PERMITTED_FILE_ENDING, "");
+        if (fileIncludedIn.includes(withoutEnd) && file != null) {
+          await removeFileFromFolder(withoutEnd, file.name);
+          updatePackages();
+        }
+      });
+    }
   };
 
   const updateFile = async (event: ChangeEvent<HTMLInputElement>) => {

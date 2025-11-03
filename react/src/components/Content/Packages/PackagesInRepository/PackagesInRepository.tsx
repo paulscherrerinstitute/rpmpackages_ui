@@ -101,11 +101,14 @@ export default function PackagesInRepository() {
   };
 
   const handleSubtitleRemove = async (directory: string) => {
-    await removeSubtitleFromRepository(
-      permPath + PERMITTED_FILE_ENDING,
-      directory
-    );
-    await fetchData();
+    var prompt = "Do you want to remove the subtitle '" + directory + "'?";
+    if(prompt){
+      await removeSubtitleFromRepository(
+        permPath + PERMITTED_FILE_ENDING,
+        directory
+      );
+      await fetchData();
+    }
   };
 
   const handleSubtitleAdd = async (newSubtitle: string) => {

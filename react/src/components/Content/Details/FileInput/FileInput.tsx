@@ -56,6 +56,11 @@ export function FileInput({
     }
   };
 
+  const handleRemoveFile = () => {
+    var prompt = confirm("Do you want to delete this file?");
+    if (removeFile && prompt) removeFile();
+  };
+
   return (
     <Box sx={styles.wrapper}>
       <Box sx={styles.fileMessage}>
@@ -85,7 +90,7 @@ export function FileInput({
           </Tooltip>
           <Tooltip title="Remove the .rpm from the current directory the repository is pointing to">
             <DeleteOutlineIcon
-              onClick={removeFile}
+              onClick={() => handleRemoveFile}
               sx={con_styles.clickButtonBig}
             />
           </Tooltip>

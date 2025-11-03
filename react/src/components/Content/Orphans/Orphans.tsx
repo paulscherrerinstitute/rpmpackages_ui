@@ -78,8 +78,11 @@ export function Orphans() {
   const clearPoSearch = () => setPoSearch("");
 
   const deleteOrphanedFile = async (o: OrphanedFile) => {
-    await removeFileFromFolder(o.directory, o.name);
-    await fetchData();
+    var prompt = "Do you want to delete the orphaned file " + o.name + "?";
+    if (prompt) {
+      await removeFileFromFolder(o.directory, o.name);
+      await fetchData();
+    }
   };
 
   useEffect(() => {
@@ -92,8 +95,11 @@ export function Orphans() {
   };
 
   const removeOrphanedPackage = async (o: OrphanedPackage) => {
-    await removePackageFromRepository(o.name, o.repository[0]);
-    await fetchData();
+    var prompt = "Do you want to delete the orphaned package " + o.name + "?";
+    if (prompt) {
+      await removePackageFromRepository(o.name, o.repository[0]);
+      await fetchData();
+    }
   };
 
   const [openDialog, setOpenDialog] = useState<boolean>(false);
@@ -114,7 +120,7 @@ export function Orphans() {
 
   return (
     <Box component="main" sx={styles.main}>
-      <ErrorBar open={!isBackendHealthy}/>
+      <ErrorBar open={!isBackendHealthy} />
       <Box sx={o_styles.wrapper}>
         <Box>
           <Box sx={o_styles.titleWrapper}>

@@ -1,8 +1,8 @@
 import os
 from .routers_types import PackageFile
 
-REPO_DIR = "static"
-FILE_ENDING = ".repo_cfg"
+REPO_DIR: str = os.getenv("RPM_PACKAGES_DIRECTORY", "")
+FILE_ENDING: str = os.getenv("RPM_PACKAGES_CONFIG_ENDING", ".repo_cfg")
 
 #########################
 ### General Functions ###

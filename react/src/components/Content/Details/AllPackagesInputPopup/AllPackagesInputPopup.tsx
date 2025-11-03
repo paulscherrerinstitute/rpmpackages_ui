@@ -7,8 +7,8 @@ import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import {
   removeFileFromFolder,
   uploadFileToFolder,
-  type EnvWindow,
-} from "../../../../helper/dataService";
+} from "../../../../services/dataService";
+import { type EnvWindow } from "../../../../services/dataService.types";
 const PERMITTED_FILE_ENDING: string =
   (window as EnvWindow)._env_?.RPM_PACKAGES_CONFIG_ENDING ?? ".repo_cfg";
 

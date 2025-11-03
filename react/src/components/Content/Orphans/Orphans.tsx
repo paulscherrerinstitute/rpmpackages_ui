@@ -18,12 +18,14 @@ import {
   getOrphanedPackages,
   removeFileFromFolder,
   addPackageToRepository,
-  type OrphanedFile,
-  type OrphanedPackage,
   removePackageFromRepository,
   uploadFileToFolder,
-  type EnvWindow,
-} from "../../../helper/dataService";
+} from "../../../services/dataService";
+import {
+  type OrphanedFile,
+  type OrphanedPackage,
+} from "../../../services/dataService.types";
+import { type EnvWindow } from "../../../services/dataService.types";
 import { useNavigate } from "react-router-dom";
 import ClearIcon from "@mui/icons-material/Clear";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
@@ -32,7 +34,8 @@ import { SearchResultsEmpty } from "../Details/SearchResultsEmpty/SearchResultsE
 import LaunchIcon from "@mui/icons-material/Launch";
 import { FileInput } from "../Details/FileInput/FileInput";
 
-const PERMITTED_FILE_ENDING: string = (window as EnvWindow)._env_?.RPM_PACKAGES_CONFIG_ENDING ?? ".repo_cfg"
+const PERMITTED_FILE_ENDING: string =
+  (window as EnvWindow)._env_?.RPM_PACKAGES_CONFIG_ENDING ?? ".repo_cfg";
 
 export function Orphans() {
   const [fileOrphans, setFileOrphans] = useState<OrphanedFile[]>([]);
@@ -127,9 +130,10 @@ export function Orphans() {
                   (o) =>
                     (o.name.includes(foSearch) || foSearch.length == 0) && (
                       <TableRow
-                        key={`${o.directory.replace(PERMITTED_FILE_ENDING, "")}-${
-                          o.name
-                        }`}
+                        key={`${o.directory.replace(
+                          PERMITTED_FILE_ENDING,
+                          ""
+                        )}-${o.name}`}
                         hover
                       >
                         <TableCell>{o.name}</TableCell>

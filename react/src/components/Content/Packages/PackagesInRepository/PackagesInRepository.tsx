@@ -22,8 +22,8 @@ import {
   updatePackageInRepository,
   uploadFileToFolder,
   renameFileInFolder,
-  type EnvWindow,
-} from "../../../../helper/dataService";
+} from "../../../../services/dataService";
+import { type EnvWindow } from "../../../../services/dataService.types";
 import * as styles from "../../Content.styles";
 import * as pir_styles from "./PackagesInRepository.styles";
 import { useParams } from "react-router-dom";

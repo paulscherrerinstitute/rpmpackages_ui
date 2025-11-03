@@ -21,7 +21,6 @@ services:
     # image: rpmpackages_ui_frontend:latest
     restart: unless-stopped
     environment:
-      RPM_PACKAGES_DIRECTORY: "D:/Git"
       RPM_PACKAGES_CONFIG_ENDING: ".repo_cfg"
       RPM_PACKAGES_BACKEND_URL: "http://localhost:8080"
     ports:

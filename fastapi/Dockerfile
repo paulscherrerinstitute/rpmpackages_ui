@@ -13,7 +13,6 @@ COPY requirements.txt .
 RUN uv pip install -r requirements.txt --system --no-cache
 
 COPY main.py .
-COPY shared_resources/ shared_resources/
 
 COPY routers/ routers/
 

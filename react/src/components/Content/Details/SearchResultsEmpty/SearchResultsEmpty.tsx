@@ -47,11 +47,15 @@ export function SearchResultsEmpty({
 }
 
 type SearchResultsProps = {
-  allResults: any[];
+  allResults: Results[];
   searchField: string;
   onEmpty: string;
   onEmptyColor?: string;
   onNoMatch: string;
   onNoMatchColor?: string;
   treatAsList?: boolean;
+};
+
+type Results = {
+  name: string;
 };

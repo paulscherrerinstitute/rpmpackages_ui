@@ -283,8 +283,8 @@ export async function getAllPackagesFromRepository(
     return JSON.parse(text).detail;
   }
 
-  var textByCategory = text.split("\n\n#");
-  var txt: string[][] = textByCategory.map((t) => t.split("\n"));
+  let textByCategory = text.split("\n\n#");
+  let txt: string[][] = textByCategory.map((t) => t.split("\n"));
   txt = txt.map((t) =>
     t.filter((tChild) => {
       return tChild.length > 0;

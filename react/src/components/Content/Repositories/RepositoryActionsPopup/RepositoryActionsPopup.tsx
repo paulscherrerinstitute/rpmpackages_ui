@@ -27,7 +27,7 @@ export function RepositoryActionPopup({
   onClose,
 }: RepositoryActionPopupProps) {
   useEffect(() => {
-    if (action == "None") onClose;
+    if (action == "None") onClose();
   }, []);
   return (
     <Dialog open={open} onClose={onClose}>
@@ -60,7 +60,7 @@ function ActionPopupAdd({ open, onClose }: ActionPopupElementProps) {
   const [repository, setRepository] = useState("");
   const [isDisabled, setIsDisabled] = useState<boolean>(false);
 
-  const updateRepository = (e: React.ChangeEvent<any>) => {
+  const updateRepository = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target) setRepository(e.target.value);
     if (e.target.value == "") setIsDisabled(true);
     else setIsDisabled(false);

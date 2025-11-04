@@ -7,8 +7,8 @@ import { useEffect, useState } from "react";
 import { getBackendHealth } from "../../../services/dataService";
 
 export function Packages() {
-  let { path } = useParams();
-  var displayPackagesForRepo: boolean = path !== undefined;
+  const { path } = useParams();
+  const displayPackagesForRepo: boolean = path !== undefined;
   const [isBackendHealthy, setIsBackendHealthy] = useState<boolean>(true);
 
   useEffect(() => {

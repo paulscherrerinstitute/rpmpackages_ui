@@ -44,12 +44,12 @@ export function Orphans() {
   const [pkgeOrphans, setPkgeOrphans] = useState<OrphanedPackage[]>([]);
 
   const [poSearch, setPoSearch] = useState("");
-  const updatePoSearch = (e: React.ChangeEvent<any>) => {
+  const updatePoSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target) setPoSearch(e.target.value);
   };
 
   const [foSearch, setFoSearch] = useState("");
-  const updateFoSearch = (e: React.ChangeEvent<any>) => {
+  const updateFoSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target) setFoSearch(e.target.value);
   };
 
@@ -78,7 +78,7 @@ export function Orphans() {
   const clearPoSearch = () => setPoSearch("");
 
   const deleteOrphanedFile = async (o: OrphanedFile) => {
-    var prompt = "Do you want to delete the orphaned file " + o.name + "?";
+    const prompt = "Do you want to delete the orphaned file " + o.name + "?";
     if (prompt) {
       await removeFileFromFolder(o.directory, o.name);
       await fetchData();
@@ -95,7 +95,7 @@ export function Orphans() {
   };
 
   const removeOrphanedPackage = async (o: OrphanedPackage) => {
-    var prompt = "Do you want to delete the orphaned package " + o.name + "?";
+    const prompt = "Do you want to delete the orphaned package " + o.name + "?";
     if (prompt) {
       await removePackageFromRepository(o.name, o.repository[0]);
       await fetchData();

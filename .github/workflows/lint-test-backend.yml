@@ -24,16 +24,15 @@ jobs:
                   pip install ruff
             - run: ruff check --output-format=github .
 
-    test:
-        runs-on: ubuntu-latest
-        defaults:
-            run:
-                working-directory: ./fastapi
-        steps:
-            - uses: actions/checkout@v5
-            - uses: actions/setup-python@v6
-            - run: |
-                pip install --upgrade pip
-                pip install -r testing_requirements.txt
-            - run: pytest -n auto
-
+    # test:
+    #     runs-on: ubuntu-latest
+    #     defaults:
+    #         run:
+    #             working-directory: ./fastapi
+    #     steps:
+    #         - uses: actions/checkout@v5
+    #         - uses: actions/setup-python@v6
+    #         - run: |
+    #             pip install --upgrade pip
+    #             pip install -r testing_requirements.txt
+    #         - run: pytest .

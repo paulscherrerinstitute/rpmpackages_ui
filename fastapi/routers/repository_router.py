@@ -21,7 +21,7 @@ async def create_repository(
     if folder_path:
         os.mkdir(folder_path)
     if repository_path:
-        with open(repository_path, "w") as fp:
+        with open(repository_path, "w"):
             pass
     return RepositoryResponse(
         repository=request.repository,

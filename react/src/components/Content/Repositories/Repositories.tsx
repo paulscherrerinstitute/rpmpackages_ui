@@ -44,13 +44,13 @@ export function Repositories() {
   }, []);
 
   const [repoSearch, setRepoSearch] = useState("");
-  const updateRepoSearch = (e: React.ChangeEvent<any>) => {
+  const updateRepoSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target) setRepoSearch(e.target.value);
   };
 
   const clearRepoSearch = () => setRepoSearch("");
   const mapAvailableRepos = (arr: string[]) => {
-    var mapped = arr.map((f) => {
+    const mapped = arr.map((f) => {
       return { name: f };
     });
     return mapped;

@@ -13,10 +13,7 @@ COPY requirements.txt .
 RUN uv pip install -r requirements.txt --system --no-cache
 
 COPY main.py .
-COPY shared_resources/ shared_resources/
 
-# Shall be Removed and should be replaced by env
-COPY static/ static/
 COPY routers/ routers/
 
 EXPOSE 8080

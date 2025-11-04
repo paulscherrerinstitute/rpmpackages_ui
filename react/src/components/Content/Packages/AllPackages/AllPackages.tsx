@@ -119,7 +119,7 @@ export default function AllPackages() {
   };
 
   const handleSave = async (form: DetailsForm) => {
-    var pk: string;
+    let pk: string;
     if (form.versionNote !== "") {
       pk = `${form.name}-${form.version}-${form.versionNote}.${form.distribution}.${form.architecture}.rpm`;
     } else {
@@ -134,12 +134,12 @@ export default function AllPackages() {
       );
     });
     await fetchData();
-    fetchInclusionData;
+    await fetchInclusionData(pk);
   };
 
   const fetchInclusionsInDirectories = async () => {
     if (pkge) {
-      var inclDirectories = await getFoldersIncludingFileForPackage(pkge);
+      const inclDirectories = await getFoldersIncludingFileForPackage(pkge);
       setInclusionsInDirectories(inclDirectories);
     }
   };
@@ -188,13 +188,13 @@ export default function AllPackages() {
   }, [inclusionsInDirectories]);
 
   const [packageSearch, setPackageSearch] = useState("");
-  const updatePackageSearch = (e: React.ChangeEvent<any>) => {
+  const updatePackageSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target) setPackageSearch(e.target.value);
   };
 
   const clearPackageSearch = () => setPackageSearch("");
   const mapDataForSearchResults = (arr: string[]) => {
-    var mapped = arr.map((f) => {
+    const mapped = arr.map((f) => {
       return {
         name: f,
       };

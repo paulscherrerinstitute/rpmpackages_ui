@@ -43,8 +43,8 @@ const PERMITTED_FILE_ENDING: string =
 export default function PackagesInRepository() {
   // Display List
   const [data, setData] = useState<string[][]>([]);
-  let { path } = useParams();
-  let permPath: string = path ?? "";
+  const { path } = useParams();
+  const permPath: string = path ?? "";
 
   let isNotFound;
   if (data.length > 0) isNotFound = data[0][0] == "<!doctype html>";
@@ -101,8 +101,8 @@ export default function PackagesInRepository() {
   };
 
   const handleSubtitleRemove = async (directory: string) => {
-    var prompt = "Do you want to remove the subtitle '" + directory + "'?";
-    if(prompt){
+    const prompt = "Do you want to remove the subtitle '" + directory + "'?";
+    if (prompt) {
       await removeSubtitleFromRepository(
         permPath + PERMITTED_FILE_ENDING,
         directory
@@ -142,13 +142,13 @@ export default function PackagesInRepository() {
   };
 
   const handleSave = async (form: DetailsForm) => {
-    var pk;
+    let pk;
     if (form.versionNote !== "") {
       pk = `${form.name}-${form.version}-${form.versionNote}.${form.distribution}.${form.architecture}.rpm`;
     } else {
       pk = `${form.name}-${form.version}.${form.distribution}.${form.architecture}.rpm`;
     }
-    var repo_path = `${permPath}${PERMITTED_FILE_ENDING}`;
+    const repo_path = `${permPath}${PERMITTED_FILE_ENDING}`;
     await updatePackageInRepository(pkge, pk, repo_path);
     if (file != null) {
       await uploadFileToFolder(permPath, file);
@@ -162,13 +162,13 @@ export default function PackagesInRepository() {
   };
 
   const handleAddSubmit = async (form: DetailsForm) => {
-    var pk;
+    let pk;
     if (form.versionNote !== "") {
       pk = `${form.name}-${form.version}-${form.versionNote}.${form.distribution}.${form.architecture}.rpm`;
     } else {
       pk = `${form.name}-${form.version}.${form.distribution}.${form.architecture}.rpm`;
     }
-    var repo_path = `${permPath}${PERMITTED_FILE_ENDING}`;
+    const repo_path = `${permPath}${PERMITTED_FILE_ENDING}`;
     await addPackageToRepository(pk, repo_path, outerIdx);
     fetchData();
   };
@@ -261,13 +261,13 @@ export default function PackagesInRepository() {
   };
 
   const [packageSearch, setPackageSearch] = useState("");
-  const updatePackageSearch = (e: React.ChangeEvent<any>) => {
+  const updatePackageSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target) setPackageSearch(e.target.value);
   };
 
   const clearPackageSearch = () => setPackageSearch("");
   const mapPackagesForSearchResults = (arr: string[]) => {
-    var mapped = arr.map((f) => {
+    const mapped = arr.map((f) => {
       return {
         name: f,
       };

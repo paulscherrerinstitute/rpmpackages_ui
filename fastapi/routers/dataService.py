@@ -61,7 +61,7 @@ def get_all_packages() -> list[str]:
                     isIncluded = (
                         unique_pkges.count(pk) == 0 and pk != "" and (".rpm" in pk)
                     )
-                    if isIncluded == True:
+                    if isIncluded:
                         unique_pkges.append(pk)
     return unique_pkges
 
@@ -92,7 +92,7 @@ def get_specific_package(pkge: str) -> list[str]:
         if (
             os.path.isfile(file_path)
             and FILE_ENDING in file_path
-            and not FILE_ENDING + "n" in file_path
+            and (FILE_ENDING + "n") not in file_path
         ):
 
             # GET DATA

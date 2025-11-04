@@ -57,7 +57,7 @@ export function FileInput({
   };
 
   const handleRemoveFile = () => {
-    var prompt = confirm("Do you want to delete this file?");
+    const prompt = confirm("Do you want to delete this file?");
     if (removeFile && prompt) removeFile();
   };
 

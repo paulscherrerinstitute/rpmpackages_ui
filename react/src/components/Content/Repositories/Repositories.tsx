@@ -50,7 +50,7 @@ export function Repositories() {
 
   const clearRepoSearch = () => setRepoSearch("");
   const mapAvailableRepos = (arr: string[]) => {
-    let mapped = arr.map((f) => {
+    const mapped = arr.map((f) => {
       return { name: f };
     });
     return mapped;

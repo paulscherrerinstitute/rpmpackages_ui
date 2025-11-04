@@ -78,7 +78,7 @@ export function Orphans() {
   const clearPoSearch = () => setPoSearch("");
 
   const deleteOrphanedFile = async (o: OrphanedFile) => {
-    let prompt = "Do you want to delete the orphaned file " + o.name + "?";
+    const prompt = "Do you want to delete the orphaned file " + o.name + "?";
     if (prompt) {
       await removeFileFromFolder(o.directory, o.name);
       await fetchData();
@@ -95,7 +95,7 @@ export function Orphans() {
   };
 
   const removeOrphanedPackage = async (o: OrphanedPackage) => {
-    let prompt = "Do you want to delete the orphaned package " + o.name + "?";
+    const prompt = "Do you want to delete the orphaned package " + o.name + "?";
     if (prompt) {
       await removePackageFromRepository(o.name, o.repository[0]);
       await fetchData();

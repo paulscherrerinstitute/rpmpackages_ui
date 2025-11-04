@@ -1,10 +1,10 @@
 export function getName(pkge: string): string {
-  let split = pkge.split(/-[0-9]{1}/g)[0];
+  const split = pkge.split(/-[0-9]{1}/g)[0];
   return split;
 }
 
 export function getVersion(pkge: string): string {
-  let version = pkge
+  const version = pkge
     .replace(getName(pkge), "")
     .replace(".rpm", "")
     .split(/.[A-Za-z]/g)[0];

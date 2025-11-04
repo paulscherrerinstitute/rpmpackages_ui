@@ -51,7 +51,7 @@ export default function AllPackagesInputPopup({
 
   const handleAddAll = async () => {
     packageIncludedIn.forEach(async (pkge) => {
-      let withoutEnd = pkge.replace(PERMITTED_FILE_ENDING, "");
+      const withoutEnd = pkge.replace(PERMITTED_FILE_ENDING, "");
       if (!fileIncludedIn.includes(withoutEnd) && file != null) {
         await uploadFileToFolder(withoutEnd, file);
         updatePackages();
@@ -60,10 +60,12 @@ export default function AllPackagesInputPopup({
   };
 
   const handleRemoveAll = async () => {
-    let prompt = confirm("Do you want to delete all instances of this everywhere?")
-    if(prompt){
+    const prompt = confirm(
+      "Do you want to delete all instances of this everywhere?"
+    );
+    if (prompt) {
       packageIncludedIn.forEach(async (pkge) => {
-        let withoutEnd = pkge.replace(PERMITTED_FILE_ENDING, "");
+        const withoutEnd = pkge.replace(PERMITTED_FILE_ENDING, "");
         if (fileIncludedIn.includes(withoutEnd) && file != null) {
           await removeFileFromFolder(withoutEnd, file.name);
           updatePackages();
@@ -79,7 +81,7 @@ export default function AllPackagesInputPopup({
       if (f) {
         setFile(f);
         packageIncludedIn.forEach(async (pkge) => {
-          let withoutEnd = pkge.replace(PERMITTED_FILE_ENDING, "");
+          const withoutEnd = pkge.replace(PERMITTED_FILE_ENDING, "");
           if (!fileIncludedIn.includes(withoutEnd) && f.name != null) {
             await uploadFileToFolder(withoutEnd, f);
           }

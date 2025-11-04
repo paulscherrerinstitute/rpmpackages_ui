@@ -139,7 +139,7 @@ export default function AllPackages() {
 
   const fetchInclusionsInDirectories = async () => {
     if (pkge) {
-      let inclDirectories = await getFoldersIncludingFileForPackage(pkge);
+      const inclDirectories = await getFoldersIncludingFileForPackage(pkge);
       setInclusionsInDirectories(inclDirectories);
     }
   };
@@ -194,7 +194,7 @@ export default function AllPackages() {
 
   const clearPackageSearch = () => setPackageSearch("");
   const mapDataForSearchResults = (arr: string[]) => {
-    let mapped = arr.map((f) => {
+    const mapped = arr.map((f) => {
       return {
         name: f,
       };

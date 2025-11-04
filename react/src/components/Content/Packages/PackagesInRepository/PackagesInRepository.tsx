@@ -101,7 +101,7 @@ export default function PackagesInRepository() {
   };
 
   const handleSubtitleRemove = async (directory: string) => {
-    let prompt = "Do you want to remove the subtitle '" + directory + "'?";
+    const prompt = "Do you want to remove the subtitle '" + directory + "'?";
     if (prompt) {
       await removeSubtitleFromRepository(
         permPath + PERMITTED_FILE_ENDING,
@@ -148,7 +148,7 @@ export default function PackagesInRepository() {
     } else {
       pk = `${form.name}-${form.version}.${form.distribution}.${form.architecture}.rpm`;
     }
-    let repo_path = `${permPath}${PERMITTED_FILE_ENDING}`;
+    const repo_path = `${permPath}${PERMITTED_FILE_ENDING}`;
     await updatePackageInRepository(pkge, pk, repo_path);
     if (file != null) {
       await uploadFileToFolder(permPath, file);
@@ -168,7 +168,7 @@ export default function PackagesInRepository() {
     } else {
       pk = `${form.name}-${form.version}.${form.distribution}.${form.architecture}.rpm`;
     }
-    let repo_path = `${permPath}${PERMITTED_FILE_ENDING}`;
+    const repo_path = `${permPath}${PERMITTED_FILE_ENDING}`;
     await addPackageToRepository(pk, repo_path, outerIdx);
     fetchData();
   };
@@ -267,7 +267,7 @@ export default function PackagesInRepository() {
 
   const clearPackageSearch = () => setPackageSearch("");
   const mapPackagesForSearchResults = (arr: string[]) => {
-    let mapped = arr.map((f) => {
+    const mapped = arr.map((f) => {
       return {
         name: f,
       };

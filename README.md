@@ -82,7 +82,29 @@ It consists of two parts:
 
 ## SETUP LOCALLY
 
-### FRONTEND
+### ENVIRONMENT
+
+For the local setup to work properly, the following env variables can (or must be set):
+
+- RPM_PACKAGES_DIRECTORY: Place where your files and rpmpackages are located (ℹ️ - this field is required when running docker-compose
+- RPM_PACKAGES_CONFIG_ENDING: Ending of the configuration-files (defaults to ".repo_cfg")
+- RPM_PACKAGES_BACKEND_URL: Specifies the location of the backend (defaults to "http://localhost:8000")
+
+### DOCKER-COMPOSE
+
+The repository contains two docker-compose files provide environments to run the application: `docker-compose.yml` and `docker-compose-current-version.yml`. The former builds from the current, local code, whereas the latter pulls the images from the latest named version from github.
+
+```
+BUILD FROM LOCAL
+docker compose -f ./docker-compose.yml up -d
+
+PULL FROM REMOTE
+docker compose -f ./docker-compose-current-version.yml up -d
+```
+
+### FOR DEVELOPMENT
+
+#### FRONTEND
 
 The frontend is a `React` application. To set it up, navigate into the react folder and start it from there
 
@@ -92,7 +114,7 @@ npm i
 npm run dev
 ```
 
-### BACKEND
+#### BACKEND
 
 The backend is a `FastAPI`-python application. To set it up, use a virtual environment and apply the requirements-file.
 

@@ -1,10 +1,6 @@
 services:
-  backend:
-    build:
-      context: ./fastapi
-      dockerfile: Dockerfile
-    container_name: rpm_backend
-    # image: rpmpackages_ui_backend:latest
+  rpm_backend:
+    image: "ghcr.io/paulscherrerinstitute/rpmpackages_ui-backend:latest"
     restart: unless-stopped
     environment:
       RPM_PACKAGES_DIRECTORY: "/app/packages"
@@ -15,12 +11,8 @@ services:
       - "8080:8080"
     networks:
       - rpmpackages_network
-  frontend:
-    build:
-      context: ./react
-      dockerfile: Dockerfile
-    container_name: rpm_frontend
-    # image: rpmpackages_ui_frontend:latest
+  rpm_frontend:
+    image: "ghcr.io/paulscherrerinstitute/rpmpackages_ui-frontend:latest"
     restart: unless-stopped
     environment:
       RPM_PACKAGES_CONFIG_ENDING: "${RPM_PACKAGES_CONFIG_ENDING:-.repo_cfg}"

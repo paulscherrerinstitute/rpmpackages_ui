@@ -1,0 +1,76 @@
+- name:
+  hosts: all
+  become: true
+  tasks:
+    - name: Set default values if variables are not defined
+      set_fact:
+        BACKEND_IMAGE: "{{ BACKEND_IMAGE | default('ghcr.io/paulscherrerinstitute/rpmpackages_ui-backend:latest') }}"
+        FRONTEND_IMAGE: "{{ FRONTEND_IMAGE | default('ghcr.io/paulscherrerinstitute/rpmpackages_ui-frontend:latest') }}"
+        RPM_PACKAGES_CONFIG_ENDING: "{{ RPM_PACKAGES_CONFIG_ENDING | default('.repo_cfg') }}"
+        RPM_PACKAGES_BACKEND_URL: "{{ RPM_PACKAGES_BACKEND_URL | default('') }}"
+        RPM_PACKAGES_LOCATION: "{{ RPM_PACKAGES_LOCATION | default('/') }}"
+
+    - name: Create Docker network
+      docker_network:
+        name: rpmpackages_network
+        driver: bridge
+
+    - name: Try to pull Backend image
+      docker_image:
+        name: "{{ BACKEND_IMAGE }}"
+        source: pull
+        force_source: yes
+      register: backend_pull
+      ignore_errors: yes
+
+    - name: Check for local image if Backend pull failed
+      docker_image:
+        name: "{{ BACKEND_IMAGE }}"
+        source: local
+        state: present
+      when: backend_pull is failed
+
+    - name: Run Backend container
+      docker_container:
+        name: rpmpackages_ui_backend
+        image: "{{ BACKEND_IMAGE }}"
+        state: started
+        restart_policy: unless-stopped
+        env:
+          RPM_PACKAGES_DIRECTORY: /app/packages
+          RPM_PACKAGES_CONFIG_ENDING: "{{ RPM_PACKAGES_CONFIG_ENDING }}"
+        ports:
+          - "8080:8080"
+        networks:
+          - name: rpmpackages_network
+        volumes:
+          - "{{ RPM_PACKAGES_LOCATION }}:/app/packages"
+
+    - name: Try to pull frontend image
+      docker_image:
+        name: "{{ FRONTEND_IMAGE }}"
+        source: pull
+        force_source: yes
+      register: frontend_pull
+      ignore_errors: yes
+
+    - name: Check for local image if Frontend pull failed
+      docker_image:
+        name: "{{ FRONTEND_IMAGE }}"
+        source: local
+        state: present
+      when: frontend_pull is failed
+
+    - name: Run frontend container
+      docker_container:
+        name: rpmpackages_ui_frontend
+        image: "{{ FRONTEND_IMAGE }}"
+        state: started
+        restart_policy: unless-stopped
+        env:
+          RPM_PACKAGES_CONFIG_ENDING: "{{ RPM_PACKAGES_CONFIG_ENDING }}"
+          RPM_PACKAGES_BACKEND_URL: "{{ RPM_PACKAGES_BACKEND_URL }}"
+        ports:
+          - "80:80"
+        networks:
+          - name: rpmpackages_network

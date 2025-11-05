@@ -1,0 +1,42 @@
+- name: Stop and remove the running containers for frontend, backend and MongoDB, also remove the images
+  hosts: all
+  become: true
+  tasks:
+    - name: Set default values if variables are not defined
+      set_fact:
+        BACKEND_IMAGE: "{{ BACKEND_IMAGE | default('ghcr.io/paulscherrerinstitute/rpmpackages_ui-backend') }}"
+        FRONTEND_IMAGE: "{{ FRONTEND_IMAGE | default('ghcr.io/paulscherrerinstitute/rpmpackages_ui-backend') }}"
+
+    - name: Stop containers gracefully
+      docker_container:
+        name: "{{ item }}"
+        state: stopped
+      loop:
+        - data_board_frontend
+        - data_board_backend
+      ignore_errors: yes
+
+    - name: Remove containers
+      docker_container:
+        name: "{{ item }}"
+        state: absent
+      loop:
+        - data_board_frontend
+        - data_board_backend
+      ignore_errors: yes
+
+    - name: Remove network
+      docker_network:
+        name: rpmpackages_network
+        state: absent
+        force: yes
+      ignore_errors: yes
+
+    - name: Remove images
+      docker_image:
+        name: "{{ item }}"
+        state: absent
+      loop:
+        - "{{ FRONTEND_IMAGE }}"
+        - "{{ BACKEND_IMAGE }}"
+      ignore_errors: yes

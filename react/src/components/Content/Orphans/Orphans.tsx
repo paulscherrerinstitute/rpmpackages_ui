@@ -9,6 +9,7 @@ import {
   TextField,
   Tooltip,
   Typography,
+  CircularProgress
 } from "@mui/material";
 import * as styles from "../Content.styles";
 import * as o_styles from "./Orphans.styles";
@@ -54,6 +55,7 @@ export function Orphans() {
   };
 
   const [isBackendHealthy, setIsBackendHealthy] = useState<boolean>(true);
+  const [isDataLoading, setIsDataLoading] = useState<boolean>(true);
 
   const navigate = useNavigate();
 
@@ -65,6 +67,7 @@ export function Orphans() {
         const o_p = await getOrphanedPackages();
         setPkgeOrphans(o_p);
         setIsBackendHealthy(true);
+        setIsDataLoading(false)
       } else setIsBackendHealthy(false);
     });
   };
@@ -142,7 +145,7 @@ export function Orphans() {
           <Box>
             <Table>
               <TableBody>
-                {fileOrphans.map(
+                {!isDataLoading && fileOrphans.map(
                   (o) =>
                     (o.name.includes(foSearch) || foSearch.length == 0) && (
                       <TableRow
@@ -170,11 +173,15 @@ export function Orphans() {
                 <SearchResultsEmpty
                   allResults={fileOrphans}
                   searchField={foSearch}
+                  isLoading={isDataLoading}
                   onEmpty="No Orphans"
                   onNoMatch="No Match"
                 />
               </TableBody>
             </Table>
+            {isDataLoading && <Box sx={{ display: "flex", flexDirection: "row", justifyContent: "center" }}>
+              <CircularProgress />
+            </Box>}
           </Box>
         </Box>
         <Box>
@@ -196,7 +203,7 @@ export function Orphans() {
           </Box>
           <Table>
             <TableBody>
-              {pkgeOrphans.map(
+              {!isDataLoading && pkgeOrphans.map(
                 (o) =>
                   ((o.name.includes(poSearch) && poSearch.length > 0) ||
                     poSearch.length == 0) && (
@@ -229,6 +236,7 @@ export function Orphans() {
               <SearchResultsEmpty
                 allResults={pkgeOrphans}
                 searchField={poSearch}
+                isLoading={isDataLoading}
                 onEmpty="No Orphans"
                 onNoMatch="No Match"
               />
@@ -239,6 +247,10 @@ export function Orphans() {
               />
             </TableBody>
           </Table>
+          {isDataLoading && <Box sx={{ display: "flex", flexDirection: "row", justifyContent: "center" }}>
+            <CircularProgress />
+          </Box>}
+
         </Box>
       </Box>
     </Box>

@@ -10,6 +10,7 @@ import {
   TextField,
   Tooltip,
   Typography,
+  CircularProgress
 } from "@mui/material";
 import * as styles from "../../Content.styles";
 import * as ap_styles from "./AllPackages.styles";
@@ -61,11 +62,14 @@ export default function AllPackages() {
   >([]);
   const [file, setFile] = useState<File | null>(null);
   const [displayInput, setDisplayInput] = useState<boolean>(true);
+  const [isDataLoading, setIsDataLoading] = useState<boolean>(true);
+
   const navigate = useNavigate();
 
   const fetchData = async () => {
     const resultData = await getAllUniquePackagesOverAll();
     setData(resultData.sort((a, b) => a.localeCompare(b)));
+    setIsDataLoading(false);
   };
 
   const fetchInclusionData = async (pk: string) => {
@@ -224,7 +228,7 @@ export default function AllPackages() {
         </Box>
         <Table>
           <TableBody>
-            {data.map(
+            {!isDataLoading && data.map(
               (pkge, i) =>
                 (pkge.includes(packageSearch) || packageSearch.length == 0) && (
                   <TableRow key={`${pkge}-${i}`} hover>
@@ -243,12 +247,16 @@ export default function AllPackages() {
             <SearchResultsEmpty
               allResults={mapDataForSearchResults(data)}
               searchField={packageSearch}
+              isLoading={isDataLoading}
               onEmpty="No packages found in any repository"
               onNoMatch="No Match"
               onEmptyColor="rgba(255, 0, 0, 0.05)"
             />
           </TableBody>
         </Table>
+        {isDataLoading && <Box sx={{ display: "flex", flexDirection: "row", justifyContent: "center" }}>
+          <CircularProgress />
+        </Box>}
       </Box>
       <Dialog open={open} onClose={handleClose} fullWidth maxWidth="md">
         <Box sx={styles.packageTitle}>

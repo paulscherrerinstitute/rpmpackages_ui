@@ -9,10 +9,11 @@ export function SearchResultsEmpty({
   onNoMatch,
   onNoMatchColor,
   treatAsList = false,
+  isLoading,
 }: SearchResultsProps) {
   return (
     <>
-      {!treatAsList && (
+      {!treatAsList && !isLoading && (
         <>
           {allResults.length == 0 && searchField.length == 0 && (
             <TableRow sx={styles.empty(onEmptyColor ?? "")}>
@@ -27,7 +28,7 @@ export function SearchResultsEmpty({
             )}
         </>
       )}
-      {treatAsList && (
+      {treatAsList && !isLoading && (
         <>
           {allResults.length == 0 && searchField.length == 0 && (
             <ListItem sx={styles.empty(onEmptyColor ?? "")}>
@@ -54,6 +55,7 @@ type SearchResultsProps = {
   onNoMatch: string;
   onNoMatchColor?: string;
   treatAsList?: boolean;
+  isLoading?: boolean
 };
 
 type Results = {

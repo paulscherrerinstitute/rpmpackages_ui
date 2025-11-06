@@ -8,6 +8,7 @@ import {
   TextField,
   Tooltip,
   Button,
+  CircularProgress,
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import { getAllRepositories } from "../../../services/dataService";
@@ -32,6 +33,7 @@ export function Repositories() {
     async function fetchData() {
       const repos = await getAllRepositories();
       setAvailableRepos(repos);
+      setIsDataLoading(false);
     }
     getBackendHealth().then((val) => {
       if (val == "Alive and Well!") {
@@ -68,10 +70,12 @@ export function Repositories() {
     setOpenActionPopup(false);
   };
 
+  const [isDataLoading, setIsDataLoading] = useState(true);
+
   return (
     <Box component="main" sx={styles.main}>
       <Box sx={r_styles.body}>
-        <ErrorBar open={!backendIsHealthy}/>
+        <ErrorBar open={!backendIsHealthy} />
         <Box sx={r_styles.titleWrapper}>
           <Typography variant="h5">Available Repositories</Typography>
           <Box sx={r_styles.buttonWrapper}>
@@ -104,7 +108,7 @@ export function Repositories() {
         </Box>
         <Table>
           <TableBody>
-            {availableRepos.map(
+            {!isDataLoading && availableRepos.map(
               (item) =>
                 (item.includes(repoSearch) || repoSearch.length == 0) && (
                   <TableRow
@@ -121,12 +125,16 @@ export function Repositories() {
             <SearchResultsEmpty
               allResults={mapAvailableRepos(availableRepos)}
               searchField={repoSearch}
+              isLoading={isDataLoading}
               onEmpty="No .repo_cfg files found"
               onNoMatch="No Match"
               onEmptyColor="rgba(255, 0, 0, 0.05)"
             />
           </TableBody>
         </Table>
+        {isDataLoading && <Box sx={{ display: "flex", flexDirection: "row", justifyContent: "center" }}>
+          <CircularProgress />
+        </Box>}
       </Box>
     </Box>
   );

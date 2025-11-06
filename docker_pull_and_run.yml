@@ -7,7 +7,7 @@
         BACKEND_IMAGE: "{{ BACKEND_IMAGE | default('ghcr.io/paulscherrerinstitute/rpmpackages_ui-backend:latest') }}"
         FRONTEND_IMAGE: "{{ FRONTEND_IMAGE | default('ghcr.io/paulscherrerinstitute/rpmpackages_ui-frontend:latest') }}"
         RPM_PACKAGES_CONFIG_ENDING: "{{ RPM_PACKAGES_CONFIG_ENDING | default('.repo_cfg') }}"
-        RPM_PACKAGES_BACKEND_URL: "{{ RPM_PACKAGES_BACKEND_URL | default('') }}"
+        RPM_PACKAGES_INTERNAL_BACKEND_URL: "{{ RPM_PACKAGES_INTERNAL_BACKEND_URL | default('') }}"
         RPM_PACKAGES_LOCATION: "{{ RPM_PACKAGES_LOCATION | default('/') }}"
 
     - name: Create Docker network
@@ -69,7 +69,7 @@
         restart_policy: unless-stopped
         env:
           RPM_PACKAGES_CONFIG_ENDING: "{{ RPM_PACKAGES_CONFIG_ENDING }}"
-          RPM_PACKAGES_BACKEND_URL: "{{ RPM_PACKAGES_BACKEND_URL }}"
+          RPM_PACKAGES_INTERNAL_BACKEND_URL: "{{ RPM_PACKAGES_INTERNAL_BACKEND_URL }}"
         ports:
           - "80:80"
         networks:

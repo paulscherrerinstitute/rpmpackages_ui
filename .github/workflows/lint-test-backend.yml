@@ -14,7 +14,7 @@ jobs:
         runs-on: ubuntu-latest
         defaults:
             run:
-                working-directory: ./fastapi
+                working-directory: ./fastapi_backend
 
         steps:
             - uses: actions/checkout@v5
@@ -28,7 +28,7 @@ jobs:
     #     runs-on: ubuntu-latest
     #     defaults:
     #         run:
-    #             working-directory: ./fastapi
+    #             working-directory: ./fastapi_backend
     #     steps:
     #         - uses: actions/checkout@v5
     #         - uses: actions/setup-python@v6

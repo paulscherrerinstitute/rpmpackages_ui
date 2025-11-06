@@ -88,7 +88,7 @@ For the local setup to work properly, the following env variables can (or must b
 
 - RPM_PACKAGES_DIRECTORY: Place where your files and rpmpackages are located (ℹ️ - this field is required when running docker-compose
 - RPM_PACKAGES_CONFIG_ENDING: Ending of the configuration-files (defaults to ".repo_cfg")
-- RPM_PACKAGES_BACKEND_URL: Specifies the location of the backend (defaults to "http://localhost:8000")
+- RPM_PACKAGES_INTERNAL_BACKEND_URL: Specifies the location of the backend (defaults to "http://localhost:8000")
 
 ### DOCKER-COMPOSE
 

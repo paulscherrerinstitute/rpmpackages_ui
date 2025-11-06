@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException
 import os
-from .dataService import REPO_DIR, assemble_repo, reassemble_repo, write_file, read_file
+from ..shared_resources.dataService import REPO_DIR, assemble_repo, reassemble_repo, write_file, read_file
 from .routers_types import SubtitleRequest, CreateSubtitleResponse
 
 router = APIRouter()

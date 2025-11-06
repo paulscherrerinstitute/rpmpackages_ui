@@ -67,8 +67,8 @@ jobs:
         id: push-backend
         uses: docker/build-push-action@v6
         with:
-          context: ./fastapi
-          file: ./fastapi/Dockerfile
+          context: ./fastapi_backend
+          file: ./fastapi_backend/Dockerfile
           push: true
           tags: ${{steps.meta-backend.outputs.tags}}
           labels: ${{steps.meta-backend.outputs.labels}}

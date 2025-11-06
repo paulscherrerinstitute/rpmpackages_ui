@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import JSONResponse
 import os
-from .dataService import REPO_DIR, FILE_ENDING
+from ..shared_resources.dataService import REPO_DIR, FILE_ENDING
 from .routers_types import RepositoryRequest, RepositoryResponse
 import shutil
 

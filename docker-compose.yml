@@ -1,7 +1,7 @@
 services:
   backend:
     build:
-      context: ./fastapi
+      context: ./fastapi_backend
       dockerfile: Dockerfile
     container_name: rpm_backend
     # image: rpmpackages_ui_backend:latest
@@ -11,8 +11,6 @@ services:
       RPM_PACKAGES_CONFIG_ENDING: "${RPM_PACKAGES_CONFIG_ENDING:-.repo_cfg}"
     volumes:
       - "${RPM_PACKAGES_DIRECTORY}:/app/packages"
-    ports:
-      - "8080:8080"
     networks:
       - rpmpackages_network
   frontend:
@@ -24,7 +22,8 @@ services:
     restart: unless-stopped
     environment:
       RPM_PACKAGES_CONFIG_ENDING: "${RPM_PACKAGES_CONFIG_ENDING:-.repo_cfg}"
-      RPM_PACKAGES_BACKEND_URL: "${RPM_PACKAGES_BACKEND_URL:-http://localhost:8080}"
+      RPM_PACKAGES_INTERNAL_BACKEND_URL: "${RPM_PACKAGES_INTERNAL_BACKEND_URL:-http://rpm_backend:8080}"
+      RPM_PACKAGES_PUBLIC_BACKEND_URL: "/api"
     ports:
       - "80:80"
     networks:

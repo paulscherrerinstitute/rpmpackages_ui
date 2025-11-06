@@ -2,11 +2,11 @@
 
 set -e
 
-RPM_PACKAGES_BACKEND_URL="${RPM_PACKAGES_BACKEND_URL:-http://localhost:8000}"
+RPM_PACKAGES_INTERNAL_BACKEND_URL="${RPM_PACKAGES_INTERNAL_BACKEND_URL:-http://localhost:8000}"
 
-echo "Injecting backend URL: $RPM_PACKAGES_BACKEND_URL"
+echo "Injecting backend URL: $RPM_PACKAGES_INTERNAL_BACKEND_URL"
 
 # Replace the placeholder in the nginx config
-envsubst '${RPM_PACKAGES_BACKEND_URL}' < /etc/nginx/conf.d/default.conf > /etc/nginx/conf.d/default.conf.tmp && \
+envsubst '${RPM_PACKAGES_INTERNAL_BACKEND_URL}' < /etc/nginx/conf.d/default.conf > /etc/nginx/conf.d/default.conf.tmp && \
 mv /etc/nginx/conf.d/default.conf.tmp /etc/nginx/conf.d/default.conf
 

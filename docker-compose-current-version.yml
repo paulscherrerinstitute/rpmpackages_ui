@@ -1,22 +1,22 @@
 services:
   rpm_backend:
     image: "ghcr.io/paulscherrerinstitute/rpmpackages_ui-backend:latest"
+    container_name: rpm_backend
     restart: unless-stopped
     environment:
       RPM_PACKAGES_DIRECTORY: "/app/packages"
       RPM_PACKAGES_CONFIG_ENDING: "${RPM_PACKAGES_CONFIG_ENDING:-.repo_cfg}"
     volumes:
       - "${RPM_PACKAGES_DIRECTORY}:/app/packages"
-    ports:
-      - "8080:8080"
     networks:
       - rpmpackages_network
   rpm_frontend:
     image: "ghcr.io/paulscherrerinstitute/rpmpackages_ui-frontend:latest"
     restart: unless-stopped
+    container_name: rpm_frontend
     environment:
       RPM_PACKAGES_CONFIG_ENDING: "${RPM_PACKAGES_CONFIG_ENDING:-.repo_cfg}"
-      RPM_PACKAGES_BACKEND_URL: "${RPM_PACKAGES_BACKEND_URL:-http://localhost:8080}"
+      RPM_PACKAGES_INTERNAL_BACKEND_URL: "${RPM_PACKAGES_INTERNAL_BACKEND_URL:-http://rpm_backend:8080}"
     ports:
       - "80:80"
     networks:

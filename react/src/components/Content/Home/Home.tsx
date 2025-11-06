@@ -1,31 +1,42 @@
-import { Box, Typography, Toolbar } from "@mui/material";
+import { Box, Typography, Toolbar, List, ListItem } from "@mui/material";
 import * as styles from "../Content.styles";
-import { useNavigate } from "react-router-dom";
+import { getBackendHealth, getCurrentHost, getRPMLocation } from "../../../services/infoService";
+import { useEffect, useState } from "react";
 
 export function Home() {
-  const navigate = useNavigate();
-  const URL = "SERVERNAME";
   const GITHUB_URL = "https://github.com/paulscherrerinstitute/rpmpackages_ui";
+
+  const [settings, setSettings] = useState({
+    host: "",
+    location: "",
+    health: "",
+  })
+
+  const fetchData = async () => {
+    setSettings({
+      host: await getCurrentHost(),
+      location: await getRPMLocation(),
+      health: await getBackendHealth(),
+    })
+  }
+
+  useEffect(() => {
+    fetchData()
+  }, [])
 
   return (
     <Box component="main" sx={styles.main}>
       <Toolbar />
       <h2>Home</h2>
       <Box>
-        <Box>
-          <h3 onClick={() => navigate("/Repositories")}>Repositories</h3>
-          <Typography>
-            All repositories on {URL} are shown here. By clicking on it, you can
-            edit the repositories and its packages.
-          </Typography>
-        </Box>
-        <Box>
-          <h3 onClick={() => navigate("/Packages")}>Packages</h3>
-          <Typography>
-            All Packages that exist on {URL} - by pressing on them, you can view
-            details and in which repositories they are.
-          </Typography>
-        </Box>
+        This application is a simple UI to manage RPM-Packages and their associated configurations and folders.
+        It provides for changes made to packages, adding new packages, adding a new repository or managing orphaned files associated with packages.
+        The current configuration is as follows:
+        <List>
+          <ListItem>Host: {settings.host}</ListItem>
+          <ListItem>Location of RPMs: {settings.location}</ListItem>
+          <ListItem>Health of Backend: {settings.health}</ListItem>
+        </List>
       </Box>
       <Box>
         <h2>Documentation</h2>

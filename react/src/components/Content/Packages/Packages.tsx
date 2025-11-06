@@ -4,7 +4,7 @@ import AllPackages from "../Packages/AllPackages/AllPackages";
 import { useParams } from "react-router-dom";
 import { ErrorBar } from "../Details/ErrorBar";
 import { useEffect, useState } from "react";
-import { getBackendHealth } from "../../../services/dataService";
+import { getBackendHealth } from "../../../services/infoService";
 
 export function Packages() {
   const { path } = useParams();

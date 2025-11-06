@@ -20,8 +20,8 @@ import {
   addPackageToRepository,
   removePackageFromRepository,
   uploadFileToFolder,
-  getBackendHealth,
 } from "../../../services/dataService";
+import { getBackendHealth } from "../../../services/infoService";
 import {
   type OrphanedFile,
   type OrphanedPackage,

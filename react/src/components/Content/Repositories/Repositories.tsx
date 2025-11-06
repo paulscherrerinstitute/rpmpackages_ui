@@ -20,7 +20,7 @@ import {
   RepositoryActionPopup,
   type Action,
 } from "./RepositoryActionsPopup/RepositoryActionsPopup";
-import { getBackendHealth } from "../../../services/dataService";
+import { getBackendHealth } from "../../../services/infoService";
 import { ErrorBar } from "../Details/ErrorBar";
 
 export function Repositories() {

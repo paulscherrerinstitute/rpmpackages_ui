@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException
 import os
-from ..shared_resources.dataService import REPO_DIR, assemble_repo, reassemble_repo, write_file, read_file
-from .routers_types import SubtitleRequest, CreateSubtitleResponse
+from shared_resources.dataService import REPO_DIR, assemble_repo, reassemble_repo, write_file, read_file
+from routers.routers_types import SubtitleRequest, CreateSubtitleResponse
 
 router = APIRouter()
 

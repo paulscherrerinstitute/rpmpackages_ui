@@ -15,6 +15,7 @@ RUN uv pip install -r requirements.txt --system --no-cache
 COPY main.py .
 
 COPY routers/ routers/
+COPY shared_resources/ shared_resources/
 
 EXPOSE 8080
 

@@ -1,12 +1,12 @@
 from fastapi import APIRouter, UploadFile
 from fastapi.responses import PlainTextResponse, JSONResponse, FileResponse
 import os
-from ..shared_resources.dataService import (
+from shared_resources.dataService import (
     REPO_DIR,
     get_repo_directories,
     get_all_packages_with_repos,
 )
-from .routers_types import (
+from routers.routers_types import (
     RenamePackageResponse,
     DeleteFileResponse,
     PackageFile,

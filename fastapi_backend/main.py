@@ -1,9 +1,9 @@
 from fastapi import FastAPI
-from .routers.file_router import router as file_router
-from .routers.directory_router import router as directory_router
-from .routers.package_router import router as package_router
-from .routers.repository_router import router as repository_router
-from .routers.root_router import router as root_router
+from routers.file_router import router as file_router
+from routers.directory_router import router as directory_router
+from routers.package_router import router as package_router
+from routers.repository_router import router as repository_router
+from routers.root_router import router as root_router
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()

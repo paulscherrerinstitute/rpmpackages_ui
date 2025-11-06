@@ -1,4 +1,4 @@
-import { TableRow, TableCell, ListItem, ListItemText } from "@mui/material";
+import { TableRow, TableCell, ListItem, ListItemText, Box, CircularProgress } from "@mui/material";
 import * as styles from "./SearchResultsEmpty.styles";
 
 export function SearchResultsEmpty({
@@ -13,39 +13,66 @@ export function SearchResultsEmpty({
 }: SearchResultsProps) {
   return (
     <>
-      {!treatAsList && !isLoading && (
+      {!isLoading &&
         <>
-          {allResults.length == 0 && searchField.length == 0 && (
-            <TableRow sx={styles.empty(onEmptyColor ?? "")}>
-              <TableCell>{onEmpty}</TableCell>
-            </TableRow>
+          {!treatAsList && (
+            <EmptySearchTable
+              allResults={allResults}
+              searchField={searchField}
+              onEmpty={onEmpty}
+              onNoMatch={onNoMatch}
+              onNoMatchColor={onNoMatchColor}
+              onEmptyColor={onEmptyColor}
+            />
           )}
-          {allResults.filter((f) => f.name.includes(searchField)).length == 0 &&
-            searchField.length > 0 && (
-              <TableRow sx={styles.noMatch(onNoMatchColor ?? "")}>
-                <TableCell>{onNoMatch}</TableCell>
-              </TableRow>
-            )}
-        </>
-      )}
-      {treatAsList && !isLoading && (
-        <>
-          {allResults.length == 0 && searchField.length == 0 && (
-            <ListItem sx={styles.empty(onEmptyColor ?? "")}>
-              <ListItemText>{onEmpty}</ListItemText>
-            </ListItem>
+          {treatAsList && (
+            <EmptySearchList
+              allResults={allResults}
+              searchField={searchField}
+              onEmpty={onEmpty}
+              onNoMatch={onNoMatch}
+              onNoMatchColor={onNoMatchColor}
+              onEmptyColor={onEmptyColor}
+            />
           )}
-          {allResults.filter((f) => f.name.includes(searchField)).length == 0 &&
-            searchField.length > 0 && (
-              <ListItem sx={styles.noMatch(onNoMatchColor ?? "")}>
-                <ListItemText>{onNoMatch}</ListItemText>
-              </ListItem>
-            )}
         </>
-      )}
+      }
     </>
   );
 }
+
+function EmptySearchTable({ allResults, searchField, onEmpty, onNoMatch, onNoMatchColor, onEmptyColor }: SearchResultsProps) {
+  return <>
+    {allResults.length == 0 && searchField.length == 0 && (
+      <TableRow sx={styles.empty(onEmptyColor ?? "")}>
+        <TableCell>{onEmpty}</TableCell>
+      </TableRow>
+    )}
+    {allResults.filter((f) => f.name.includes(searchField)).length == 0 &&
+      searchField.length > 0 && (
+        <TableRow sx={styles.noMatch(onNoMatchColor ?? "")}>
+          <TableCell>{onNoMatch}</TableCell>
+        </TableRow>
+      )}
+  </>
+}
+
+function EmptySearchList({ allResults, searchField, onEmpty, onNoMatch, onNoMatchColor, onEmptyColor }: SearchResultsProps) {
+  return <>
+    {allResults.length == 0 && searchField.length == 0 && (
+      <ListItem sx={styles.empty(onEmptyColor ?? "")}>
+        <ListItemText>{onEmpty}</ListItemText>
+      </ListItem>
+    )}
+    {allResults.filter((f) => f.name.includes(searchField)).length == 0 &&
+      searchField.length > 0 && (
+        <ListItem sx={styles.noMatch(onNoMatchColor ?? "")}>
+          <ListItemText>{onNoMatch}</ListItemText>
+        </ListItem>
+      )}
+  </>
+}
+
 
 type SearchResultsProps = {
   allResults: Results[];
@@ -61,3 +88,11 @@ type SearchResultsProps = {
 type Results = {
   name: string;
 };
+
+export function LoadingSpinner({ isLoading }: { isLoading: boolean }) {
+  return <>
+    {isLoading && <Box sx={{ display: "flex", flexDirection: "row", justifyContent: "center" }}>
+      <CircularProgress />
+    </Box>}
+  </>
+}

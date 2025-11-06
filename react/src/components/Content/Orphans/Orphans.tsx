@@ -9,7 +9,6 @@ import {
   TextField,
   Tooltip,
   Typography,
-  CircularProgress
 } from "@mui/material";
 import * as styles from "../Content.styles";
 import * as o_styles from "./Orphans.styles";
@@ -32,7 +31,7 @@ import { useNavigate } from "react-router-dom";
 import ClearIcon from "@mui/icons-material/Clear";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import AddIcon from "@mui/icons-material/Add";
-import { SearchResultsEmpty } from "../Details/SearchResultsEmpty/SearchResultsEmpty";
+import { LoadingSpinner, SearchResultsEmpty } from "../Details/SearchResultsEmpty/SearchResultsEmpty";
 import LaunchIcon from "@mui/icons-material/Launch";
 import { FileInput } from "../Details/FileInput/FileInput";
 import { ErrorBar } from "../Details/ErrorBar";
@@ -179,9 +178,7 @@ export function Orphans() {
                 />
               </TableBody>
             </Table>
-            {isDataLoading && <Box sx={{ display: "flex", flexDirection: "row", justifyContent: "center" }}>
-              <CircularProgress />
-            </Box>}
+            <LoadingSpinner isLoading={isDataLoading} />
           </Box>
         </Box>
         <Box>
@@ -247,9 +244,7 @@ export function Orphans() {
               />
             </TableBody>
           </Table>
-          {isDataLoading && <Box sx={{ display: "flex", flexDirection: "row", justifyContent: "center" }}>
-            <CircularProgress />
-          </Box>}
+          <LoadingSpinner isLoading={isDataLoading} />
 
         </Box>
       </Box>

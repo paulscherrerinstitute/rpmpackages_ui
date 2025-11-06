@@ -8,7 +8,6 @@ import {
   TextField,
   Tooltip,
   Button,
-  CircularProgress,
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import { getAllRepositories } from "../../../services/dataService";
@@ -16,7 +15,7 @@ import * as styles from "../Content.styles";
 import { useNavigate } from "react-router-dom";
 import * as r_styles from "./Repositories.styles";
 import ClearIcon from "@mui/icons-material/Clear";
-import { SearchResultsEmpty } from "../Details/SearchResultsEmpty/SearchResultsEmpty";
+import { LoadingSpinner, SearchResultsEmpty } from "../Details/SearchResultsEmpty/SearchResultsEmpty";
 import {
   RepositoryActionPopup,
   type Action,
@@ -132,9 +131,7 @@ export function Repositories() {
             />
           </TableBody>
         </Table>
-        {isDataLoading && <Box sx={{ display: "flex", flexDirection: "row", justifyContent: "center" }}>
-          <CircularProgress />
-        </Box>}
+        <LoadingSpinner isLoading={isDataLoading} />
       </Box>
     </Box>
   );

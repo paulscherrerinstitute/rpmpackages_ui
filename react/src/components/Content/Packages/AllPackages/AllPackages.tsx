@@ -10,7 +10,6 @@ import {
   TextField,
   Tooltip,
   Typography,
-  CircularProgress
 } from "@mui/material";
 import * as styles from "../../Content.styles";
 import * as ap_styles from "./AllPackages.styles";
@@ -43,7 +42,7 @@ import {
   type DetailsForm,
 } from "../../Details/DetailsPopup/DetailsPopup";
 import AllPackagesInputPopup from "../../Details/AllPackagesInputPopup/AllPackagesInputPopup";
-import { SearchResultsEmpty } from "../../Details/SearchResultsEmpty/SearchResultsEmpty";
+import { LoadingSpinner, SearchResultsEmpty } from "../../Details/SearchResultsEmpty/SearchResultsEmpty";
 
 const PERMITTED_FILE_ENDING: string =
   (window as EnvWindow)._env_?.RPM_PACKAGES_CONFIG_ENDING ?? ".repo_cfg";
@@ -254,9 +253,7 @@ export default function AllPackages() {
             />
           </TableBody>
         </Table>
-        {isDataLoading && <Box sx={{ display: "flex", flexDirection: "row", justifyContent: "center" }}>
-          <CircularProgress />
-        </Box>}
+            <LoadingSpinner isLoading={isDataLoading} />
       </Box>
       <Dialog open={open} onClose={handleClose} fullWidth maxWidth="md">
         <Box sx={styles.packageTitle}>
@@ -371,4 +368,8 @@ export default function AllPackages() {
       </Dialog>
     </Box>
   );
+}
+
+function AllPackagesDetailsDialog() {
+
 }

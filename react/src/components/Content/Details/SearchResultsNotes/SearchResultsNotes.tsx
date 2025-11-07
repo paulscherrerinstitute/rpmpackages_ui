@@ -1,7 +1,7 @@
 import { TableRow, TableCell, ListItem, ListItemText, Box, CircularProgress } from "@mui/material";
-import * as styles from "./SearchResultsEmpty.styles";
+import * as styles from "./SearchResultsNotes.styles";
 
-export function SearchResultsEmpty({
+export function SearchResultsNotes({
   allResults,
   searchField,
   onEmpty,

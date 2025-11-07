@@ -1,5 +1,5 @@
 import { Box, Tooltip } from "@mui/material";
-import * as styles from "./AllPackagesInputPopup.styles";
+import * as styles from "./AllPackagesFileInput.styles";
 import * as con_styles from "../../Content.styles";
 import { useEffect, useState, useRef, type ChangeEvent } from "react";
 import AddIcon from "@mui/icons-material/Add";
@@ -12,14 +12,14 @@ import { type EnvWindow } from "../../../../services/dataService.types";
 const PERMITTED_FILE_ENDING: string =
   (window as EnvWindow)._env_?.RPM_PACKAGES_CONFIG_ENDING ?? ".repo_cfg";
 
-export default function AllPackagesInputPopup({
+export default function AllPackagesFileInput({
   displayInput,
   file,
   packageIncludedIn,
   fileIncludedIn,
   updatePackages,
   setFile,
-}: AllPackagesInputPopupProps) {
+}: AllPackagesFileInputProps) {
   useEffect(() => {
     fetchData();
   }, [fileIncludedIn]);
@@ -125,7 +125,7 @@ export default function AllPackagesInputPopup({
   );
 }
 
-type AllPackagesInputPopupProps = {
+type AllPackagesFileInputProps = {
   displayInput: boolean;
   file: File | null;
   packageIncludedIn: string[];

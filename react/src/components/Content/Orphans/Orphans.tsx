@@ -31,7 +31,7 @@ import { useNavigate } from "react-router-dom";
 import ClearIcon from "@mui/icons-material/Clear";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import AddIcon from "@mui/icons-material/Add";
-import { LoadingSpinner, SearchResultsEmpty } from "../Details/SearchResultsEmpty/SearchResultsEmpty";
+import { LoadingSpinner, SearchResultsNotes } from "../Details/SearchResultsNotes/SearchResultsNotes";
 import LaunchIcon from "@mui/icons-material/Launch";
 import { FileInput } from "../Details/FileInput/FileInput";
 import { ErrorBar } from "../Details/ErrorBar";
@@ -169,7 +169,7 @@ export function Orphans() {
                       </TableRow>
                     )
                 )}
-                <SearchResultsEmpty
+                <SearchResultsNotes
                   allResults={fileOrphans}
                   searchField={foSearch}
                   isLoading={isDataLoading}
@@ -230,7 +230,7 @@ export function Orphans() {
                     </TableRow>
                   )
               )}
-              <SearchResultsEmpty
+              <SearchResultsNotes
                 allResults={pkgeOrphans}
                 searchField={poSearch}
                 isLoading={isDataLoading}

@@ -15,7 +15,7 @@ import * as styles from "../Content.styles";
 import { useNavigate } from "react-router-dom";
 import * as r_styles from "./Repositories.styles";
 import ClearIcon from "@mui/icons-material/Clear";
-import { LoadingSpinner, SearchResultsEmpty } from "../Details/SearchResultsEmpty/SearchResultsEmpty";
+import { LoadingSpinner, SearchResultsNotes } from "../Details/SearchResultsNotes/SearchResultsNotes";
 import {
   RepositoryActionPopup,
   type Action,
@@ -121,7 +121,7 @@ export function Repositories() {
                   </TableRow>
                 )
             )}
-            <SearchResultsEmpty
+            <SearchResultsNotes
               allResults={mapAvailableRepos(availableRepos)}
               searchField={repoSearch}
               isLoading={isDataLoading}

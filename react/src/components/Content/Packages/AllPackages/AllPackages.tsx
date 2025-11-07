@@ -36,13 +36,13 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import AddIcon from "@mui/icons-material/Add";
 import ClearIcon from "@mui/icons-material/Clear";
-import { AddDetails } from "../../Details/AddRepository/AddRepository";
+import { AddRepositoryPopup } from "../../Details/AddRepository/AddRepository";
 import {
-  DetailsPopup,
+  DetailsPopup as EditDetailsPopup,
   type DetailsForm,
 } from "../../Details/DetailsPopup/DetailsPopup";
-import AllPackagesInputPopup from "../../Details/AllPackagesInputPopup/AllPackagesInputPopup";
-import { LoadingSpinner, SearchResultsEmpty } from "../../Details/SearchResultsEmpty/SearchResultsEmpty";
+import AllPackagesFileInput from "../../Details/AllPackagesFileInput/AllPackagesFileInput";
+import { LoadingSpinner, SearchResultsNotes } from "../../Details/SearchResultsNotes/SearchResultsNotes";
 
 const PERMITTED_FILE_ENDING: string =
   (window as EnvWindow)._env_?.RPM_PACKAGES_CONFIG_ENDING ?? ".repo_cfg";
@@ -63,15 +63,13 @@ export default function AllPackages() {
   const [displayInput, setDisplayInput] = useState<boolean>(true);
   const [isDataLoading, setIsDataLoading] = useState<boolean>(true);
 
-  const navigate = useNavigate();
-
   const fetchData = async () => {
     const resultData = await getAllUniquePackagesOverAll();
     setData(resultData.sort((a, b) => a.localeCompare(b)));
     setIsDataLoading(false);
   };
 
-  const fetchInclusionData = async (pk: string) => {
+  const fetchRepositoryInclusionData = async (pk: string) => {
     const resultData = await getRepositoriesOfPackage(pk);
     setinclusionsInRepositories(resultData);
   };
@@ -79,14 +77,14 @@ export default function AllPackages() {
   const openPopup = (pk: string) => {
     setOpen(true);
     setPkge(pk);
-    fetchInclusionData(pk);
+    fetchRepositoryInclusionData(pk);
   };
 
   const handleClose = () => setOpen(false);
 
   const handleNestedClose = () => {
     setOpenNested(false);
-    fetchInclusionData(pkge);
+    fetchRepositoryInclusionData(pkge);
   };
 
   const handleAdd = () => setOpenNested(true);
@@ -109,7 +107,7 @@ export default function AllPackages() {
     if (prompt) {
       await removePackageFromRepository(pkge, repo);
     }
-    fetchInclusionData(pkge);
+    fetchRepositoryInclusionData(pkge);
   };
 
   const handleEdit = () => {
@@ -137,7 +135,7 @@ export default function AllPackages() {
       );
     });
     await fetchData();
-    await fetchInclusionData(pk);
+    await fetchRepositoryInclusionData(pk);
   };
 
   const fetchInclusionsInDirectories = async () => {
@@ -243,7 +241,7 @@ export default function AllPackages() {
                   </TableRow>
                 )
             )}
-            <SearchResultsEmpty
+            <SearchResultsNotes
               allResults={mapDataForSearchResults(data)}
               searchField={packageSearch}
               isLoading={isDataLoading}
@@ -253,123 +251,167 @@ export default function AllPackages() {
             />
           </TableBody>
         </Table>
-            <LoadingSpinner isLoading={isDataLoading} />
+        <LoadingSpinner isLoading={isDataLoading} />
       </Box>
-      <Dialog open={open} onClose={handleClose} fullWidth maxWidth="md">
-        <Box sx={styles.packageTitle}>
-          <DialogTitle>{pkge}</DialogTitle>
-          <Box sx={ap_styles.dialogIcons}>
-            <Tooltip title="Add to other repository">
-              <AddIcon onClick={handleAdd} />
-            </Tooltip>
-            <Tooltip title="Edit across all repositories">
-              <EditIcon onClick={handleEdit} />
-            </Tooltip>
-            <Tooltip title="Delete in all repositories">
-              <DeleteOutlineIcon onClick={handleRemoveAll} />
-            </Tooltip>
-            <Tooltip title="Close">
-              <ClearIcon onClick={handleClose} />
-            </Tooltip>
-          </Box>
-        </Box>
-        <Box>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>Package Name</TableCell>
-                <TableCell>Version</TableCell>
-                <TableCell>Version-Note</TableCell>
-                <TableCell>Distribution</TableCell>
-                <TableCell>Architecture</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              <TableRow>
-                <TableCell>{getName(pkge)}</TableCell>
-                <TableCell>{getVersion(pkge)}</TableCell>
-                <TableCell>{getVersionNote(pkge)}</TableCell>
-                <TableCell>{getDistribution(pkge)}</TableCell>
-                <TableCell>{getArchitecture(pkge)}</TableCell>
-              </TableRow>
-            </TableBody>
-          </Table>
-        </Box>
-        {inclusionsInRepositories.length > 0 && (
-          <Box>
-            <DialogTitle>This package is included in:</DialogTitle>
-            <Table>
-              <TableBody>
-                {inclusionsInRepositories.map((i) => (
-                  <TableRow
-                    hover
-                    key={"included-" + i}
-                    sx={ap_styles.packageRow}
-                  >
-                    <TableCell>
-                      <Typography
-                        sx={styles.clickButton}
-                        onClick={() =>
-                          navigate(
-                            `/Packages/${i.replace(PERMITTED_FILE_ENDING, "")}`
-                          )
-                        }
-                      >
-                        {i}
-                      </Typography>
-                    </TableCell>
-                    <TableCell
-                      colSpan={2}
-                      sx={ap_styles.tableFileStatusWrapper}
-                    >
-                      {Array.isArray(inclusionsInDirectories) &&
-                        !inclusionsInDirectories.includes(
-                          i.replace(PERMITTED_FILE_ENDING, "")
-                        ) && <Box sx={ap_styles.noFile}>No File detected.</Box>}
-                      {Array.isArray(inclusionsInDirectories) &&
-                        inclusionsInDirectories.includes(
-                          i.replace(PERMITTED_FILE_ENDING, "")
-                        ) && <Box sx={ap_styles.isFile}>File detected.</Box>}
-                      <Tooltip
-                        sx={styles.clickButtonBig}
-                        title="Delete from this repository"
-                      >
-                        <DeleteOutlineIcon onClick={() => handleRemove(i)} />
-                      </Tooltip>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-              <AddDetails
-                open={openNested}
-                handleClose={handleNestedClose}
-                item={pkge}
-                inclusions={inclusionsInRepositories}
-              />
-            </Table>
-            <AllPackagesInputPopup
-              fileIncludedIn={inclusionsInDirectories}
-              packageIncludedIn={inclusionsInRepositories}
-              displayInput={displayInput}
-              file={file}
-              setFile={setFile}
-              updatePackages={updatedPackage}
-            />
-          </Box>
-        )}
-        <DetailsPopup
-          open={openEdit}
-          pkge={pkge}
-          onSave={(f) => handleSave(f)}
-          onClose={handleEditClose}
-          isAdd={false}
-          enableFileUpload={false}
-        ></DetailsPopup>
-      </Dialog>
+      {/* Parent Dialog */}
+      <AllPackagesDetailsDialog
+        open={open}
+        pkge={pkge}
+        handleClose={handleClose}
+        handleAdd={handleAdd}
+        handleEdit={handleEdit}
+        handleRemove={handleRemove}
+        handleRemoveAll={handleRemoveAll}
+        inclusionsInDirectories={inclusionsInDirectories}
+        inclusionsInRepositories={inclusionsInRepositories}
+        fileInputElement={
+          <AllPackagesFileInput
+            fileIncludedIn={inclusionsInDirectories}
+            packageIncludedIn={inclusionsInRepositories}
+            displayInput={displayInput}
+            file={file}
+            setFile={setFile}
+            updatePackages={updatedPackage}
+          />
+        }
+      />
+      {/* Nested Dialog for adding a package to a repository */}
+      <AddRepositoryPopup
+        open={openNested}
+        handleClose={handleNestedClose}
+        item={pkge}
+        inclusions={inclusionsInRepositories}
+      />
+      {/* Other nested Dialog for Editing a Packages properties across all repositories */}
+      <EditDetailsPopup
+        open={openEdit}
+        pkge={pkge}
+        onSave={(f) => handleSave(f)}
+        onClose={handleEditClose}
+        isAdd={false}
+        enableFileUpload={false}
+      />
     </Box>
   );
 }
 
-function AllPackagesDetailsDialog() {
+function AllPackagesDetailsDialog(
+  {
+    open,
+    pkge,
+    handleClose,
+    handleAdd,
+    handleEdit,
+    handleRemove,
+    handleRemoveAll,
+    inclusionsInRepositories,
+    inclusionsInDirectories,
+    fileInputElement
+  }
+    :
+    {
+      open: boolean,
+      pkge: string,
+      handleClose: () => void,
+      handleAdd: () => void,
+      handleEdit: () => void,
+      handleRemove: (repo: string) => void,
+      handleRemoveAll: () => void,
+      inclusionsInRepositories: string[],
+      inclusionsInDirectories: string[],
+      fileInputElement: React.ReactElement,
+    }
+) {
+  const navigate = useNavigate();
 
+  return (<Dialog open={open} onClose={handleClose} fullWidth maxWidth="md">
+    <Box sx={styles.packageTitle}>
+      <DialogTitle>{pkge}</DialogTitle>
+      <Box sx={ap_styles.dialogIcons}>
+        <Tooltip title="Add to other repository">
+          <AddIcon onClick={handleAdd} />
+        </Tooltip>
+        <Tooltip title="Edit across all repositories">
+          <EditIcon onClick={handleEdit} />
+        </Tooltip>
+        <Tooltip title="Delete in all repositories">
+          <DeleteOutlineIcon onClick={handleRemoveAll} />
+        </Tooltip>
+        <Tooltip title="Close">
+          <ClearIcon onClick={handleClose} />
+        </Tooltip>
+      </Box>
+    </Box>
+    <Box>
+      <Table>
+        <TableHead>
+          <TableRow>
+            <TableCell>Package Name</TableCell>
+            <TableCell>Version</TableCell>
+            <TableCell>Version-Note</TableCell>
+            <TableCell>Distribution</TableCell>
+            <TableCell>Architecture</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          <TableRow>
+            <TableCell>{getName(pkge)}</TableCell>
+            <TableCell>{getVersion(pkge)}</TableCell>
+            <TableCell>{getVersionNote(pkge)}</TableCell>
+            <TableCell>{getDistribution(pkge)}</TableCell>
+            <TableCell>{getArchitecture(pkge)}</TableCell>
+          </TableRow>
+        </TableBody>
+      </Table>
+    </Box>
+    {inclusionsInRepositories.length > 0 && (
+      <Box>
+        <DialogTitle>This package is included in:</DialogTitle>
+        <Table>
+          <TableBody>
+            {inclusionsInRepositories.map((i) => (
+              <TableRow
+                hover
+                key={"included-" + i}
+                sx={ap_styles.packageRow}
+              >
+                <TableCell>
+                  <Typography
+                    sx={styles.clickButton}
+                    onClick={() =>
+                      navigate(
+                        `/Packages/${i.replace(PERMITTED_FILE_ENDING, "")}`
+                      )
+                    }
+                  >
+                    {i}
+                  </Typography>
+                </TableCell>
+                <TableCell
+                  colSpan={2}
+                  sx={ap_styles.tableFileStatusWrapper}
+                >
+                  {Array.isArray(inclusionsInDirectories) &&
+                    !inclusionsInDirectories.includes(
+                      i.replace(PERMITTED_FILE_ENDING, "")
+                    ) && <Box sx={ap_styles.noFile}>No File detected.</Box>}
+                  {Array.isArray(inclusionsInDirectories) &&
+                    inclusionsInDirectories.includes(
+                      i.replace(PERMITTED_FILE_ENDING, "")
+                    ) && <Box sx={ap_styles.isFile}>File detected.</Box>}
+                  <Tooltip
+                    sx={styles.clickButtonBig}
+                    title="Delete from this repository"
+                  >
+                    <DeleteOutlineIcon onClick={() => handleRemove(i)} />
+                  </Tooltip>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </Box>)}
+    {fileInputElement}
+  </Dialog>
+  );
 }

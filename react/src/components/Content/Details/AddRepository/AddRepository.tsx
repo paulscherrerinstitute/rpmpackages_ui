@@ -21,12 +21,12 @@ import * as styles from "../../Content.styles";
 import { useEffect, useState } from "react";
 import ClearIcon from "@mui/icons-material/Clear";
 
-export function AddDetails({
+export function AddRepositoryPopup({
   open,
   handleClose,
   item,
   inclusions,
-}: AddDetails) {
+}: AddRepository) {
   const [availableRepos, setAvailableRepos] = useState<string[]>([]);
   const [newRepo, setNewRepo] = useState("");
   const [isDisabled, setIsDisabled] = useState<boolean>(false);
@@ -109,7 +109,7 @@ export function AddDetails({
   );
 }
 
-type AddDetails = {
+type AddRepository = {
   open: boolean;
   handleClose: () => void;
   item: string;

@@ -35,7 +35,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import AddIcon from "@mui/icons-material/Add";
 import ClearIcon from "@mui/icons-material/Clear";
-import { SearchResultsEmpty } from "../../Details/SearchResultsEmpty/SearchResultsEmpty";
+import { SearchResultsNotes } from "../../Details/SearchResultsNotes/SearchResultsNotes";
 
 const PERMITTED_FILE_ENDING: string =
   (window as EnvWindow)._env_?.RPM_PACKAGES_CONFIG_ENDING ?? ".repo_cfg";
@@ -73,11 +73,6 @@ export default function PackagesInRepository() {
     fetchData();
   };
 
-  const formatTitle = (title: string) => {
-    if (!title) return;
-    return title.match("[A-Za-z].*")?.toString().toUpperCase();
-  };
-
   const handleAdd = (it: string[], idx: number) => {
     setPopupOpen(true);
     setPkge("");
@@ -91,25 +86,6 @@ export default function PackagesInRepository() {
   };
 
   const handleSubtitleClose = () => setAddOpen(false);
-
-  const handleRemove = async (pkg: string) => {
-    const prompt = confirm(`Do you want to remove ${pkg} from ${permPath}?`);
-    if (prompt) {
-      await removePackageFromRepository(pkg, permPath);
-    }
-    fetchData();
-  };
-
-  const handleSubtitleRemove = async (directory: string) => {
-    const prompt = "Do you want to remove the subtitle '" + directory + "'?";
-    if (prompt) {
-      await removeSubtitleFromRepository(
-        permPath + PERMITTED_FILE_ENDING,
-        directory
-      );
-      await fetchData();
-    }
-  };
 
   const handleSubtitleAdd = async (newSubtitle: string) => {
     const path = permPath + PERMITTED_FILE_ENDING;
@@ -197,7 +173,139 @@ export default function PackagesInRepository() {
     }
   }, [popupOpen]);
 
+  const handleRemoveFile = async (file: File) => {
+    await removeFileFromFolder(permPath, file.name);
+    await fetchFile();
+  };
+
+  const [packageSearch, setPackageSearch] = useState("");
+  const updatePackageSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target) setPackageSearch(e.target.value);
+  };
+
+  const clearPackageSearch = () => setPackageSearch("");
+
+
+  return (
+    <Box sx={styles.main}>
+      {permPath.length > 0 && !isNotFound && (
+        <Box sx={pir_styles.body}>
+          <Box sx={styles.packageTitle}>
+            <Typography variant="h5">
+              Packages for {permPath.toUpperCase()}
+            </Typography>
+
+            {!hasError && (
+              <Tooltip title="Add subtitle">
+                <Button
+                  sx={styles.clickButtonBig}
+                  onClick={handleSubtitleButtonClick}
+                  variant="outlined"
+                >
+                  Add Subtitle
+                </Button>
+              </Tooltip>
+            )}
+            <Box sx={pir_styles.searchWrapper}>
+              <TextField
+                variant="standard"
+                value={packageSearch}
+                onChange={updatePackageSearch}
+                label="Search Packages"
+              />
+              <Tooltip title="Clear search">
+                <ClearIcon
+                  onClick={clearPackageSearch}
+                  sx={styles.clickButtonBig}
+                />
+              </Tooltip>
+            </Box>
+            <SubtitleDialog
+              open={addOpen}
+              onClose={handleSubtitleClose}
+              onAdd={handleSubtitleAdd}
+              repoName={permPath}
+            />
+          </Box>
+          {!hasError ?
+            <ListPackagesInRepositories
+              data={data}
+              packageSearch={packageSearch}
+              fetchData={fetchData}
+              handleAdd={handleAdd}
+              handleButtonClick={handleButtonClick}
+            />
+            :
+            <Box sx={pir_styles.errorWrapper}>
+              Unexpected Error: The facility "{permPath}" cannot be located.
+              Verify that the repository "{permPath}
+              {PERMITTED_FILE_ENDING}" exists within the servers configured
+              directory: "SOME_DIRECTORY_CONST"
+            </Box>
+          }
+          <DetailsPopup
+            open={popupOpen}
+            isAdd={isAdd}
+            pkge={pkge}
+            file={file}
+            setFile={(f) => setFile(f)}
+            onRemoveFile={(f) => handleRemoveFile(f)}
+            onSave={(f) => handleSave(f)}
+            onAdd={(f) => handleAddSubmit(f)}
+            addProps={{
+              data: item,
+            }}
+            enableFileUpload
+            onClose={handleClosePopup}
+          />
+        </Box>
+      )}
+      {permPath.length <= 0 && <Box>No Repository has been requested</Box>}
+      {isNotFound && (
+        <Box>
+          The Repository <span style={{ fontWeight: "bold" }}>{permPath}</span>{" "}
+          does not exist
+        </Box>
+      )}
+    </Box>
+  );
+}
+
+function ListPackagesInRepositories(
+  {
+    data,
+    packageSearch,
+    fetchData,
+    handleAdd,
+    handleButtonClick
+  }:
+    {
+      data: string[][],
+      packageSearch: string,
+      fetchData: () => Promise<void>,
+      handleAdd: (it: string[], idx: number) => void,
+      handleButtonClick: (pk: string) => void,
+    },
+) {
+
   const [dragging, setDragging] = useState<string>("");
+  const { path } = useParams();
+  const permPath: string = path ?? "";
+
+  const mapPackagesForSearchResults = (arr: string[]) => {
+    const mapped = arr.map((f) => {
+      return {
+        name: f,
+      };
+    });
+    return mapped;
+  };
+
+  const shouldShowAnimation = (pkg: string) => {
+    const urlHash = window.location.hash.replace("#", "");
+    if (pkg == urlHash) return true;
+    return false;
+  };
 
   const handleDragStart = (event: React.DragEvent, pk: string) => {
     setDragging(pk);
@@ -249,183 +357,113 @@ export default function PackagesInRepository() {
     }
   };
 
-  const handleRemoveFile = async (file: File) => {
-    await removeFileFromFolder(permPath, file.name);
-    await fetchFile();
+  const formatTitle = (title: string) => {
+    if (!title) return;
+    return title.match("[A-Za-z].*")?.toString().toUpperCase();
   };
 
-  const shouldShowAnimation = (pkg: string) => {
-    const urlHash = window.location.hash.replace("#", "");
-    if (pkg == urlHash) return true;
-    return false;
+  const handleSubtitleRemove = async (directory: string) => {
+    const prompt = "Do you want to remove the subtitle '" + directory + "'?";
+    if (prompt) {
+      await removeSubtitleFromRepository(
+        permPath + PERMITTED_FILE_ENDING,
+        directory
+      );
+      await fetchData();
+    }
   };
 
-  const [packageSearch, setPackageSearch] = useState("");
-  const updatePackageSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target) setPackageSearch(e.target.value);
-  };
-
-  const clearPackageSearch = () => setPackageSearch("");
-  const mapPackagesForSearchResults = (arr: string[]) => {
-    const mapped = arr.map((f) => {
-      return {
-        name: f,
-      };
-    });
-    return mapped;
+  const handleRemove = async (pkg: string) => {
+    const prompt = confirm(`Do you want to remove ${pkg} from ${permPath}?`);
+    if (prompt) {
+      await removePackageFromRepository(pkg, permPath);
+    }
+    fetchData();
   };
 
   return (
-    <Box sx={styles.main}>
-      {permPath.length > 0 && !isNotFound && (
-        <Box sx={pir_styles.body}>
-          <Box sx={styles.packageTitle}>
-            <Typography variant="h5">
-              Packages for {permPath.toUpperCase()}
-            </Typography>
-
-            {!hasError && (
-              <Tooltip title="Add subtitle">
-                <Button
-                  sx={styles.clickButtonBig}
-                  onClick={handleSubtitleButtonClick}
-                  variant="outlined"
-                >
-                  Add Subtitle
-                </Button>
-              </Tooltip>
-            )}
-            <Box sx={pir_styles.searchWrapper}>
-              <TextField
-                variant="standard"
-                value={packageSearch}
-                onChange={updatePackageSearch}
-                label="Search Packages"
-              />
-              <Tooltip title="Clear search">
-                <ClearIcon
-                  onClick={clearPackageSearch}
-                  sx={styles.clickButtonBig}
-                />
-              </Tooltip>
-            </Box>
-            <SubtitleDialog
-              open={addOpen}
-              onClose={handleSubtitleClose}
-              onAdd={handleSubtitleAdd}
-              repoName={permPath}
-            />
-          </Box>
-          {data.map(
-            (item, outerIdx) =>
-              item.length > 0 && (
+    <>
+      {
+        data.map(
+          (item, outerIdx) =>
+            item.length > 0 && (
+              <Box
+                key={`category-${outerIdx}-${item[0]}`}
+                sx={pir_styles.outerList}
+              >
                 <Box
-                  key={`category-${outerIdx}-${item[0]}`}
-                  sx={pir_styles.outerList}
+                  onDragEnter={() => handleDragEnter(outerIdx, 1)}
+                  sx={pir_styles.titleList}
                 >
-                  <Box
-                    onDragEnter={() => handleDragEnter(outerIdx, 1)}
-                    sx={pir_styles.titleList}
-                  >
-                    <h3>{formatTitle(item[0])}</h3>
-                    <Box sx={pir_styles.listButtons}>
-                      <Tooltip title="Add package to subtitle">
-                        <AddIcon onClick={() => handleAdd(item, outerIdx)} />
-                      </Tooltip>
-                      <Tooltip title="Remove subtitle">
-                        <DeleteOutlineIcon
-                          sx={styles.clickButtonBig}
-                          onClick={() => handleSubtitleRemove(item[0])}
-                        />
-                      </Tooltip>
-                    </Box>
+                  <h3>{formatTitle(item[0])}</h3>
+                  <Box sx={pir_styles.listButtons}>
+                    <Tooltip title="Add package to subtitle">
+                      <AddIcon onClick={() => handleAdd(item, outerIdx)} />
+                    </Tooltip>
+                    <Tooltip title="Remove subtitle">
+                      <DeleteOutlineIcon
+                        sx={styles.clickButtonBig}
+                        onClick={() => handleSubtitleRemove(item[0])}
+                      />
+                    </Tooltip>
                   </Box>
-                  <List>
-                    {item.map(
-                      (pkg, innerIdx) =>
-                        (pkg.includes(packageSearch) ||
-                          packageSearch.length == 0) &&
-                        innerIdx != 0 && (
-                          <ListItem
-                            id={pkg}
-                            onDragEnter={() =>
-                              handleDragEnter(outerIdx, innerIdx)
-                            }
-                            key={`${outerIdx}-${innerIdx}-${pkg}`}
-                            draggable
-                            onDragStart={(e) => handleDragStart(e, pkg)}
-                            sx={pir_styles.listItem(
-                              pkg == dragging,
-                              shouldShowAnimation(pkg)
-                            )}
-                          >
-                            <ListItemText>{pkg}</ListItemText>
-                            <Box sx={pir_styles.listButtons}>
-                              {!pkg.includes("#") && (
-                                <Tooltip title="Edit package">
-                                  <EditIcon
-                                    sx={styles.clickButton}
-                                    onClick={() => handleButtonClick(pkg)}
-                                  />
-                                </Tooltip>
-                              )}
-                              {!pkg.includes("#") && (
-                                <Tooltip title="Delete package">
-                                  <DeleteOutlineIcon
-                                    sx={styles.clickButton}
-                                    onClick={() => handleRemove(pkg)}
-                                  />
-                                </Tooltip>
-                              )}
-                            </Box>
-                          </ListItem>
-                        )
-                    )}
-                    <SearchResultsEmpty
-                      allResults={mapPackagesForSearchResults(item)}
-                      searchField={packageSearch}
-                      onEmpty="No package"
-                      onNoMatch="No Match"
-                      treatAsList
-                    />
-                  </List>
                 </Box>
-              )
-          )}
-          {hasError && (
-            <Box sx={pir_styles.errorWrapper}>
-              Unexpected Error: The facility "{permPath}" cannot be located.
-              Verify that the repository "{permPath}
-              {PERMITTED_FILE_ENDING}" exists within the servers configured
-              directory: "SOME_DIRECTORY_CONST"
-            </Box>
-          )}
-          <DetailsPopup
-            open={popupOpen}
-            isAdd={isAdd}
-            pkge={pkge}
-            file={file}
-            setFile={(f) => setFile(f)}
-            onRemoveFile={(f) => handleRemoveFile(f)}
-            onSave={(f) => handleSave(f)}
-            onAdd={(f) => handleAddSubmit(f)}
-            addProps={{
-              data: item,
-            }}
-            enableFileUpload
-            onClose={handleClosePopup}
-          />
-        </Box>
-      )}
-      {permPath.length <= 0 && <Box>No Repository has been requested</Box>}
-      {isNotFound && (
-        <Box>
-          The Repository <span style={{ fontWeight: "bold" }}>{permPath}</span>{" "}
-          does not exist
-        </Box>
-      )}
-    </Box>
-  );
+                <List>
+                  {item.map(
+                    (pkg, innerIdx) =>
+                      (pkg.includes(packageSearch) ||
+                        packageSearch.length == 0) &&
+                      innerIdx != 0 && (
+                        <ListItem
+                          id={pkg}
+                          onDragEnter={() =>
+                            handleDragEnter(outerIdx, innerIdx)
+                          }
+                          key={`${outerIdx}-${innerIdx}-${pkg}`}
+                          draggable
+                          onDragStart={(e) => handleDragStart(e, pkg)}
+                          sx={pir_styles.listItem(
+                            pkg == dragging,
+                            shouldShowAnimation(pkg)
+                          )}
+                        >
+                          <ListItemText>{pkg}</ListItemText>
+                          <Box sx={pir_styles.listButtons}>
+                            {!pkg.includes("#") && (
+                              <Tooltip title="Edit package">
+                                <EditIcon
+                                  sx={styles.clickButton}
+                                  onClick={() => handleButtonClick(pkg)}
+                                />
+                              </Tooltip>
+                            )}
+                            {!pkg.includes("#") && (
+                              <Tooltip title="Delete package">
+                                <DeleteOutlineIcon
+                                  sx={styles.clickButton}
+                                  onClick={() => handleRemove(pkg)}
+                                />
+                              </Tooltip>
+                            )}
+                          </Box>
+                        </ListItem>
+                      )
+                  )}
+                  <SearchResultsNotes
+                    allResults={mapPackagesForSearchResults(item)}
+                    searchField={packageSearch}
+                    onEmpty="No package"
+                    onNoMatch="No Match"
+                    treatAsList
+                  />
+                </List>
+              </Box>
+            )
+        )
+      }
+    </>
+  )
+
 }
 
 // Dialog-only component: keeps input state local so typing does NOT re-render parent

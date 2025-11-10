@@ -1,14 +1,11 @@
 import { createRoot } from "react-dom/client";
 import Topbar from "./components/Topbar/Topbar";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import "./index.css";
 import { NAV_ITEMS } from "./components/helpers/NavbarHelper";
-import { useAuthProvider } from "./auth/AuthProvider";
 import { MsalProvider } from "@azure/msal-react";
-import { type Configuration, PublicClientApplication } from "@azure/msal-browser";
+import { PublicClientApplication } from "@azure/msal-browser";
 import { msalConfig } from "./auth/auth-config";
-
-const { AuthProvider } = useAuthProvider();
 
 
 const pcs = new PublicClientApplication(msalConfig);

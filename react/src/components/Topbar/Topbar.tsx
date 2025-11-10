@@ -11,15 +11,17 @@ import {
   ListItemText,
   Toolbar,
   Typography,
-  Button
+  Button,
+  Tooltip
 } from "@mui/material"
 import MenuIcon from "@mui/icons-material/Menu";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { NAV_ITEMS, TITLE } from "../helpers/NavbarHelper";
 import { useNavigate } from "react-router-dom";
 import * as styles from "./Topbar.styles";
 import { loginRequest } from "../../auth/auth-config";
-import { AuthenticatedTemplate, UnauthenticatedTemplate, useMsal } from "@azure/msal-react";
+import { AuthenticatedTemplate, UnauthenticatedTemplate } from "@azure/msal-react";
+import { useMsal } from "@azure/msal-react";
 
 interface Props {
   /**
@@ -85,7 +87,6 @@ export default function Topbar(props: Props) {
             {TITLE}
           </Typography>
           <Box sx={{ display: { xs: "none", sm: "block" } }}>
-            <LoginLogoutComponent />
             {NAV_ITEMS.map((item) => (
               item.key != "Initial" &&
               <Button
@@ -96,6 +97,7 @@ export default function Topbar(props: Props) {
                 {item.key}
               </Button>
             ))}
+            <LoginLogoutComponent />
           </Box>
         </Toolbar>
       </AppBar>
@@ -125,7 +127,7 @@ export default function Topbar(props: Props) {
 
 function LoginLogoutComponent() {
   const { instance } = useMsal();
-  const activeAccount = instance.getActiveAccount();
+  const activeAccount = instance.getAllAccounts()[0];
 
   const handleLoginRedirect = () => {
     instance.loginRedirect({
@@ -145,10 +147,12 @@ function LoginLogoutComponent() {
   return (
     <>
       <AuthenticatedTemplate>
-        <span onClick={handleLogOutRedirect}>Logout</span>
+        <Tooltip title={"Logged in as " + activeAccount?.name}>
+          <Button sx={{ backgroundColor: "rgba(230, 0, 0, 0.95)", color: "white", marginLeft: 1 }} onClick={handleLogOutRedirect}>Logout</Button>
+        </Tooltip>
       </AuthenticatedTemplate>
       <UnauthenticatedTemplate>
-        <span onClick={handleLoginRedirect}>Login</span>
+        <Button sx={{ backgroundColor: "rgba(0, 230, 0, 0.95)", color: "white", marginLeft: 1 }} onClick={handleLoginRedirect}>Login</Button>
       </UnauthenticatedTemplate>
     </>
   )

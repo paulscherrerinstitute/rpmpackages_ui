@@ -2,6 +2,7 @@
 /react/node_modules
 /react/public/*.repo_cfg
 /react/public/env-config.js
+/react/src/auth/auth-config.ts
 
 # Back
 /fastapi_backend/venv

@@ -25,8 +25,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         }
     });
 
-    console.log(msalInstance.getAllAccounts())
-
     return <MsalProvider instance={msalInstance}>{children}</MsalProvider>;
 };
 

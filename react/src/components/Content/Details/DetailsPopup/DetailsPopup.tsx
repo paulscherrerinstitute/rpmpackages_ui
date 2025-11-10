@@ -49,7 +49,6 @@ export function DetailsPopup({
   const [isSaveDisabled, setIsSaveDisabled] = useState<boolean>(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    console.log(e.type);
     const { name, value } = e.target; // fixed to e.target.name and e.target.value
     setFormData(
       (prevState) =>

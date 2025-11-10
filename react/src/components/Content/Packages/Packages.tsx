@@ -5,6 +5,7 @@ import { useParams } from "react-router-dom";
 import { ErrorBar } from "../Details/ErrorBar";
 import { useEffect, useState } from "react";
 import { getBackendHealth } from "../../../services/infoService";
+import { AuthenticatedTemplate, UnauthenticatedTemplate } from "@azure/msal-react";
 
 export function Packages() {
   const { path } = useParams();
@@ -24,8 +25,13 @@ export function Packages() {
   return (
     <Box component="main">
       <ErrorBar open={!isBackendHealthy} />
-      {displayPackagesForRepo && <PackagesInRepository />}
-      {!displayPackagesForRepo && <AllPackages />}
+      <AuthenticatedTemplate>
+        {displayPackagesForRepo && <PackagesInRepository />}
+        {!displayPackagesForRepo && <AllPackages />}
+      </AuthenticatedTemplate>
+      <UnauthenticatedTemplate>
+        Not logged in
+      </UnauthenticatedTemplate>
     </Box>
   );
 }

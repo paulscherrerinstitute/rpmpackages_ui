@@ -35,6 +35,7 @@ import { LoadingSpinner, SearchResultsNotes } from "../Details/SearchResultsNote
 import LaunchIcon from "@mui/icons-material/Launch";
 import { FileInput } from "../Details/FileInput/FileInput";
 import { ErrorBar } from "../Details/ErrorBar";
+import { AuthenticatedTemplate, UnauthenticatedTemplate } from "@azure/msal-react";
 
 const PERMITTED_FILE_ENDING: string =
   (window as EnvWindow)._env_?.RPM_PACKAGES_CONFIG_ENDING ?? ".repo_cfg";
@@ -124,45 +125,107 @@ export function Orphans() {
     <Box component="main" sx={styles.main}>
       <ErrorBar open={!isBackendHealthy} />
       <Box sx={o_styles.wrapper}>
-        <Box>
-          <Box sx={o_styles.titleWrapper}>
-            <Typography variant="h6">
-              File Orphans (No associated package within any repository)
-            </Typography>
-            <Box sx={o_styles.searchWrapper}>
-              <TextField
-                variant="standard"
-                value={foSearch}
-                onChange={updateFoSearch}
-                label="Search File Orphans"
-              />
-              <Tooltip title="Clear search">
-                <ClearIcon onClick={clearFoSearch} />
-              </Tooltip>
+        <AuthenticatedTemplate>
+          <Box>
+            <Box sx={o_styles.titleWrapper}>
+              <Typography variant="h6">
+                File Orphans (No associated package within any repository)
+              </Typography>
+              <Box sx={o_styles.searchWrapper}>
+                <TextField
+                  variant="standard"
+                  value={foSearch}
+                  onChange={updateFoSearch}
+                  label="Search File Orphans"
+                />
+                <Tooltip title="Clear search">
+                  <ClearIcon onClick={clearFoSearch} />
+                </Tooltip>
+              </Box>
+            </Box>
+            <Box>
+              <Table>
+                <TableBody>
+                  {!isDataLoading && fileOrphans.map(
+                    (o) =>
+                      (o.name.includes(foSearch) || foSearch.length == 0) && (
+                        <TableRow
+                          key={`${o.directory.replace(
+                            PERMITTED_FILE_ENDING,
+                            ""
+                          )}-${o.name}`}
+                          hover
+                        >
+                          <TableCell>{o.name}</TableCell>
+                          <TableCell>{o.directory}</TableCell>
+                          <TableCell sx={o_styles.fileOrphanIcons}>
+                            <Tooltip title="Add Orphaned File to repository">
+                              <AddIcon onClick={() => addOrphanedFile(o)} />
+                            </Tooltip>
+                            <Tooltip title="Delete Orphaned file completely">
+                              <DeleteOutlineIcon
+                                onClick={() => deleteOrphanedFile(o)}
+                              />
+                            </Tooltip>
+                          </TableCell>
+                        </TableRow>
+                      )
+                  )}
+                  <SearchResultsNotes
+                    allResults={fileOrphans}
+                    searchField={foSearch}
+                    isLoading={isDataLoading}
+                    onEmpty="No Orphans"
+                    onNoMatch="No Match"
+                  />
+                </TableBody>
+              </Table>
+              <LoadingSpinner isLoading={isDataLoading} />
             </Box>
           </Box>
           <Box>
+            <Box sx={o_styles.titleWrapper}>
+              <Typography variant="h6">
+                Package Orphans (No associated file to a package in a repository)
+              </Typography>
+              <Box sx={o_styles.searchWrapper}>
+                <TextField
+                  variant="standard"
+                  value={poSearch}
+                  onChange={updatePoSearch}
+                  label="Search Package Orphans"
+                />
+                <Tooltip title="Clear search">
+                  <ClearIcon onClick={clearPoSearch} />
+                </Tooltip>
+              </Box>
+            </Box>
             <Table>
               <TableBody>
-                {!isDataLoading && fileOrphans.map(
+                {!isDataLoading && pkgeOrphans.map(
                   (o) =>
-                    (o.name.includes(foSearch) || foSearch.length == 0) && (
-                      <TableRow
-                        key={`${o.directory.replace(
-                          PERMITTED_FILE_ENDING,
-                          ""
-                        )}-${o.name}`}
-                        hover
-                      >
+                    ((o.name.includes(poSearch) && poSearch.length > 0) ||
+                      poSearch.length == 0) && (
+                      <TableRow key={`${o.repository}-${o.name}`} hover>
                         <TableCell>{o.name}</TableCell>
-                        <TableCell>{o.directory}</TableCell>
-                        <TableCell sx={o_styles.fileOrphanIcons}>
-                          <Tooltip title="Add Orphaned File to repository">
-                            <AddIcon onClick={() => addOrphanedFile(o)} />
+                        <TableCell>{o.repository}</TableCell>
+                        <TableCell sx={o_styles.packageOrphanIcons}>
+                          <Tooltip title="Open in repository">
+                            <LaunchIcon
+                              sx={styles.clickButtonBig}
+                              onClick={() => navigateToPackage(o)}
+                            />
                           </Tooltip>
-                          <Tooltip title="Delete Orphaned file completely">
+                          <Tooltip title="Add file">
+                            <AddIcon
+                              sx={styles.clickButtonBig}
+                              onClick={() => openOrphanedPackageDialog(o)}
+                            />
+                          </Tooltip>
+                          <Tooltip title="Remove from repository">
                             <DeleteOutlineIcon
-                              onClick={() => deleteOrphanedFile(o)}
+                              sx={styles.clickButtonBig}
+                              onClick={() => removeOrphanedPackage(o)}
                             />
                           </Tooltip>
                         </TableCell>
@@ -170,83 +233,26 @@ export function Orphans() {
                     )
                 )}
                 <SearchResultsNotes
-                  allResults={fileOrphans}
-                  searchField={foSearch}
+                  allResults={pkgeOrphans}
+                  searchField={poSearch}
                   isLoading={isDataLoading}
                   onEmpty="No Orphans"
                   onNoMatch="No Match"
                 />
+                <UploadFileDialog
+                  open={openDialog}
+                  pkge={pkge}
+                  onClose={closeOrphanedPackageDialog}
+                />
               </TableBody>
             </Table>
             <LoadingSpinner isLoading={isDataLoading} />
-          </Box>
-        </Box>
-        <Box>
-          <Box sx={o_styles.titleWrapper}>
-            <Typography variant="h6">
-              Package Orphans (No associated file to a package in a repository)
-            </Typography>
-            <Box sx={o_styles.searchWrapper}>
-              <TextField
-                variant="standard"
-                value={poSearch}
-                onChange={updatePoSearch}
-                label="Search Package Orphans"
-              />
-              <Tooltip title="Clear search">
-                <ClearIcon onClick={clearPoSearch} />
-              </Tooltip>
-            </Box>
-          </Box>
-          <Table>
-            <TableBody>
-              {!isDataLoading && pkgeOrphans.map(
-                (o) =>
-                  ((o.name.includes(poSearch) && poSearch.length > 0) ||
-                    poSearch.length == 0) && (
-                    <TableRow key={`${o.repository}-${o.name}`} hover>
-                      <TableCell>{o.name}</TableCell>
-                      <TableCell>{o.repository}</TableCell>
-                      <TableCell sx={o_styles.packageOrphanIcons}>
-                        <Tooltip title="Open in repository">
-                          <LaunchIcon
-                            sx={styles.clickButtonBig}
-                            onClick={() => navigateToPackage(o)}
-                          />
-                        </Tooltip>
-                        <Tooltip title="Add file">
-                          <AddIcon
-                            sx={styles.clickButtonBig}
-                            onClick={() => openOrphanedPackageDialog(o)}
-                          />
-                        </Tooltip>
-                        <Tooltip title="Remove from repository">
-                          <DeleteOutlineIcon
-                            sx={styles.clickButtonBig}
-                            onClick={() => removeOrphanedPackage(o)}
-                          />
-                        </Tooltip>
-                      </TableCell>
-                    </TableRow>
-                  )
-              )}
-              <SearchResultsNotes
-                allResults={pkgeOrphans}
-                searchField={poSearch}
-                isLoading={isDataLoading}
-                onEmpty="No Orphans"
-                onNoMatch="No Match"
-              />
-              <UploadFileDialog
-                open={openDialog}
-                pkge={pkge}
-                onClose={closeOrphanedPackageDialog}
-              />
-            </TableBody>
-          </Table>
-          <LoadingSpinner isLoading={isDataLoading} />
 
-        </Box>
+          </Box>
+        </AuthenticatedTemplate>
+        <UnauthenticatedTemplate>
+          Not logged in
+        </UnauthenticatedTemplate>
       </Box>
     </Box>
   );

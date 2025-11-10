@@ -1,21 +1,25 @@
-import * as React from "react";
-import AppBar from "@mui/material/AppBar";
-import Box from "@mui/material/Box";
-import CssBaseline from "@mui/material/CssBaseline";
-import Divider from "@mui/material/Divider";
-import Drawer from "@mui/material/Drawer";
-import IconButton from "@mui/material/IconButton";
-import List from "@mui/material/List";
-import ListItem from "@mui/material/ListItem";
-import ListItemButton from "@mui/material/ListItemButton";
-import ListItemText from "@mui/material/ListItemText";
+import {
+  AppBar,
+  Box,
+  CssBaseline,
+  Divider,
+  Drawer,
+  IconButton,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemText,
+  Toolbar,
+  Typography,
+  Button
+} from "@mui/material"
 import MenuIcon from "@mui/icons-material/Menu";
-import Toolbar from "@mui/material/Toolbar";
-import Typography from "@mui/material/Typography";
-import Button from "@mui/material/Button";
+import { useState } from "react";
 import { NAV_ITEMS, TITLE } from "../helpers/NavbarHelper";
 import { useNavigate } from "react-router-dom";
 import * as styles from "./Topbar.styles";
+import { loginRequest } from "../../auth/auth-config";
+import { AuthenticatedTemplate, UnauthenticatedTemplate, useMsal } from "@azure/msal-react";
 
 interface Props {
   /**
@@ -29,7 +33,7 @@ const drawerWidth = 240;
 export default function Topbar(props: Props) {
   const navigate = useNavigate();
   const { window } = props;
-  const [mobileOpen, setMobileOpen] = React.useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   const handleDrawerToggle = () => {
     setMobileOpen((prevState) => !prevState);
@@ -81,7 +85,9 @@ export default function Topbar(props: Props) {
             {TITLE}
           </Typography>
           <Box sx={{ display: { xs: "none", sm: "block" } }}>
+            <LoginLogoutComponent />
             {NAV_ITEMS.map((item) => (
+              item.key != "Initial" &&
               <Button
                 key={item.key}
                 sx={styles.topBarButton}
@@ -115,4 +121,35 @@ export default function Topbar(props: Props) {
       </nav>
     </Box>
   );
+}
+
+function LoginLogoutComponent() {
+  const { instance } = useMsal();
+  const activeAccount = instance.getActiveAccount();
+
+  const handleLoginRedirect = () => {
+    instance.loginRedirect({
+      ...loginRequest,
+      redirectUri: '/',
+    }).catch((error) => console.log(error));
+  }
+
+  const handleLogOutRedirect = () => {
+    instance.logoutRedirect({
+      postLogoutRedirectUri: '/'
+    });
+    window.location.reload();
+  }
+
+
+  return (
+    <>
+      <AuthenticatedTemplate>
+        <span onClick={handleLogOutRedirect}>Logout</span>
+      </AuthenticatedTemplate>
+      <UnauthenticatedTemplate>
+        <span onClick={handleLoginRedirect}>Login</span>
+      </UnauthenticatedTemplate>
+    </>
+  )
 }

@@ -4,7 +4,7 @@ import { Packages } from "../Content/Packages/Packages";
 import { Orphans } from "../Content/Orphans/Orphans";
 
 export const NAV_ITEMS = [
-  { key: "Home", path: "/Home", component: Home },
+  { key: "Home", path: "/", component: Home },
   { key: "Repositories", path: "/Repositories", component: Repositories },
   { key: "Packages", path: "/Packages", component: Packages },
   { key: "Orphans", path: "/Orphans", component: Orphans },

@@ -22,6 +22,7 @@ import * as styles from "./Topbar.styles";
 import { loginRequest } from "../../auth/auth-config";
 import { AuthenticatedTemplate, UnauthenticatedTemplate } from "@azure/msal-react";
 import { useMsal } from "@azure/msal-react";
+import { useParams } from "react-router-dom";
 
 interface Props {
   /**
@@ -30,11 +31,11 @@ interface Props {
    */
   window?: () => Window;
 }
-
 const drawerWidth = 240;
 export default function Topbar(props: Props) {
+  const path = window.location.pathname;
   const navigate = useNavigate();
-  const { window } = props;
+  const windowProps = props?.window;
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const handleDrawerToggle = () => {
@@ -43,7 +44,7 @@ export default function Topbar(props: Props) {
 
   const drawer = (
     <Box onClick={handleDrawerToggle} sx={{ textAlign: "center" }}>
-      <Typography variant="h6" sx={{ my: 2 }}>
+      <Typography variant="h6">
         {TITLE}
       </Typography>
       <Divider />
@@ -51,7 +52,8 @@ export default function Topbar(props: Props) {
         {NAV_ITEMS.map((item) => (
           <ListItem key={item.key} disablePadding>
             <ListItemButton
-              sx={styles.topBarButton}
+              id={item.path}
+              sx={styles.topBarButton(item, path)}
               onClick={() => navigate(item.path)}
             >
               <ListItemText primary={item.key} />
@@ -63,7 +65,7 @@ export default function Topbar(props: Props) {
   );
 
   const container =
-    window !== undefined ? () => window().document.body : undefined;
+    windowProps !== undefined ? () => windowProps().document.body : undefined;
 
   return (
     <Box sx={{ display: "flex" }}>
@@ -91,7 +93,7 @@ export default function Topbar(props: Props) {
               item.key != "Initial" &&
               <Button
                 key={item.key}
-                sx={styles.topBarButton}
+                sx={styles.topBarButton(item, path)}
                 onClick={() => navigate(item.path)}
               >
                 {item.key}
@@ -143,16 +145,15 @@ function LoginLogoutComponent() {
     window.location.reload();
   }
 
-
   return (
     <>
       <AuthenticatedTemplate>
         <Tooltip title={"Logged in as " + activeAccount?.name}>
-          <Button sx={{ backgroundColor: "rgba(230, 0, 0, 0.95)", color: "white", marginLeft: 1 }} onClick={handleLogOutRedirect}>Logout</Button>
+          <Button sx={styles.logoutButton} onClick={handleLogOutRedirect}>Logout</Button>
         </Tooltip>
       </AuthenticatedTemplate>
       <UnauthenticatedTemplate>
-        <Button sx={{ backgroundColor: "rgba(0, 230, 0, 0.95)", color: "white", marginLeft: 1 }} onClick={handleLoginRedirect}>Login</Button>
+        <Button sx={styles.loginButton} onClick={handleLoginRedirect}>Login</Button>
       </UnauthenticatedTemplate>
     </>
   )

@@ -3,15 +3,10 @@ import Topbar from "./components/Topbar/Topbar";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import "./index.css";
 import { NAV_ITEMS } from "./components/helpers/NavbarHelper";
-import { MsalProvider } from "@azure/msal-react";
-import { PublicClientApplication } from "@azure/msal-browser";
-import { msalConfig } from "./auth/auth-config";
-
-
-const pcs = new PublicClientApplication(msalConfig);
+import { AuthProvider } from "./auth/AuthProvider";
 
 createRoot(document.getElementById("root")!).render(
-  <MsalProvider instance={pcs}>
+  <AuthProvider>
     <BrowserRouter>
       <Topbar />
       <Routes>
@@ -27,5 +22,5 @@ createRoot(document.getElementById("root")!).render(
         ))}
       </Routes>
     </BrowserRouter>
-  </MsalProvider>
+  </AuthProvider>
 );

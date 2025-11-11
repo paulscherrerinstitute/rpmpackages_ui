@@ -22,7 +22,6 @@ import * as styles from "./Topbar.styles";
 import { loginRequest } from "../../auth/auth-config";
 import { AuthenticatedTemplate, UnauthenticatedTemplate } from "@azure/msal-react";
 import { useMsal } from "@azure/msal-react";
-import { useParams } from "react-router-dom";
 
 interface Props {
   /**

@@ -7,7 +7,7 @@ interface AuthProviderProps {
     children: ReactNode;
 }
 
-const msalInstance = new PublicClientApplication(msalConfig);
+export const msalInstance = new PublicClientApplication(msalConfig);
 export const AuthProvider = ({ children }: AuthProviderProps) => {
 
     if (!msalInstance.getActiveAccount() && msalInstance.getAllAccounts().length > 0) {

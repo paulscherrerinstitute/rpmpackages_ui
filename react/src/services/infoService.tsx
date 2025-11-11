@@ -1,12 +1,20 @@
 import { type EnvWindow } from "./dataService.types"
+import { msalInstance } from "../auth/AuthProvider";
 
-const env = (window as EnvWindow)._env_;
-const API = env?.RPM_PACKAGES_PUBLIC_BACKEND_URL;
+const TOKEN: string = msalInstance.getActiveAccount()?.idToken ?? "";
+// const ACCESSTOKEN = account?.idToken;
+const DEFAULT_HEADERS = {
+    "Content-Type": "application/json",
+    "Authorization": `Bearer ${TOKEN}`
+}
+
+const ENV = (window as EnvWindow)._env_;
+const API = ENV?.RPM_PACKAGES_PUBLIC_BACKEND_URL;
 
 export async function getCurrentHost(): Promise<string> {
     try {
 
-        const host = await fetch(`${API}/host`).then((res) => {
+        const host = await fetch(`${API}/host`, { headers: DEFAULT_HEADERS }).then((res) => {
             const data = res.json();
             return data;
         })
@@ -19,7 +27,7 @@ export async function getCurrentHost(): Promise<string> {
 export async function getRPMLocation(): Promise<string> {
     try {
 
-        const location = await fetch(`${API}/location`).then((res) => {
+        const location = await fetch(`${API}/location`, { headers: DEFAULT_HEADERS }).then((res) => {
             const data = res.json();
             return data;
         })
@@ -31,7 +39,7 @@ export async function getRPMLocation(): Promise<string> {
 
 export async function getBackendHealth(): Promise<string> {
     try {
-        const health = await fetch(`${API}/health`).then(async (res) => {
+        const health = await fetch(`${API}/health`, { headers: DEFAULT_HEADERS }).then(async (res) => {
             const data = res.json();
             return data;
         });

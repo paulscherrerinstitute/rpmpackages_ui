@@ -35,7 +35,7 @@ import { LoadingSpinner, SearchResultsNotes } from "../Details/SearchResultsNote
 import LaunchIcon from "@mui/icons-material/Launch";
 import { FileInput } from "../Details/FileInput/FileInput";
 import { ErrorBar } from "../Details/ErrorBar";
-import { AuthenticatedTemplate, UnauthenticatedTemplate } from "@azure/msal-react";
+import { AuthenticatedTemplate } from "@azure/msal-react";
 
 const PERMITTED_FILE_ENDING: string =
   (window as EnvWindow)._env_?.RPM_PACKAGES_CONFIG_ENDING ?? ".repo_cfg";
@@ -250,9 +250,6 @@ export function Orphans() {
 
           </Box>
         </AuthenticatedTemplate>
-        <UnauthenticatedTemplate>
-          Not logged in
-        </UnauthenticatedTemplate>
       </Box>
     </Box>
   );

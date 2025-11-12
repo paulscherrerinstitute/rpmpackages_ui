@@ -2,7 +2,7 @@ import { Box, Typography, Toolbar, List, ListItem } from "@mui/material";
 import * as styles from "../Content.styles";
 import { getBackendHealth, getCurrentHost, getRPMLocation } from "../../../services/infoService";
 import { useEffect, useState } from "react";
-import { AuthenticatedTemplate, UnauthenticatedTemplate } from "@azure/msal-react";
+import { AuthenticatedTemplate } from "@azure/msal-react";
 
 export function Home() {
   const GITHUB_URL = "https://github.com/paulscherrerinstitute/rpmpackages_ui";
@@ -54,9 +54,6 @@ export function Home() {
           </Box>
         </Box>
       </AuthenticatedTemplate>
-      <UnauthenticatedTemplate>
-        Not logged in
-      </UnauthenticatedTemplate>
     </Box >
   );
 }

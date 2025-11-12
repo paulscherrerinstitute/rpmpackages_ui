@@ -15,7 +15,7 @@ import {
   Tooltip
 } from "@mui/material"
 import MenuIcon from "@mui/icons-material/Menu";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { NAV_ITEMS, TITLE } from "../helpers/NavbarHelper";
 import { useNavigate } from "react-router-dom";
 import * as styles from "./Topbar.styles";

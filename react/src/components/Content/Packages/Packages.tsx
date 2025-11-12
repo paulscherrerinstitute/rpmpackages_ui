@@ -5,7 +5,7 @@ import { useParams } from "react-router-dom";
 import { ErrorBar } from "../Details/ErrorBar";
 import { useEffect, useState } from "react";
 import { getBackendHealth } from "../../../services/infoService";
-import { AuthenticatedTemplate, UnauthenticatedTemplate } from "@azure/msal-react";
+import { AuthenticatedTemplate } from "@azure/msal-react";
 
 export function Packages() {
   const { path } = useParams();
@@ -29,9 +29,6 @@ export function Packages() {
         {displayPackagesForRepo && <PackagesInRepository />}
         {!displayPackagesForRepo && <AllPackages />}
       </AuthenticatedTemplate>
-      <UnauthenticatedTemplate>
-        Not logged in
-      </UnauthenticatedTemplate>
     </Box>
   );
 }

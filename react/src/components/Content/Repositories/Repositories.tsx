@@ -22,7 +22,7 @@ import {
 } from "./RepositoryActionsPopup/RepositoryActionsPopup";
 import { getBackendHealth } from "../../../services/infoService";
 import { ErrorBar } from "../Details/ErrorBar";
-import { AuthenticatedTemplate, UnauthenticatedTemplate } from "@azure/msal-react";
+import { AuthenticatedTemplate } from "@azure/msal-react";
 
 export function Repositories() {
   const [availableRepos, setAvailableRepos] = useState<string[]>([]);
@@ -137,9 +137,6 @@ export function Repositories() {
           <LoadingSpinner isLoading={isDataLoading} />
         </Box>
       </AuthenticatedTemplate>
-      <UnauthenticatedTemplate>
-        Not logged in
-      </UnauthenticatedTemplate>
     </Box>
   );
 }

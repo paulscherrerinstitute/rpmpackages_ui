@@ -132,8 +132,7 @@ function LoginLogoutComponent() {
 
   const handleLoginRedirect = () => {
     instance.loginRedirect({
-      ...loginRequest,
-      redirectUri: '/',
+      ...loginRequest
     }).catch((error) => console.log(error));
   }
 

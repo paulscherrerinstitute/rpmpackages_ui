@@ -2,7 +2,7 @@ import { LogLevel } from "@azure/msal-browser";
 import type { EnvWindow } from "../services.types";
 
 const ENV = (window as EnvWindow)._env_;
-const SCOPES = ENV?.RPM_PACKAGES_AUTH_SCOPES.split(";");
+const SCOPES = ENV?.RPM_PACKAGES_AUTH_SCOPES.split(";") ?? [];
 
 export const msalConfig = {
   auth: {

@@ -1,5 +1,6 @@
-import { type EnvWindow } from "./dataService/dataService.types"
+import { type EnvWindow } from "./services.types"
 import { msalInstance } from "./auth/AuthProvider";
+import { loginRequest } from "./auth/auth-config";
 
 const TOKEN: string = msalInstance.getActiveAccount()?.idToken ?? "";
 // const ACCESSTOKEN = account?.idToken;
@@ -13,13 +14,13 @@ const API = ENV?.RPM_PACKAGES_PUBLIC_BACKEND_URL;
 
 export async function getCurrentHost(): Promise<string> {
     try {
-
         const host = await fetch(`${API}/host`, { headers: DEFAULT_HEADERS }).then((res) => {
             const data = res.json();
             return data;
         })
         return host;
-    } catch {
+    } catch (error) {
+        checkForceLogin(error);
         return "";
     }
 }
@@ -32,7 +33,8 @@ export async function getRPMLocation(): Promise<string> {
             return data;
         })
         return location;
-    } catch {
+    } catch (error) {
+        checkForceLogin(error);
         return "";
     }
 }
@@ -53,12 +55,21 @@ export async function getBackendHealth(): Promise<string> {
         }
         return "";
 
-    } catch {
+    } catch (error) {
+        checkForceLogin(error);
         console.info(
             "[" + new Date().toISOString() + "]",
             "BACKEND:",
             "Dead and definitely not well"
         );
         return "Does not feel so good";
+    }
+}
+
+function checkForceLogin(error: any) {
+    if (error?.status == 401) {
+        msalInstance.loginRedirect({
+            ...loginRequest
+        })
     }
 }

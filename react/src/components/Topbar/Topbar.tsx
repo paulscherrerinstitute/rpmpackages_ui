@@ -19,7 +19,7 @@ import { useState } from "react";
 import { NAV_ITEMS, TITLE } from "../helpers/NavbarHelper";
 import { useNavigate } from "react-router-dom";
 import * as styles from "./Topbar.styles";
-import { loginRequest } from "../../auth/auth-config";
+import { loginRequest } from "../../services/auth/auth-config";
 import { AuthenticatedTemplate, UnauthenticatedTemplate } from "@azure/msal-react";
 import { useMsal } from "@azure/msal-react";
 

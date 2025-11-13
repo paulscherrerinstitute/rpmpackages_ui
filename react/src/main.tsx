@@ -3,9 +3,9 @@ import Topbar from "./components/Topbar/Topbar";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import "./index.css";
 import { NAV_ITEMS } from "./components/helpers/NavbarHelper";
-import { AuthProvider, msalInstance } from "./auth/AuthProvider";
+import { AuthProvider, msalInstance } from "./services/auth/AuthProvider";
 import { Box } from "@mui/material";
-import { loginRequest } from "./auth/auth-config";
+import { loginRequest } from "./services/auth/auth-config";
 
 createRoot(document.getElementById("root")!).render(
   <AuthProvider>

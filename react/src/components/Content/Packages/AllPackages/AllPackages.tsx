@@ -22,8 +22,8 @@ import {
   removePackageFromRepository,
   renameFileInFolder,
   updatePackageInRepository,
-} from "../../../../services/dataService";
-import { type EnvWindow } from "../../../../services/dataService.types";
+} from "../../../../services/dataService/dataService";
+import { type EnvWindow } from "../../../../services/services.types";
 import {
   getArchitecture,
   getDistribution,

@@ -1,5 +1,5 @@
-import { type EnvWindow } from "./dataService.types"
-import { msalInstance } from "../auth/AuthProvider";
+import { type EnvWindow } from "./dataService/dataService.types"
+import { msalInstance } from "./auth/AuthProvider";
 
 const TOKEN: string = msalInstance.getActiveAccount()?.idToken ?? "";
 // const ACCESSTOKEN = account?.idToken;

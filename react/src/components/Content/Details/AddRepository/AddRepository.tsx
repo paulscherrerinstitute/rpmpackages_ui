@@ -14,8 +14,8 @@ import {
   getAllRepositories,
   addPackageToRepository,
   addSubtitlteToRepository,
-} from "../../../../services/dataService";
-import { type CreateDirectoryResponse } from "../../../../services/dataService.types";
+} from "../../../../services/dataService/dataService";
+import { type CreateDirectoryResponse } from "../../../../services/dataService/dataService.types";
 import * as ar_styles from "./AddRepository.styles";
 import * as styles from "../../Content.styles";
 import { useEffect, useState } from "react";

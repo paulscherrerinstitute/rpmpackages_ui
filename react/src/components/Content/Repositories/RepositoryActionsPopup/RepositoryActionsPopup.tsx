@@ -18,7 +18,7 @@ import {
   addRepositoryAndFolder,
   getAllRepositories,
   removeRepositoryAndFolder,
-} from "../../../../services/dataService";
+} from "../../../../services/dataService/dataService";
 import ClearIcon from "@mui/icons-material/Clear";
 
 export function RepositoryActionPopup({

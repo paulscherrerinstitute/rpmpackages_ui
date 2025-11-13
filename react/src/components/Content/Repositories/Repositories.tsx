@@ -10,7 +10,7 @@ import {
   Button,
 } from "@mui/material";
 import { useEffect, useState } from "react";
-import { getAllRepositories } from "../../../services/dataService";
+import { getAllRepositories } from "../../../services/dataService/dataService";
 import * as styles from "../Content.styles";
 import { useNavigate } from "react-router-dom";
 import * as r_styles from "./Repositories.styles";

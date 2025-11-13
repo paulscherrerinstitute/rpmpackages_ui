@@ -20,13 +20,13 @@ import {
   addPackageToRepository,
   removePackageFromRepository,
   uploadFileToFolder,
-} from "../../../services/dataService";
+} from "../../../services/dataService/dataService";
 import { getBackendHealth } from "../../../services/infoService";
 import {
   type OrphanedFile,
   type OrphanedPackage,
-} from "../../../services/dataService.types";
-import { type EnvWindow } from "../../../services/dataService.types";
+} from "../../../services/dataService/dataService.types";
+import { type EnvWindow } from "../../../services/dataService/dataService.types";
 import { useNavigate } from "react-router-dom";
 import ClearIcon from "@mui/icons-material/Clear";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";

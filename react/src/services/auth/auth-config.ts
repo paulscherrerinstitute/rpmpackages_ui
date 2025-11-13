@@ -1,11 +1,15 @@
-import { LogLevel } from '@azure/msal-browser';
+import { LogLevel } from "@azure/msal-browser";
+import type { EnvWindow } from "../services.types";
+
+const ENV = (window as EnvWindow)._env_;
+const SCOPES = ENV?.RPM_PACKAGES_AUTH_SCOPES.split(";");
 
 export const msalConfig = {
-    auth: {
-        clientId: '',
-        authority: '', 
-        redirectUri: '',
-    },
+  auth: {
+    clientId: ENV?.RPM_PACKAGES_AUTH_CLIENT_ID,
+    authority: ENV?.RPM_PACKAGES_AUTH_AUTHORITY,
+    redirectUri: "/",
+  },
   cache: {
     cacheLocation: "sessionStorage",
     storeAuthStateInCookie: false,
@@ -38,5 +42,5 @@ export const msalConfig = {
 };
 
 export const loginRequest = {
-  scopes: [],
+  scopes: SCOPES,
 };

@@ -5,8 +5,8 @@ import {
   type CreateDirectoryResponse,
   type RemovePackageResponse,
   type RepositoryResponse,
-  type EnvWindow,
 } from "./dataService.types";
+import { type EnvWindow } from "../services.types";
 import { msalInstance } from "../auth/AuthProvider"
 
 const env = (window as EnvWindow)._env_;

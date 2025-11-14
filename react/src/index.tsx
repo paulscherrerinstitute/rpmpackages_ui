@@ -42,7 +42,6 @@ export function Content() {
 
 export function redoAuthentication({ setIsAuthenticated, msalInstance }: { setIsAuthenticated: (value: boolean) => void, msalInstance: PublicClientApplication }) {
     const activeAccount = msalInstance.getActiveAccount();
-    console.log(activeAccount)
 
     if (activeAccount) {
         msalInstance.acquireTokenSilent({

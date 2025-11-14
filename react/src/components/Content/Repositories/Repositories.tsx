@@ -28,6 +28,7 @@ export function Repositories() {
   const [availableRepos, setAvailableRepos] = useState<string[]>([]);
   const navigate = useNavigate();
   const [backendIsHealthy, setBackendIsHealthy] = useState<boolean>(true);
+  const [healthResponse, setHealthResponse] = useState<string>("");
 
   useEffect(() => {
     async function fetchData() {
@@ -36,6 +37,7 @@ export function Repositories() {
       setIsDataLoading(false);
     }
     getBackendHealth().then((val) => {
+      setHealthResponse(val);
       if (val == "Alive and Well!") {
         fetchData();
         setBackendIsHealthy(true);
@@ -77,7 +79,7 @@ export function Repositories() {
       <AuthenticatedTemplate>
 
         <Box sx={r_styles.body}>
-          <ErrorBar open={!backendIsHealthy} />
+          <ErrorBar open={!backendIsHealthy} response={healthResponse} />
           <Box sx={r_styles.titleWrapper}>
             <Typography variant="h5">Available Repositories</Typography>
             <Box sx={r_styles.buttonWrapper}>

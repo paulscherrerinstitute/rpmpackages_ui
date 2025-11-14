@@ -55,12 +55,14 @@ export function Orphans() {
   };
 
   const [isBackendHealthy, setIsBackendHealthy] = useState<boolean>(true);
+  const [healthResponse, setHealthResponse] = useState<string>("");
   const [isDataLoading, setIsDataLoading] = useState<boolean>(true);
 
   const navigate = useNavigate();
 
   const fetchData = async () => {
     getBackendHealth().then(async (val) => {
+      setHealthResponse(val);
       if (val == "Alive and Well!") {
         const o_f = await getOrphanedFiles();
         setFileOrphans(o_f);
@@ -123,7 +125,7 @@ export function Orphans() {
 
   return (
     <Box component="main" sx={styles.main}>
-      <ErrorBar open={!isBackendHealthy} />
+      <ErrorBar open={!isBackendHealthy} response={healthResponse} />
       <Box sx={o_styles.wrapper}>
         <AuthenticatedTemplate>
           <Box>

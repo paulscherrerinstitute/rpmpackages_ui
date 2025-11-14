@@ -11,9 +11,11 @@ export function Packages() {
   const { path } = useParams();
   const displayPackagesForRepo: boolean = path !== undefined;
   const [isBackendHealthy, setIsBackendHealthy] = useState<boolean>(true);
+  const [healthResponse, setHealthResponse] = useState<string>("");
 
   useEffect(() => {
     getBackendHealth().then((val) => {
+      setHealthResponse(val);
       if (val == "Alive and Well!") {
         setIsBackendHealthy(true);
       } else {
@@ -24,7 +26,7 @@ export function Packages() {
 
   return (
     <Box component="main">
-      <ErrorBar open={!isBackendHealthy} />
+      <ErrorBar open={!isBackendHealthy} response={healthResponse} />
       <AuthenticatedTemplate>
         {displayPackagesForRepo && <PackagesInRepository />}
         {!displayPackagesForRepo && <AllPackages />}

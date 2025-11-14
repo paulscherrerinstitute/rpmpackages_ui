@@ -133,7 +133,7 @@ function LoginLogoutComponent() {
   const handleLoginRedirect = () => {
     msalInstance.loginRedirect({
       ...loginRequest
-    }).catch((error) => console.log(error));
+    }).catch((error) => console.error(error));
   }
 
   const handleLogOutRedirect = () => {

@@ -29,22 +29,27 @@ export async function getRPMLocation(): Promise<string> {
 }
 
 export async function getBackendHealth(): Promise<string> {
-    const health = await fetch(`${API}/health`, { headers: DEFAULT_HEADERS }).then(async (res) => {
-        const data = res.json();
-        return data;
-    });
+    try {
 
-    if (health?.message) {
-        console.info(
-            "[" + new Date().toISOString() + "]",
-            "BACKEND: ",
-            health.message
-        );
-        return health.message;
-    } else if (health?.detail.error == "invalid_token") {
-        msalInstance.loginRedirect({
-            ...loginRequest
-        })
-        return "Unauthenticated"
-    } else return "";
+        const health = await fetch(`${API}/health`, { headers: DEFAULT_HEADERS }).then(async (res) => {
+            const data = res.json();
+            return data;
+        });
+
+        if (health?.message) {
+            console.info(
+                "[" + new Date().toISOString() + "]",
+                "BACKEND: ",
+                health.message
+            );
+            return health.message;
+        } else if (health?.detail.error == "invalid_token") {
+            await msalInstance.loginRedirect({
+                ...loginRequest
+            })
+            return "Unauthenticated"
+        } else return "";
+    } catch (error: any) {
+        return "error";
+    }
 }

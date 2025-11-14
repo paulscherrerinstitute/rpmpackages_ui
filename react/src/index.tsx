@@ -2,10 +2,9 @@ import Topbar from "./components/Topbar/Topbar";
 import { NAV_ITEMS } from "./components/helpers/NavbarHelper";
 import { Routes, Route } from "react-router-dom";
 import { Box } from "@mui/material";
-import { msalInstance } from "./services/auth/AuthProvider";
-import { loginRequest } from "./services/auth/auth-config";
+import { msalInstance } from "./services/auth/authservice";
 import { useEffect, useState } from "react";
-import type { PublicClientApplication } from "@azure/msal-browser";
+import { redoAuthentication } from "./services/auth/authservice";
 
 export function Content() {
 
@@ -37,29 +36,5 @@ export function Content() {
     function authenticate() {
         msalInstance.initialize();
         redoAuthentication({ setIsAuthenticated, msalInstance });
-    }
-}
-
-export function redoAuthentication({ setIsAuthenticated, msalInstance }: { setIsAuthenticated: (value: boolean) => void, msalInstance: PublicClientApplication }) {
-    const activeAccount = msalInstance.getActiveAccount();
-
-    if (activeAccount) {
-        msalInstance.acquireTokenSilent({
-            ...loginRequest,
-            account: activeAccount,
-        })
-        setIsAuthenticated(true);
-        return true;
-    } else {
-        setIsAuthenticated(false);
-        return false;
-    }
-}
-
-export function isUserAuthenticated(msalInstance: PublicClientApplication) {
-    if (msalInstance.getActiveAccount()) {
-        return true;
-    } else {
-        return false;
     }
 }

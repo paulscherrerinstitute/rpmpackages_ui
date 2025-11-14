@@ -1,5 +1,5 @@
 import { type EnvWindow } from "./services.types"
-import { msalInstance } from "./auth/AuthProvider";
+import { msalInstance } from "./auth/authservice";
 import { loginRequest } from "./auth/auth-config";
 
 const TOKEN: string = msalInstance.getActiveAccount()?.idToken ?? "";
@@ -49,7 +49,7 @@ export async function getBackendHealth(): Promise<string> {
             })
             return "Unauthenticated"
         } else return "";
-    } catch (error: any) {
-        return "error";
+    } catch (error) {
+        return String(error);
     }
 }

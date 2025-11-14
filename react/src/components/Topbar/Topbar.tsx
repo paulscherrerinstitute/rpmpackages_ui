@@ -20,8 +20,8 @@ import { NAV_ITEMS, TITLE } from "../helpers/NavbarHelper";
 import { useNavigate } from "react-router-dom";
 import * as styles from "./Topbar.styles";
 import { loginRequest } from "../../services/auth/auth-config";
-import { msalInstance } from "../../services/auth/AuthProvider";
-import { isUserAuthenticated } from "../..";
+import { msalInstance } from "../../services/auth/authservice";
+import { isUserAuthenticated } from "../../services/auth/authservice";
 
 interface Props {
   /**

@@ -1,13 +1,12 @@
-import { type AuthenticationResult, EventType, PublicClientApplication } from "@azure/msal-browser";
+import { type AuthenticationResult, EventType } from "@azure/msal-browser";
 import { MsalProvider } from "@azure/msal-react";
 import { type ReactNode } from "react";
-import { msalConfig } from "./auth-config";
+import { msalInstance } from "./authservice";
 
 interface AuthProviderProps {
     children: ReactNode;
 }
 
-export const msalInstance = new PublicClientApplication(msalConfig);
 export const AuthProvider = ({ children }: AuthProviderProps) => {
 
     if (!msalInstance.getActiveAccount() && msalInstance.getAllAccounts().length > 0) {
@@ -17,7 +16,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     msalInstance.enableAccountStorageEvents();
 
     msalInstance.addEventCallback((event) => {
-        var authenticationResult = event?.payload as AuthenticationResult;
+        const authenticationResult = event?.payload as AuthenticationResult;
         if (event.eventType === EventType.LOGIN_SUCCESS && authenticationResult?.account) {
             const account = authenticationResult?.account;
             msalInstance.setActiveAccount(account);
@@ -28,6 +27,3 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     return <MsalProvider instance={msalInstance}>{children}</MsalProvider>;
 };
 
-export function useAuthProvider() {
-    return { AuthProvider };
-}

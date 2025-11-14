@@ -7,7 +7,7 @@ import {
   type RepositoryResponse,
 } from "./dataService.types";
 import { type EnvWindow } from "../services.types";
-import { msalInstance } from "../auth/AuthProvider"
+import { msalInstance } from "../auth/authservice";
 
 const env = (window as EnvWindow)._env_;
 // const API = "http://localhost:8000" + "/data";

@@ -1,6 +1,9 @@
 import { type SxProps, type Theme } from "@mui/material";
 
-export const topBarButton = (item: any, path: any): SxProps<Theme> => ({
+export const topBarButton = (
+  item: { path: string },
+  path: string
+): SxProps<Theme> => ({
   color: item.path == path ? "rgb(0, 0, 80)" : "white",
   "&:focus": {
     outline: 0,

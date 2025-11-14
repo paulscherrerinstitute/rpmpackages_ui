@@ -15,13 +15,13 @@ import {
   Tooltip
 } from "@mui/material"
 import MenuIcon from "@mui/icons-material/Menu";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { NAV_ITEMS, TITLE } from "../helpers/NavbarHelper";
 import { useNavigate } from "react-router-dom";
 import * as styles from "./Topbar.styles";
 import { loginRequest } from "../../services/auth/auth-config";
-import { AuthenticatedTemplate, UnauthenticatedTemplate } from "@azure/msal-react";
-import { useMsal } from "@azure/msal-react";
+import { msalInstance } from "../../services/auth/AuthProvider";
+import { isUserAuthenticated } from "../..";
 
 interface Props {
   /**
@@ -127,32 +127,41 @@ export default function Topbar(props: Props) {
 }
 
 function LoginLogoutComponent() {
-  const { instance } = useMsal();
-  const activeAccount = instance.getAllAccounts()[0];
+  const activeAccount = msalInstance.getActiveAccount();
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
 
   const handleLoginRedirect = () => {
-    instance.loginRedirect({
+    msalInstance.loginRedirect({
       ...loginRequest
     }).catch((error) => console.log(error));
   }
 
   const handleLogOutRedirect = () => {
-    instance.logoutRedirect({
+    msalInstance.logoutRedirect({
       postLogoutRedirectUri: '/'
     });
     window.location.reload();
   }
 
+  const authenticate = () => {
+    msalInstance.initialize();
+    const auth = isUserAuthenticated(msalInstance);
+    setIsAuthenticated(auth)
+  }
+
+  useEffect(() => {
+    authenticate();
+  }, [])
+
   return (
     <>
-      <AuthenticatedTemplate>
+      {isAuthenticated ?
         <Tooltip title={"Logged in as " + activeAccount?.name}>
           <Button sx={styles.logoutButton} onClick={handleLogOutRedirect}>Logout</Button>
         </Tooltip>
-      </AuthenticatedTemplate>
-      <UnauthenticatedTemplate>
+        :
         <Button sx={styles.loginButton} onClick={handleLoginRedirect}>Login</Button>
-      </UnauthenticatedTemplate>
+      }
     </>
   )
 }

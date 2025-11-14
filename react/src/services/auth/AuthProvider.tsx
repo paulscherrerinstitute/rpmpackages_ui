@@ -1,7 +1,7 @@
 import { type AuthenticationResult, EventType, PublicClientApplication } from "@azure/msal-browser";
-import { msalConfig } from "./auth-config";
 import { MsalProvider } from "@azure/msal-react";
 import { type ReactNode } from "react";
+import { msalConfig } from "./auth-config";
 
 interface AuthProviderProps {
     children: ReactNode;

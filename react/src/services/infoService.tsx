@@ -13,63 +13,38 @@ const ENV = (window as EnvWindow)._env_;
 const API = ENV?.RPM_PACKAGES_PUBLIC_BACKEND_URL;
 
 export async function getCurrentHost(): Promise<string> {
-    try {
-        const host = await fetch(`${API}/host`, { headers: DEFAULT_HEADERS }).then((res) => {
-            const data = res.json();
-            return data;
-        })
-        return host;
-    } catch (error) {
-        checkForceLogin(error);
-        return "";
-    }
+    const host = await fetch(`${API}/host`, { headers: DEFAULT_HEADERS }).then((res) => {
+        const data = res.json();
+        return data;
+    })
+    return host;
 }
 
 export async function getRPMLocation(): Promise<string> {
-    try {
-
-        const location = await fetch(`${API}/location`, { headers: DEFAULT_HEADERS }).then((res) => {
-            const data = res.json();
-            return data;
-        })
-        return location;
-    } catch (error) {
-        checkForceLogin(error);
-        return "";
-    }
+    const location = await fetch(`${API}/location`, { headers: DEFAULT_HEADERS }).then((res) => {
+        const data = res.json();
+        return data;
+    })
+    return location;
 }
 
 export async function getBackendHealth(): Promise<string> {
-    try {
-        const health = await fetch(`${API}/health`, { headers: DEFAULT_HEADERS }).then(async (res) => {
-            const data = res.json();
-            return data;
-        });
-        if (health) {
-            console.info(
-                "[" + new Date().toISOString() + "]",
-                "BACKEND: ",
-                health.message
-            );
-            return health.message;
-        }
-        return "";
+    const health = await fetch(`${API}/health`, { headers: DEFAULT_HEADERS }).then(async (res) => {
+        const data = res.json();
+        return data;
+    });
 
-    } catch (error) {
-        checkForceLogin(error);
+    if (health?.message) {
         console.info(
             "[" + new Date().toISOString() + "]",
-            "BACKEND:",
-            "Dead and definitely not well"
+            "BACKEND: ",
+            health.message
         );
-        return "Does not feel so good";
-    }
-}
-
-function checkForceLogin(error: any) {
-    if (error?.status == 401) {
+        return health.message;
+    } else if (health?.detail.error == "invalid_token") {
         msalInstance.loginRedirect({
             ...loginRequest
         })
-    }
+        return "Unauthenticated"
+    } else return "";
 }

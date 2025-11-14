@@ -26,7 +26,7 @@ import {
   type OrphanedFile,
   type OrphanedPackage,
 } from "../../../services/dataService/dataService.types";
-import { type EnvWindow } from "../../../services/dataService/dataService.types";
+import { type EnvWindow } from "../../../services/services.types";
 import { useNavigate } from "react-router-dom";
 import ClearIcon from "@mui/icons-material/Clear";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";

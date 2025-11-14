@@ -6,8 +6,8 @@ const SCOPES = ENV?.RPM_PACKAGES_AUTH_SCOPES.split(";") ?? [];
 
 export const msalConfig = {
   auth: {
-    clientId: ENV?.RPM_PACKAGES_AUTH_CLIENT_ID,
-    authority: ENV?.RPM_PACKAGES_AUTH_AUTHORITY,
+    clientId: ENV?.RPM_PACKAGES_AUTH_CLIENT_ID ?? "",
+    authority: ENV?.RPM_PACKAGES_AUTH_AUTHORITY ?? "",
     redirectUri: "/",
   },
   cache: {

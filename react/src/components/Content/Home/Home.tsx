@@ -14,11 +14,14 @@ export function Home() {
   })
 
   const fetchData = async () => {
-    setSettings({
-      host: await getCurrentHost(),
-      location: await getRPMLocation(),
-      health: await getBackendHealth(),
-    })
+    const health = await getBackendHealth();
+    if (health == "Alive and Well!") {
+      setSettings({
+        host: await getCurrentHost(),
+        location: await getRPMLocation(),
+        health: await getBackendHealth(),
+      })
+    }
   }
 
   useEffect(() => {

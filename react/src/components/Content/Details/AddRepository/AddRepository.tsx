@@ -20,6 +20,7 @@ import * as ar_styles from "./AddRepository.styles";
 import * as styles from "../../Content.styles";
 import { useEffect, useState } from "react";
 import ClearIcon from "@mui/icons-material/Clear";
+import { getBackendHealth } from "../../../../services/infoService";
 
 export function AddRepositoryPopup({
   open,
@@ -32,8 +33,12 @@ export function AddRepositoryPopup({
   const [isDisabled, setIsDisabled] = useState<boolean>(false);
 
   const fetchRepos = async () => {
-    const res = await getAllRepositories();
-    setAvailableRepos(res);
+    getBackendHealth().then(async (val) => {
+      if (val == "Alive and Well!"){
+        const res = await getAllRepositories();
+        setAvailableRepos(res);
+      }
+    })
   };
 
   const handleChange = (event: SelectChangeEvent) => {

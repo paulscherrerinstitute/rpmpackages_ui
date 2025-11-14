@@ -143,9 +143,9 @@ function LoginLogoutComponent() {
     window.location.reload();
   }
 
-  const authenticate = () => {
+  const authenticate = async () => {
     msalInstance.initialize();
-    const auth = isUserAuthenticated(msalInstance);
+    const auth = await isUserAuthenticated(msalInstance);
     setIsAuthenticated(auth)
   }
 

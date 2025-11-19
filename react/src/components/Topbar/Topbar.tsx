@@ -15,13 +15,13 @@ import {
   Tooltip
 } from "@mui/material"
 import MenuIcon from "@mui/icons-material/Menu";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { NAV_ITEMS, TITLE } from "../helpers/NavbarHelper";
 import { useNavigate } from "react-router-dom";
 import * as styles from "./Topbar.styles";
 import { loginRequest } from "../../services/auth/auth-config";
-import { msalInstance } from "../../services/auth/authservice";
-import { isUserAuthenticated } from "../../services/auth/authservice";
+import { msalInstance } from "../../services/auth/AuthProvider";
+import { AuthenticatedTemplate, UnauthenticatedTemplate } from "@azure/msal-react";
 
 interface Props {
   /**
@@ -128,7 +128,6 @@ export default function Topbar(props: Props) {
 
 function LoginLogoutComponent() {
   const activeAccount = msalInstance.getActiveAccount();
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
 
   const handleLoginRedirect = () => {
     msalInstance.loginRedirect({
@@ -142,26 +141,17 @@ function LoginLogoutComponent() {
     });
     window.location.reload();
   }
-
-  const authenticate = async () => {
-    msalInstance.initialize();
-    const auth = await isUserAuthenticated(msalInstance);
-    setIsAuthenticated(auth)
-  }
-
-  useEffect(() => {
-    authenticate();
-  }, [])
-
   return (
     <>
-      {isAuthenticated ?
+      <AuthenticatedTemplate>
         <Tooltip title={"Logged in as " + activeAccount?.name}>
           <Button sx={styles.logoutButton} onClick={handleLogOutRedirect}>Logout</Button>
         </Tooltip>
-        :
+      </AuthenticatedTemplate>
+      <UnauthenticatedTemplate>
         <Button sx={styles.loginButton} onClick={handleLoginRedirect}>Login</Button>
-      }
+      </UnauthenticatedTemplate>
+
     </>
   )
 }

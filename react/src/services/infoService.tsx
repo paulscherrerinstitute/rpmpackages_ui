@@ -1,5 +1,5 @@
 import { type EnvWindow } from "./services.types"
-import { msalInstance } from "./auth/authservice";
+import { msalInstance } from "./auth/AuthProvider";
 import { loginRequest } from "./auth/auth-config";
 
 const TOKEN: string = msalInstance.getActiveAccount()?.idToken ?? "";
@@ -35,7 +35,6 @@ export async function getBackendHealth(): Promise<string> {
             const data = res.json();
             return data;
         });
-
         if (health?.message) {
             console.info(
                 "[" + new Date().toISOString() + "]",
@@ -44,12 +43,26 @@ export async function getBackendHealth(): Promise<string> {
             );
             return health.message;
         } else if (health?.detail.error == "invalid_token") {
-            await msalInstance.loginRedirect({
-                ...loginRequest
-            })
+            await handleLoginRequired();
             return "Unauthenticated"
         } else return "";
     } catch (error) {
         return String(error);
     }
 }
+
+async function handleLoginRequired() {
+    const activeAccount = msalInstance.getActiveAccount();
+
+    if (activeAccount) {
+        await msalInstance.acquireTokenSilent({
+            ...loginRequest,
+            account: activeAccount
+        })
+    } else {
+        await msalInstance.loginRedirect({
+            ...loginRequest
+        })
+    }
+    window.location.reload();
+} 

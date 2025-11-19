@@ -1,9 +1,11 @@
+/*
 import { loginRequest } from "./auth-config";
 import { PublicClientApplication } from "@azure/msal-browser";
 import { msalConfig } from "./auth-config";
 import { AuthProvider } from "./AuthProvider";
 
-export function redoAuthentication({ setIsAuthenticated, msalInstance }: { setIsAuthenticated?: (value: boolean) => void, msalInstance: PublicClientApplication }) {
+export async function redoAuthentication({ setIsAuthenticated, msalInstance }: { setIsAuthenticated?: (value: boolean) => void, msalInstance: PublicClientApplication }) {
+    await msalInstance.initialize();
     const activeAccount = msalInstance.getActiveAccount();
 
     if (activeAccount) {
@@ -20,6 +22,7 @@ export function redoAuthentication({ setIsAuthenticated, msalInstance }: { setIs
 }
 
 export async function isUserAuthenticated(msalInstance: PublicClientApplication) {
+    await msalInstance.initialize();
     if (msalInstance.getActiveAccount()) {
         return true;
     } else {
@@ -28,8 +31,4 @@ export async function isUserAuthenticated(msalInstance: PublicClientApplication)
         return false;
     }
 }
-
-export const msalInstance = new PublicClientApplication(msalConfig);
-export function useAuthProvider() {
-    return { AuthProvider };
-}
+    */

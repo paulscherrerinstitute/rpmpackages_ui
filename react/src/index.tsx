@@ -2,21 +2,14 @@ import Topbar from "./components/Topbar/Topbar";
 import { NAV_ITEMS } from "./components/helpers/NavbarHelper";
 import { Routes, Route } from "react-router-dom";
 import { Box } from "@mui/material";
-import { msalInstance } from "./services/auth/authservice";
-import { useEffect, useState } from "react";
-import { redoAuthentication } from "./services/auth/authservice";
+import { AuthenticatedTemplate, UnauthenticatedTemplate } from "@azure/msal-react";
 
 export function Content() {
 
-    const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-
-    useEffect(() => {
-        authenticate();
-    }, [])
-
     return (<>
         <Topbar />
-        {isAuthenticated ? (
+        <AuthenticatedTemplate>
+
             <Routes>
                 {NAV_ITEMS.map((item) => (
                     <Route
@@ -28,13 +21,11 @@ export function Content() {
                 {NAV_ITEMS.map((item) => (
                     <Route key={item.key} path={item.path} element={<item.component />} />
                 ))}
-            </Routes>) : (
-            <Box sx={{ display: "flex", justifyContent: "center", marginTop: 20 }}>To view any content, please log in.</Box>)
-        }
-    </>)
+            </Routes>
+        </AuthenticatedTemplate>
+        <UnauthenticatedTemplate>
+            <Box sx={{ display: "flex", justifyContent: "center", marginTop: 20 }}>To view any content, please log in.</Box>
+        </UnauthenticatedTemplate>
 
-    function authenticate() {
-        msalInstance.initialize();
-        redoAuthentication({ setIsAuthenticated, msalInstance });
-    }
+    </>)
 }

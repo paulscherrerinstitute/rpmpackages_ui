@@ -18,19 +18,13 @@ import {
   getAllUniquePackagesOverAll,
   getFileFromFolderForPackage,
   getFoldersIncludingFileForPackage,
+  getPackageInformation,
   getRepositoriesOfPackage,
   removePackageFromRepository,
   renameFileInFolder,
   updatePackageInRepository,
 } from "../../../../services/dataService";
 import { type EnvWindow } from "../../../../services/dataService.types";
-import {
-  getArchitecture,
-  getDistribution,
-  getName,
-  getVersion,
-  getVersionNote,
-} from "../../../helpers/DetailsHelper";
 import { useNavigate } from "react-router-dom";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
@@ -120,7 +114,8 @@ export default function AllPackages() {
   };
 
   const handleSave = async (form: DetailsForm) => {
-    let pk: string;
+    let pk: string = "";
+    /*
     if (form.versionNote !== "") {
       pk = `${form.name}-${form.version}-${form.versionNote}.${form.distribution}.${form.architecture}.rpm`;
     } else {
@@ -134,6 +129,9 @@ export default function AllPackages() {
         rep.replace(PERMITTED_FILE_ENDING, "")
       );
     });
+    */
+
+    alert("ALLPACKAGES_SAVE REQUIRES ATTENTION");
     await fetchData();
     await fetchRepositoryInclusionData(pk);
   };
@@ -322,6 +320,28 @@ function AllPackagesDetailsDialog(
       fileInputElement: React.ReactElement,
     }
 ) {
+  const [formData, setFormData] = useState<DetailsForm>({
+    name: "",
+    version: "",
+    release: "",
+    summary: "",
+    description: "",
+    packager: "",
+    arch: "",
+    os: ""
+  })
+
+  useEffect(() => {
+    if (pkge && pkge) {
+      f().then((val) => {
+        setFormData(val);
+      })
+    }
+  }, [pkge, open])
+
+  async function f() {
+    return await getPackageInformation(inclusionsInDirectories[0], pkge)
+  }
   const navigate = useNavigate();
 
   return (<Dialog open={open} onClose={handleClose} fullWidth maxWidth="md">
@@ -345,21 +365,25 @@ function AllPackagesDetailsDialog(
     <Box>
       <Table>
         <TableHead>
-          <TableRow>
-            <TableCell>Package Name</TableCell>
+          <TableRow sx={{ "& > th": { fontWeight: "bold" } }}>
+            <TableCell>Name</TableCell>
             <TableCell>Version</TableCell>
-            <TableCell>Version-Note</TableCell>
-            <TableCell>Distribution</TableCell>
-            <TableCell>Architecture</TableCell>
+            <TableCell>Release</TableCell>
+            <TableCell>Arch</TableCell>
+            <TableCell>Operating System</TableCell>
+            <TableCell>Packager</TableCell>
+            <TableCell>Summary</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
           <TableRow>
-            <TableCell>{getName(pkge)}</TableCell>
-            <TableCell>{getVersion(pkge)}</TableCell>
-            <TableCell>{getVersionNote(pkge)}</TableCell>
-            <TableCell>{getDistribution(pkge)}</TableCell>
-            <TableCell>{getArchitecture(pkge)}</TableCell>
+            <TableCell> {formData.name} </TableCell>
+            <TableCell> {formData.version} </TableCell>
+            <TableCell> {formData.release} </TableCell>
+            <TableCell> {formData.arch} </TableCell>
+            <TableCell> {formData.os} </TableCell>
+            <TableCell> {formData.packager} </TableCell>
+            <TableCell> {formData.summary} </TableCell>
           </TableRow>
         </TableBody>
       </Table>

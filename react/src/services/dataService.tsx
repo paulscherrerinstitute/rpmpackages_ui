@@ -264,6 +264,23 @@ export async function getAllPackagesFromRepository(
   return txt;
 }
 
+export async function getPackageInformation(repository: string, pkge: string): Promise<{
+  name: string,
+  version: string,
+  release: string,
+  summary: string,
+  description: string
+  packager: string,
+  arch: string,
+  os: string
+}> {
+  return await fetch(
+    `${PACKAGE_PATH}/details/${repository}/${pkge}`
+  ).then((val) => {
+    return val.json();
+  })
+}
+
 /////////////
 // Repository
 /////////////

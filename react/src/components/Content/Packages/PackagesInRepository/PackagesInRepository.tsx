@@ -118,7 +118,8 @@ export default function PackagesInRepository() {
   };
 
   const handleSave = async (form: DetailsForm) => {
-    let pk;
+    let pk: string = "";
+    /*
     if (form.versionNote !== "") {
       pk = `${form.name}-${form.version}-${form.versionNote}.${form.distribution}.${form.architecture}.rpm`;
     } else {
@@ -134,11 +135,14 @@ export default function PackagesInRepository() {
         repo_path.replace(PERMITTED_FILE_ENDING, "")
       );
     }
+      */
+    alert("PACKAGES_IN_REPOSITORY_SAVE NEEDS ATTENTION")
     await fetchData();
   };
 
   const handleAddSubmit = async (form: DetailsForm) => {
-    let pk;
+    let pk: string = "";
+    /*
     if (form.versionNote !== "") {
       pk = `${form.name}-${form.version}-${form.versionNote}.${form.distribution}.${form.architecture}.rpm`;
     } else {
@@ -146,6 +150,8 @@ export default function PackagesInRepository() {
     }
     const repo_path = `${permPath}${PERMITTED_FILE_ENDING}`;
     await addPackageToRepository(pk, repo_path, outerIdx);
+    */
+    alert("PACKAGES_IN_REPOSITORY_SUBMIT NEEDS ATTENTION")
     fetchData();
   };
 
@@ -247,6 +253,7 @@ export default function PackagesInRepository() {
             open={popupOpen}
             isAdd={isAdd}
             pkge={pkge}
+            repository={permPath}
             file={file}
             setFile={(f) => setFile(f)}
             onRemoveFile={(f) => handleRemoveFile(f)}

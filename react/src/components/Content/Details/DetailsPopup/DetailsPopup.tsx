@@ -16,21 +16,16 @@ import {
 import * as dp_styles from "./DetailsPopup.styles";
 import * as styles from "../../Content.styles";
 import { useEffect, useState } from "react";
-import {
-  getName,
-  getVersion,
-  getDistribution,
-  getArchitecture,
-  getVersionNote,
-} from "../../../helpers/DetailsHelper";
 import ClearIcon from "@mui/icons-material/Clear";
 import { FileInput } from "../FileInput/FileInput";
+import { getPackageInformation } from "../../../../services/dataService";
 
 export function DetailsPopup({
   open,
   pkge,
   isAdd,
   addProps,
+  repository,
   file,
   enableFileUpload = true,
   onClose,
@@ -42,9 +37,12 @@ export function DetailsPopup({
   const [formData, setFormData] = useState<DetailsForm>({
     name: "",
     version: "",
-    versionNote: "",
-    distribution: "",
-    architecture: "",
+    release: "",
+    summary: "",
+    description: "",
+    packager: "",
+    arch: "",
+    os: ""
   });
   const [isSaveDisabled, setIsSaveDisabled] = useState<boolean>(false);
 
@@ -53,47 +51,16 @@ export function DetailsPopup({
     const { name, value } = e.target; // fixed to e.target.name and e.target.value
     setFormData(
       (prevState) =>
-        ({
-          ...prevState,
-          [name]: value,
-        } as DetailsForm)
+      ({
+        ...prevState,
+        [name]: value,
+      } as DetailsForm)
     );
   };
 
   useEffect(() => {
-    if (formData) checkIfShouldBeDisabled();
   }, [formData]);
 
-  const checkIfShouldBeDisabled = () => {
-    if (
-      formData.name != "" &&
-      formData.version != "" &&
-      formData.distribution != "" &&
-      formData.architecture != ""
-    ) {
-      setIsSaveDisabled(false);
-    } else setIsSaveDisabled(true);
-  };
-
-  const getPName = () => {
-    return getName(pkge);
-  };
-
-  const getPVersion = () => {
-    return getVersion(pkge);
-  };
-
-  const getPVersionNote = () => {
-    return getVersionNote(pkge);
-  };
-
-  const getPDistribution = () => {
-    return getDistribution(pkge);
-  };
-
-  const getPArchitecture = () => {
-    return getArchitecture(pkge);
-  };
 
   useEffect(() => {
     if (open) {
@@ -101,32 +68,40 @@ export function DetailsPopup({
         setFormData({
           name: "",
           version: "",
-          versionNote: "",
-          distribution: "",
-          architecture: "",
+          release: "",
+          summary: "",
+          description: "",
+          packager: "",
+          arch: "",
+          os: ""
         });
         if (setFile) setFile(null);
         setIsSaveDisabled(true);
       } else {
-        setFormData({
-          name: getPName(),
-          version: getPVersion(),
-          versionNote: getPVersionNote(),
-          distribution: getPDistribution(),
-          architecture: getPArchitecture(),
-        });
+        if (pkge) {
+          f().then((val) => {
+            setFormData(val);
+          })
+        }
       }
     } else {
       // clear form when closed
       setFormData({
         name: "",
         version: "",
-        versionNote: "",
-        distribution: "",
-        architecture: "",
+        release: "",
+        summary: "",
+        description: "",
+        packager: "",
+        arch: "",
+        os: ""
       });
     }
   }, [open, isAdd, pkge]);
+
+  async function f() {
+    return (await getPackageInformation(repository ?? "", pkge))
+  }
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
@@ -142,70 +117,24 @@ export function DetailsPopup({
           <Table>
             <TableHead>
               <TableRow sx={dp_styles.tableHead}>
-                <TableCell>Package Name</TableCell>
+                <TableCell>Name</TableCell>
                 <TableCell>Version</TableCell>
-                <TableCell>Version-Note</TableCell>
-                <TableCell>Distribution</TableCell>
-                <TableCell>Architecture</TableCell>
+                <TableCell>Release</TableCell>
+                <TableCell>Arch</TableCell>
+                <TableCell>Operating System</TableCell>
+                <TableCell>Packager</TableCell>
+                <TableCell>Summary</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               <TableRow>
-                <TableCell>
-                  <TextField
-                    variant="standard"
-                    required
-                    label={getPName() === "" ? "(empty)" : getPName()}
-                    value={formData.name}
-                    name="name"
-                    onChange={handleChange}
-                  />
-                </TableCell>
-                <TableCell>
-                  <TextField
-                    variant="standard"
-                    required
-                    label={getPVersion() === "" ? "(empty)" : getPVersion()}
-                    value={formData.version}
-                    name="version"
-                    onChange={handleChange}
-                  />
-                </TableCell>
-                <TableCell>
-                  <TextField
-                    variant="standard"
-                    label={
-                      getPVersionNote() === "" ? "(empty)" : getPVersionNote()
-                    }
-                    value={formData.versionNote}
-                    name="versionNote"
-                    onChange={handleChange}
-                  />
-                </TableCell>
-                <TableCell>
-                  <TextField
-                    variant="standard"
-                    required
-                    label={
-                      getPDistribution() === "" ? "(empty)" : getPDistribution()
-                    }
-                    value={formData.distribution}
-                    name="distribution"
-                    onChange={handleChange}
-                  />
-                </TableCell>
-                <TableCell>
-                  <TextField
-                    variant="standard"
-                    label={
-                      getPArchitecture() === "" ? "(empty)" : getPArchitecture()
-                    }
-                    required
-                    value={formData.architecture}
-                    name="architecture"
-                    onChange={handleChange}
-                  />
-                </TableCell>
+                <TableCell> {formData.name} </TableCell>
+                <TableCell> {formData.version} </TableCell>
+                <TableCell> {formData.release} </TableCell>
+                <TableCell> {formData.arch} </TableCell>
+                <TableCell> {formData.os} </TableCell>
+                <TableCell> {formData.packager} </TableCell>
+                <TableCell> {formData.summary} </TableCell>
               </TableRow>
             </TableBody>
           </Table>
@@ -247,6 +176,7 @@ export type DetailsPopupProps = {
   open: boolean;
   pkge: string;
   isAdd: boolean;
+  repository?: string;
   file?: File | null;
   enableFileUpload: boolean;
   onClose: () => void;
@@ -262,9 +192,12 @@ type AddProps = {
 };
 
 export type DetailsForm = {
-  name: string;
-  version: string;
-  versionNote: string;
-  distribution: string;
-  architecture: string;
+  name: string,
+  version: string,
+  release: string,
+  summary: string,
+  description: string
+  packager: string,
+  arch: string,
+  os: string
 };

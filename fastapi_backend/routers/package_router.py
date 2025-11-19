@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import JSONResponse, PlainTextResponse
-import os
+import os, rpmfile
 from shared_resources.dataService import (
     REPO_DIR,
     read_file,
@@ -15,7 +15,13 @@ from shared_resources.dataService import (
     get_repo_directories,
     get_all_packages_with_repos,
 )
-from .routers_types import PatchMoveRequest, CreateRequest, PatchRequest, Package
+from .routers_types import (
+    PatchMoveRequest,
+    CreateRequest,
+    PatchRequest,
+    Package,
+    PackageResponse,
+)
 
 router = APIRouter()
 
@@ -142,7 +148,30 @@ async def get_data(file_name: str) -> PlainTextResponse:
         raise HTTPException(status_code=500, detail=f"Error reading file: {str(e)}")
 
 
+# Get a packages internal information
+@router.get(ROUTE_PATH + "/details/{repository}/{package}")
+async def get_internal_information(repository: str, package: str):
+    file_path = os.path.join(REPO_DIR, repository, package)
+    with rpmfile.open(file_path) as rpm:
+        hdrs = rpm.headers
+
+        return PackageResponse(
+            name=cleanHeaders(hdrs.get("name")),
+            version=cleanHeaders(hdrs.get("version")),
+            release=cleanHeaders(hdrs.get("release")),
+            summary=cleanHeaders(hdrs.get("summary")),
+            description=cleanHeaders(hdrs.get("description")),
+            packager=cleanHeaders(hdrs.get("packager")),
+            arch=cleanHeaders(hdrs.get("arch")),
+            os=cleanHeaders(hdrs.get("os")),
+        )
+
+
 # Get list of repositories where a package is included
 @router.get(ROUTE_PATH + "/{package}")
 async def pkge_inc_in_repos(package: str) -> list[str]:
     return get_specific_package(package)
+
+
+def cleanHeaders(input):
+    return (str(input)).replace("b'", "").replace("'", "")

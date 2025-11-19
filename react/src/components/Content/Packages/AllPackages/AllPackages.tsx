@@ -114,13 +114,7 @@ export default function AllPackages() {
   };
 
   const handleSave = async (form: DetailsForm) => {
-    let pk: string = "";
-    /*
-    if (form.versionNote !== "") {
-      pk = `${form.name}-${form.version}-${form.versionNote}.${form.distribution}.${form.architecture}.rpm`;
-    } else {
-      pk = `${form.name}-${form.version}.${form.distribution}.${form.architecture}.rpm`;
-    }
+    let pk: string = form.file_name ?? "";
     inclusionsInRepositories.forEach(async (rep) => {
       await updatePackageInRepository(pkge, pk, rep);
       await renameFileInFolder(
@@ -129,9 +123,7 @@ export default function AllPackages() {
         rep.replace(PERMITTED_FILE_ENDING, "")
       );
     });
-    */
 
-    alert("ALLPACKAGES_SAVE REQUIRES ATTENTION");
     await fetchData();
     await fetchRepositoryInclusionData(pk);
   };
@@ -328,11 +320,13 @@ function AllPackagesDetailsDialog(
     description: "",
     packager: "",
     arch: "",
-    os: ""
+    os: "",
+    file_name: ""
   })
+  const navigate = useNavigate();
 
   useEffect(() => {
-    if (pkge && pkge) {
+    if (open && pkge) {
       f().then((val) => {
         setFormData(val);
       })
@@ -342,11 +336,12 @@ function AllPackagesDetailsDialog(
   async function f() {
     return await getPackageInformation(inclusionsInDirectories[0], pkge)
   }
-  const navigate = useNavigate();
 
   return (<Dialog open={open} onClose={handleClose} fullWidth maxWidth="md">
     <Box sx={styles.packageTitle}>
-      <DialogTitle>{pkge}</DialogTitle>
+      <DialogTitle>
+        {pkge}
+      </DialogTitle>
       <Box sx={ap_styles.dialogIcons}>
         <Tooltip title="Add to other repository">
           <AddIcon onClick={handleAdd} />

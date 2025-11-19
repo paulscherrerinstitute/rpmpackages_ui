@@ -11,7 +11,6 @@ import {
 } from "@mui/material";
 import { useState, useEffect } from "react";
 import {
-  addPackageToRepository,
   addSubtitlteToRepository,
   getFileFromFolderForPackage,
   getAllPackagesFromRepository,
@@ -118,25 +117,17 @@ export default function PackagesInRepository() {
   };
 
   const handleSave = async (form: DetailsForm) => {
-    let pk: string = "";
-    /*
-    if (form.versionNote !== "") {
-      pk = `${form.name}-${form.version}-${form.versionNote}.${form.distribution}.${form.architecture}.rpm`;
-    } else {
-      pk = `${form.name}-${form.version}.${form.distribution}.${form.architecture}.rpm`;
-    }
+    console.log(form);
     const repo_path = `${permPath}${PERMITTED_FILE_ENDING}`;
-    await updatePackageInRepository(pkge, pk, repo_path);
+    await updatePackageInRepository(pkge, form.file_name, repo_path);
     if (file != null) {
       await uploadFileToFolder(permPath, file);
       await renameFileInFolder(
         pkge,
-        pk,
+        form.file_name,
         repo_path.replace(PERMITTED_FILE_ENDING, "")
       );
     }
-      */
-    alert("PACKAGES_IN_REPOSITORY_SAVE NEEDS ATTENTION")
     await fetchData();
   };
 

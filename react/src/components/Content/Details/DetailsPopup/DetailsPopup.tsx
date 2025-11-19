@@ -17,8 +17,10 @@ import * as dp_styles from "./DetailsPopup.styles";
 import * as styles from "../../Content.styles";
 import { useEffect, useState } from "react";
 import ClearIcon from "@mui/icons-material/Clear";
+import DoneIcon from '@mui/icons-material/Done';
+import EditIcon from "@mui/icons-material/Edit";
 import { FileInput } from "../FileInput/FileInput";
-import { getPackageInformation } from "../../../../services/dataService";
+import { getPackageInformation, updatePackageInRepository } from "../../../../services/dataService";
 
 export function DetailsPopup({
   open,
@@ -42,21 +44,10 @@ export function DetailsPopup({
     description: "",
     packager: "",
     arch: "",
-    os: ""
+    os: "",
+    file_name: ""
   });
   const [isSaveDisabled, setIsSaveDisabled] = useState<boolean>(false);
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    console.log(e.type);
-    const { name, value } = e.target; // fixed to e.target.name and e.target.value
-    setFormData(
-      (prevState) =>
-      ({
-        ...prevState,
-        [name]: value,
-      } as DetailsForm)
-    );
-  };
 
   useEffect(() => {
   }, [formData]);
@@ -64,6 +55,7 @@ export function DetailsPopup({
 
   useEffect(() => {
     if (open) {
+      setDisplayTitle(true);
       if (isAdd) {
         setFormData({
           name: "",
@@ -73,7 +65,8 @@ export function DetailsPopup({
           description: "",
           packager: "",
           arch: "",
-          os: ""
+          os: "",
+          file_name: ""
         });
         if (setFile) setFile(null);
         setIsSaveDisabled(true);
@@ -81,6 +74,7 @@ export function DetailsPopup({
         if (pkge) {
           f().then((val) => {
             setFormData(val);
+            setPkgeTitle(pkge);
           })
         }
       }
@@ -94,7 +88,8 @@ export function DetailsPopup({
         description: "",
         packager: "",
         arch: "",
-        os: ""
+        os: "",
+        file_name: ""
       });
     }
   }, [open, isAdd, pkge]);
@@ -103,10 +98,60 @@ export function DetailsPopup({
     return (await getPackageInformation(repository ?? "", pkge))
   }
 
+  const [pkgeTitle, setPkgeTitle] = useState<string>("");
+  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { value } = e.target;
+    setPkgeTitle(value);
+  }
+
+  const [displayTitle, setDisplayTitle] = useState<boolean>(true);
+
+  const saveTitleChange = async () => {
+    if (repository) setFormData((prevState) => ({
+      ...prevState,
+      ["file_name"]: pkgeTitle
+    }))
+    setDisplayTitle(true);
+  }
+
+  const discardTitleChange = () => {
+    setDisplayTitle(true);
+    setPkgeTitle(pkge)
+  }
+
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
       <Box sx={dp_styles.dialogTitleWrapper}>
-        {!isAdd && <DialogTitle>{pkge} </DialogTitle>}
+        {
+          !isAdd && <DialogTitle>
+            {displayTitle ?
+              <>
+                <Box sx={{ display: "flex", alignItems: "center", gap: "1vw" }}>
+                  <Box>
+                    {pkgeTitle}
+                  </Box>
+                  <Tooltip title="Edit filename">
+                    <EditIcon fontSize="small" sx={styles.clickButtonBig} onClick={() => setDisplayTitle(!displayTitle)} />
+                  </Tooltip>
+                </Box>
+              </> :
+              <Box sx={{ display: "flex", alignItems: "center", gap: "1vw" }}>
+                <TextField
+                  sx={{ width: (pkgeTitle.length * 9) }}
+                  onChange={handleTitleChange}
+                  value={pkgeTitle}
+                  size="small"
+                />
+                <Tooltip title="Save Changed Title">
+                  <DoneIcon sx={styles.clickButtonBig} onClick={saveTitleChange} />
+                </Tooltip>
+                <Tooltip title="Discard changed title">
+                  <ClearIcon sx={styles.clickButtonBig} onClick={discardTitleChange} />
+                </Tooltip>
+              </Box>
+            }
+          </DialogTitle>
+        }
         {isAdd && <DialogTitle>ADD to {addProps?.data[0]}</DialogTitle>}
         <Tooltip title="Close">
           <ClearIcon sx={styles.clickButtonBig} onClick={onClose} />
@@ -200,4 +245,5 @@ export type DetailsForm = {
   packager: string,
   arch: string,
   os: string
+  file_name: string
 };

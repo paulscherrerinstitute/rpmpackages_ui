@@ -272,7 +272,8 @@ export async function getPackageInformation(repository: string, pkge: string): P
   description: string
   packager: string,
   arch: string,
-  os: string
+  os: string,
+  file_name: string
 }> {
   return await fetch(
     `${PACKAGE_PATH}/details/${repository}/${pkge}`

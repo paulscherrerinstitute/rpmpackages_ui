@@ -90,7 +90,7 @@ export function FileInput({
           </Tooltip>
           <Tooltip title="Remove the .rpm from the current directory the repository is pointing to">
             <DeleteOutlineIcon
-              onClick={() => handleRemoveFile}
+              onClick={() => handleRemoveFile()}
               sx={con_styles.clickButtonBig}
             />
           </Tooltip>

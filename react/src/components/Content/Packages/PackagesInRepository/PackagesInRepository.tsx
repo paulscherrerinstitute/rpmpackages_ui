@@ -132,10 +132,10 @@ export default function PackagesInRepository() {
   };
 
   const handleAddSubmit = async (form: DetailsForm) => {
-    let pk: string = form.file_name;
+    const pk = form.file_name
     const repo_path = `${permPath}${PERMITTED_FILE_ENDING}`;
+
     await addPackageToRepository(pk, repo_path, outerIdx);
-    alert("PACKAGES_IN_REPOSITORY_SUBMIT NEEDS ATTENTION")
     fetchData();
   };
 
@@ -158,14 +158,19 @@ export default function PackagesInRepository() {
   }, [fetchData]);
 
   useEffect(() => {
-    if (popupOpen) {
+    if (popupOpen && !isAdd) {
       fetchFile();
     }
   }, [popupOpen]);
 
   const handleRemoveFile = async (file: File) => {
-    await removeFileFromFolder(permPath, file.name);
-    await fetchFile();
+    if (!isAdd) {
+      await removeFileFromFolder(permPath, file.name);
+      await fetchFile();
+    } else {
+      setFile(null);
+      await fetchFile();
+    }
   };
 
   const [packageSearch, setPackageSearch] = useState("");

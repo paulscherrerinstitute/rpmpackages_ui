@@ -20,7 +20,8 @@ import ClearIcon from "@mui/icons-material/Clear";
 import DoneIcon from '@mui/icons-material/Done';
 import EditIcon from "@mui/icons-material/Edit";
 import { FileInput } from "../FileInput/FileInput";
-import { getPackageInformation } from "../../../../services/dataService";
+import { getPackageInformation, uploadFileToFolder } from "../../../../services/dataService";
+import type { EnvWindow } from "../../../../services/dataService.types";
 
 export function DetailsPopup({
   open,
@@ -47,7 +48,9 @@ export function DetailsPopup({
     os: "",
     file_name: ""
   });
-  const [isSaveDisabled, setIsSaveDisabled] = useState<boolean>(false);
+
+  const PERMITTED_FILE_ENDING: string =
+    (window as EnvWindow)._env_?.RPM_PACKAGES_CONFIG_ENDING ?? ".repo_cfg";
 
   useEffect(() => {
   }, [formData]);
@@ -58,18 +61,17 @@ export function DetailsPopup({
       setDisplayTitle(true);
       if (isAdd) {
         setFormData({
-          name: "",
-          version: "",
-          release: "",
-          summary: "",
-          description: "",
-          packager: "",
-          arch: "",
-          os: "",
+          name: "None",
+          version: "None",
+          release: "None",
+          summary: "None",
+          description: "None",
+          packager: "None",
+          arch: "None",
+          os: "None",
           file_name: ""
         });
         if (setFile) setFile(null);
-        setIsSaveDisabled(true);
       } else {
         if (pkge) {
           f().then((val) => {
@@ -93,6 +95,25 @@ export function DetailsPopup({
       });
     }
   }, [open, isAdd, pkge]);
+
+  useEffect(() => {
+    if (file) {
+      var repos = repository?.replace(PERMITTED_FILE_ENDING, "") ?? "";
+      uploadFileToFolder(repos, file).then(() => {
+        getPackageInformation(repository ?? "", file.name).then((val) => {
+          setFormData(val);
+          setPkgeTitle(file.name);
+          setFormData((prevState) => ({
+            ...prevState,
+            ["file_name"]: file.name
+          }))
+        })
+        setIsDeactivated(false);
+      });
+    } else {
+      setIsDeactivated(true);
+    }
+  }, [file])
 
   async function f() {
     return (await getPackageInformation(repository ?? "", pkge))
@@ -118,6 +139,8 @@ export function DetailsPopup({
     setDisplayTitle(true);
     setPkgeTitle(pkge)
   }
+
+  const [isDeactivated, setIsDeactivated] = useState<boolean>(true);
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
@@ -196,8 +219,8 @@ export function DetailsPopup({
       <DialogActions>
         <Button
           onClick={handleSave}
-          disabled={isSaveDisabled}
           form="package-form"
+          disabled={isDeactivated}
         >
           Save
         </Button>
@@ -213,6 +236,7 @@ export function DetailsPopup({
   }
 
   function handleRemoveFile() {
+    console.log(formData);
     if (file && onRemoveFile) onRemoveFile(file);
   }
 }

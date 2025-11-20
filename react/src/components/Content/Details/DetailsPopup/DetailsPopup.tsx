@@ -21,7 +21,8 @@ import DoneIcon from '@mui/icons-material/Done';
 import EditIcon from "@mui/icons-material/Edit";
 import { FileInput } from "../FileInput/FileInput";
 import { getPackageInformation, uploadFileToFolder } from "../../../../services/dataService";
-import type { EnvWindow } from "../../../../services/dataService.types";
+import { type EnvWindow, EMPTY, NONE } from "../../../../services/dataService.types";
+
 
 export function DetailsPopup({
   open,
@@ -37,17 +38,7 @@ export function DetailsPopup({
   onSave,
   onRemoveFile,
 }: DetailsPopupProps) {
-  const [formData, setFormData] = useState<DetailsForm>({
-    name: "",
-    version: "",
-    release: "",
-    summary: "",
-    description: "",
-    packager: "",
-    arch: "",
-    os: "",
-    file_name: ""
-  });
+  const [formData, setFormData] = useState<DetailsForm>(EMPTY);
 
   const PERMITTED_FILE_ENDING: string =
     (window as EnvWindow)._env_?.RPM_PACKAGES_CONFIG_ENDING ?? ".repo_cfg";
@@ -55,44 +46,25 @@ export function DetailsPopup({
   useEffect(() => {
   }, [formData]);
 
-
   useEffect(() => {
+    setPkgeTitle(pkge);
     if (open) {
       setDisplayTitle(true);
       if (isAdd) {
-        setFormData({
-          name: "None",
-          version: "None",
-          release: "None",
-          summary: "None",
-          description: "None",
-          packager: "None",
-          arch: "None",
-          os: "None",
-          file_name: ""
-        });
+        setFormData(NONE);
         if (setFile) setFile(null);
       } else {
         if (pkge) {
           f().then((val) => {
             setFormData(val);
-            setPkgeTitle(pkge);
+          }).catch(() => {
+            setFormData(NONE)
           })
         }
       }
     } else {
       // clear form when closed
-      setFormData({
-        name: "",
-        version: "",
-        release: "",
-        summary: "",
-        description: "",
-        packager: "",
-        arch: "",
-        os: "",
-        file_name: ""
-      });
+      setFormData(EMPTY);
     }
   }, [open, isAdd, pkge]);
 

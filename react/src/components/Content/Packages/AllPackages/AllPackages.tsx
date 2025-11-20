@@ -24,7 +24,7 @@ import {
   renameFileInFolder,
   updatePackageInRepository,
 } from "../../../../services/dataService";
-import { type EnvWindow } from "../../../../services/dataService.types";
+import { type EnvWindow, NONE, EMPTY } from "../../../../services/dataService.types";
 import { useNavigate } from "react-router-dom";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
@@ -91,8 +91,8 @@ export default function AllPackages() {
       inclusionsInRepositories.forEach(async (it) => {
         await removePackageFromRepository(pkge, it);
       });
+      handleClose();
     }
-    handleClose();
     await fetchData();
   };
 
@@ -119,8 +119,8 @@ export default function AllPackages() {
         pkge
       );
       setFile(pk);
-      setIsFileLoading(false)
     }
+    setIsFileLoading(false)
   };
 
   const updatedPackage = async () => {
@@ -221,7 +221,6 @@ export default function AllPackages() {
       <AllPackagesDetailsDialog
         open={open}
         pkge={pkge}
-        repository={inclusionsInDirectories[0]}
         handleClose={handleClose}
         handleAdd={handleAdd}
         handleRemove={handleRemove}
@@ -230,7 +229,7 @@ export default function AllPackages() {
         inclusionsInRepositories={inclusionsInRepositories}
         fileInputElement={
           <>
-            {isFileLoading ? <Box sx={{ padding: 2 }}>
+            {isFileLoading ? <Box sx={{ padding: 3 }}>
               <LoadingSpinner isLoading={isFileLoading} />
             </Box>
               :
@@ -261,7 +260,6 @@ function AllPackagesDetailsDialog(
   {
     open,
     pkge,
-    repository,
     handleClose,
     handleAdd,
     handleRemove,
@@ -274,7 +272,6 @@ function AllPackagesDetailsDialog(
     {
       open: boolean,
       pkge: string,
-      repository: string,
       handleClose: () => void,
       handleAdd: () => void,
       handleRemove: (repo: string) => void,
@@ -284,46 +281,29 @@ function AllPackagesDetailsDialog(
       fileInputElement: React.ReactElement,
     }
 ) {
-  const [formData, setFormData] = useState<DetailsForm>({
-    name: "",
-    version: "",
-    release: "",
-    summary: "",
-    description: "",
-    packager: "",
-    arch: "",
-    os: "",
-    file_name: ""
-  })
+  const [formData, setFormData] = useState<DetailsForm>(EMPTY)
   const navigate = useNavigate();
 
   useEffect(() => {
     if (open) {
-      setFormData({
-        name: "",
-        version: "",
-        release: "",
-        summary: "",
-        description: "",
-        packager: "",
-        arch: "",
-        os: "",
-        file_name: ""
-      })
+      setFormData(EMPTY)
       setIsLoading(true);
     }
-    if (repository) {
+    if (inclusionsInRepositories[0]) {
       f().then((val) => {
         if (val) { setFormData(val); }
+      }).catch(() => {
+        setFormData(NONE)
+        setIsLoading(false);
       })
     }
     if (pkge) setPkgeTitle(pkge);
-  }, [repository, pkge, open])
+  }, [inclusionsInRepositories, pkge, open])
 
   async function f() {
-    if (repository != undefined) {
+    if (inclusionsInRepositories[0] != undefined) {
       setIsLoading(false);
-      return await getPackageInformation(repository, pkge)
+      return await getPackageInformation(inclusionsInRepositories[0].replace(PERMITTED_FILE_ENDING, ""), pkge)
     }
   }
 
@@ -338,7 +318,7 @@ function AllPackagesDetailsDialog(
   const [displayTitle, setDisplayTitle] = useState<boolean>(true);
 
   const saveTitleChange = async () => {
-    if (repository) {
+    if (inclusionsInRepositories[0]) {
 
       setFormData((prevState) => ({
         ...prevState,
@@ -399,7 +379,7 @@ function AllPackagesDetailsDialog(
         </Tooltip>
       </Box>
     </Box>
-    <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+    <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: 3 }}>
       <Table>
         <TableHead>
           <TableRow sx={{ "& > th": { fontWeight: "bold" } }}>

@@ -38,3 +38,28 @@ export interface EnvWindow extends Window {
     RPM_PACKAGES_PUBLIC_BACKEND_URL: string;
   };
 }
+
+export const NONE =
+{
+  name: "None",
+  version: "None",
+  release: "None",
+  summary: "None",
+  description: "None",
+  packager: "None",
+  arch: "None",
+  os: "None",
+  file_name: ""
+}
+
+export const EMPTY = {
+  name: "",
+  version: "",
+  release: "",
+  summary: "",
+  description: "",
+  packager: "",
+  arch: "",
+  os: "",
+  file_name: ""
+}

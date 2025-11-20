@@ -21,6 +21,7 @@ import {
   updatePackageInRepository,
   uploadFileToFolder,
   renameFileInFolder,
+  addPackageToRepository,
 } from "../../../../services/dataService";
 import { type EnvWindow } from "../../../../services/dataService.types";
 import * as styles from "../../Content.styles";
@@ -117,7 +118,6 @@ export default function PackagesInRepository() {
   };
 
   const handleSave = async (form: DetailsForm) => {
-    console.log(form);
     const repo_path = `${permPath}${PERMITTED_FILE_ENDING}`;
     await updatePackageInRepository(pkge, form.file_name, repo_path);
     if (file != null) {
@@ -132,16 +132,9 @@ export default function PackagesInRepository() {
   };
 
   const handleAddSubmit = async (form: DetailsForm) => {
-    let pk: string = "";
-    /*
-    if (form.versionNote !== "") {
-      pk = `${form.name}-${form.version}-${form.versionNote}.${form.distribution}.${form.architecture}.rpm`;
-    } else {
-      pk = `${form.name}-${form.version}.${form.distribution}.${form.architecture}.rpm`;
-    }
+    let pk: string = form.file_name;
     const repo_path = `${permPath}${PERMITTED_FILE_ENDING}`;
     await addPackageToRepository(pk, repo_path, outerIdx);
-    */
     alert("PACKAGES_IN_REPOSITORY_SUBMIT NEEDS ATTENTION")
     fetchData();
   };

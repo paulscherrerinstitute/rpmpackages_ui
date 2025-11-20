@@ -20,7 +20,7 @@ import ClearIcon from "@mui/icons-material/Clear";
 import DoneIcon from '@mui/icons-material/Done';
 import EditIcon from "@mui/icons-material/Edit";
 import { FileInput } from "../FileInput/FileInput";
-import { getPackageInformation, updatePackageInRepository } from "../../../../services/dataService";
+import { getPackageInformation } from "../../../../services/dataService";
 
 export function DetailsPopup({
   open,

@@ -28,11 +28,11 @@ import { type EnvWindow } from "../../../../services/dataService.types";
 import { useNavigate } from "react-router-dom";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
-import AddIcon from "@mui/icons-material/Add";
+import AddIcon from "@mui/icons-material/Add"
+import DoneIcon from "@mui/icons-material/Done";
 import ClearIcon from "@mui/icons-material/Clear";
 import { AddRepositoryPopup } from "../../Details/AddRepository/AddRepository";
 import {
-  DetailsPopup as EditDetailsPopup,
   type DetailsForm,
 } from "../../Details/DetailsPopup/DetailsPopup";
 import AllPackagesFileInput from "../../Details/AllPackagesFileInput/AllPackagesFileInput";
@@ -48,7 +48,6 @@ export default function AllPackages() {
   >([]);
   const [open, setOpen] = useState(false);
   const [openNested, setOpenNested] = useState(false);
-  const [openEdit, setOpenEdit] = useState(false);
   const [pkge, setPkge] = useState("");
   const [inclusionsInDirectories, setInclusionsInDirectories] = useState<
     string[]
@@ -56,6 +55,7 @@ export default function AllPackages() {
   const [file, setFile] = useState<File | null>(null);
   const [displayInput, setDisplayInput] = useState<boolean>(true);
   const [isDataLoading, setIsDataLoading] = useState<boolean>(true);
+  const [isFileLoading, setIsFileLoading] = useState<boolean>(true);
 
   const fetchData = async () => {
     const resultData = await getAllUniquePackagesOverAll();
@@ -104,30 +104,6 @@ export default function AllPackages() {
     fetchRepositoryInclusionData(pkge);
   };
 
-  const handleEdit = () => {
-    setOpenEdit(true);
-  };
-
-  const handleEditClose = async () => {
-    setOpenEdit(false);
-    await fetchData();
-  };
-
-  const handleSave = async (form: DetailsForm) => {
-    let pk: string = form.file_name ?? "";
-    inclusionsInRepositories.forEach(async (rep) => {
-      await updatePackageInRepository(pkge, pk, rep);
-      await renameFileInFolder(
-        pkge,
-        pk,
-        rep.replace(PERMITTED_FILE_ENDING, "")
-      );
-    });
-
-    await fetchData();
-    await fetchRepositoryInclusionData(pk);
-  };
-
   const fetchInclusionsInDirectories = async () => {
     if (pkge) {
       const inclDirectories = await getFoldersIncludingFileForPackage(pkge);
@@ -136,12 +112,14 @@ export default function AllPackages() {
   };
 
   const fetchFile = async () => {
+    setIsFileLoading(true);
     if (inclusionsInDirectories.length > 0) {
       const pk = await getFileFromFolderForPackage(
         inclusionsInDirectories[0],
         pkge
       );
       setFile(pk);
+      setIsFileLoading(false)
     }
   };
 
@@ -166,11 +144,7 @@ export default function AllPackages() {
   useEffect(() => {
     fetchInclusionsInDirectories();
     if (open) fetchFile();
-  }, [open]);
-
-  useEffect(() => {
-    fetchFile();
-  }, [pkge]);
+  }, [open, pkge]);
 
   useEffect(() => {
     setDisplayInput(
@@ -247,22 +221,29 @@ export default function AllPackages() {
       <AllPackagesDetailsDialog
         open={open}
         pkge={pkge}
+        repository={inclusionsInDirectories[0]}
         handleClose={handleClose}
         handleAdd={handleAdd}
-        handleEdit={handleEdit}
         handleRemove={handleRemove}
         handleRemoveAll={handleRemoveAll}
         inclusionsInDirectories={inclusionsInDirectories}
         inclusionsInRepositories={inclusionsInRepositories}
         fileInputElement={
-          <AllPackagesFileInput
-            fileIncludedIn={inclusionsInDirectories}
-            packageIncludedIn={inclusionsInRepositories}
-            displayInput={displayInput}
-            file={file}
-            setFile={setFile}
-            updatePackages={updatedPackage}
-          />
+          <>
+            {isFileLoading ? <Box sx={{ padding: 2 }}>
+              <LoadingSpinner isLoading={isFileLoading} />
+            </Box>
+              :
+              <AllPackagesFileInput
+                fileIncludedIn={inclusionsInDirectories}
+                packageIncludedIn={inclusionsInRepositories}
+                displayInput={displayInput}
+                file={file}
+                setFile={setFile}
+                updatePackages={updatedPackage}
+              />}
+
+          </>
         }
       />
       {/* Nested Dialog for adding a package to a repository */}
@@ -272,15 +253,6 @@ export default function AllPackages() {
         item={pkge}
         inclusions={inclusionsInRepositories}
       />
-      {/* Other nested Dialog for Editing a Packages properties across all repositories */}
-      <EditDetailsPopup
-        open={openEdit}
-        pkge={pkge}
-        onSave={(f) => handleSave(f)}
-        onClose={handleEditClose}
-        isAdd={false}
-        enableFileUpload={false}
-      />
     </Box>
   );
 }
@@ -289,9 +261,9 @@ function AllPackagesDetailsDialog(
   {
     open,
     pkge,
+    repository,
     handleClose,
     handleAdd,
-    handleEdit,
     handleRemove,
     handleRemoveAll,
     inclusionsInRepositories,
@@ -302,9 +274,9 @@ function AllPackagesDetailsDialog(
     {
       open: boolean,
       pkge: string,
+      repository: string,
       handleClose: () => void,
       handleAdd: () => void,
-      handleEdit: () => void,
       handleRemove: (repo: string) => void,
       handleRemoveAll: () => void,
       inclusionsInRepositories: string[],
@@ -326,28 +298,99 @@ function AllPackagesDetailsDialog(
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (open && pkge) {
+    if (open) {
+      setFormData({
+        name: "",
+        version: "",
+        release: "",
+        summary: "",
+        description: "",
+        packager: "",
+        arch: "",
+        os: "",
+        file_name: ""
+      })
+      setIsLoading(true);
+    }
+    if (repository) {
       f().then((val) => {
-        setFormData(val);
+        if (val) { setFormData(val); }
       })
     }
-  }, [pkge, open])
+    if (pkge) setPkgeTitle(pkge);
+  }, [repository, pkge, open])
 
   async function f() {
-    return await getPackageInformation(inclusionsInDirectories[0], pkge)
+    if (repository != undefined) {
+      setIsLoading(false);
+      return await getPackageInformation(repository, pkge)
+    }
+  }
+
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+
+  const [pkgeTitle, setPkgeTitle] = useState<string>("");
+  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { value } = e.target;
+    setPkgeTitle(value);
+  }
+
+  const [displayTitle, setDisplayTitle] = useState<boolean>(true);
+
+  const saveTitleChange = async () => {
+    if (repository) {
+
+      setFormData((prevState) => ({
+        ...prevState,
+        ["file_name"]: pkgeTitle
+      }))
+      setDisplayTitle(true);
+
+      inclusionsInRepositories.forEach(async (val) => {
+        const repo_path = `${val}`;
+        console.log(pkge, pkgeTitle);
+        await updatePackageInRepository(pkge, pkgeTitle, repo_path);
+        await renameFileInFolder(pkge, pkgeTitle, repo_path.replace(PERMITTED_FILE_ENDING, ""));
+      })
+    }
+  }
+
+  const discardTitleChange = () => {
+    setDisplayTitle(true);
+    setPkgeTitle(pkge)
   }
 
   return (<Dialog open={open} onClose={handleClose} fullWidth maxWidth="md">
     <Box sx={styles.packageTitle}>
-      <DialogTitle>
-        {pkge}
-      </DialogTitle>
+      {displayTitle ?
+        <>
+          <Box sx={{ display: "flex", alignItems: "center", gap: "1vw", paddingInline: 2 }}>
+            <Box>
+              {pkgeTitle}
+            </Box>
+            <Tooltip title="Edit filename">
+              <EditIcon fontSize="small" sx={styles.clickButtonBig} onClick={() => setDisplayTitle(!displayTitle)} />
+            </Tooltip>
+          </Box>
+        </> :
+        <Box sx={{ display: "flex", alignItems: "center", gap: "1vw", paddingInline: 2 }}>
+          <TextField
+            sx={{ width: (pkgeTitle.length * 9) }}
+            onChange={handleTitleChange}
+            value={pkgeTitle}
+            size="small"
+          />
+          <Tooltip title="Save Changed Title">
+            <DoneIcon sx={styles.clickButtonBig} onClick={saveTitleChange} />
+          </Tooltip>
+          <Tooltip title="Discard changed title">
+            <ClearIcon sx={styles.clickButtonBig} onClick={discardTitleChange} />
+          </Tooltip>
+        </Box>
+      }
       <Box sx={ap_styles.dialogIcons}>
         <Tooltip title="Add to other repository">
           <AddIcon onClick={handleAdd} />
-        </Tooltip>
-        <Tooltip title="Edit across all repositories">
-          <EditIcon onClick={handleEdit} />
         </Tooltip>
         <Tooltip title="Delete in all repositories">
           <DeleteOutlineIcon onClick={handleRemoveAll} />
@@ -357,7 +400,7 @@ function AllPackagesDetailsDialog(
         </Tooltip>
       </Box>
     </Box>
-    <Box>
+    <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
       <Table>
         <TableHead>
           <TableRow sx={{ "& > th": { fontWeight: "bold" } }}>
@@ -382,6 +425,7 @@ function AllPackagesDetailsDialog(
           </TableRow>
         </TableBody>
       </Table>
+      <LoadingSpinner isLoading={isLoading} />
     </Box>
     {inclusionsInRepositories.length > 0 && (
       <Box>

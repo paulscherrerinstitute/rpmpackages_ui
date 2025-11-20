@@ -254,7 +254,7 @@ export async function getAllPackagesFromRepository(
     return JSON.parse(text).detail;
   }
 
-  const textByCategory = text.split("\n\n#");
+  const textByCategory = text.split("#").filter((t) => { return t.length > 0 })
   let txt: string[][] = textByCategory.map((t) => t.split("\n"));
   txt = txt.map((t) =>
     t.filter((tChild) => {

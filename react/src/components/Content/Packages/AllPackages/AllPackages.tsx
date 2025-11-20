@@ -348,7 +348,6 @@ function AllPackagesDetailsDialog(
 
       inclusionsInRepositories.forEach(async (val) => {
         const repo_path = `${val}`;
-        console.log(pkge, pkgeTitle);
         await updatePackageInRepository(pkge, pkgeTitle, repo_path);
         await renameFileInFolder(pkge, pkgeTitle, repo_path.replace(PERMITTED_FILE_ENDING, ""));
       })

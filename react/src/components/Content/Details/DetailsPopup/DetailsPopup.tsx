@@ -236,7 +236,6 @@ export function DetailsPopup({
   }
 
   function handleRemoveFile() {
-    console.log(formData);
     if (file && onRemoveFile) onRemoveFile(file);
   }
 }

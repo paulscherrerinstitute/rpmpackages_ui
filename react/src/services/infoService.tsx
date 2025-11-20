@@ -4,14 +4,12 @@ const env = (window as EnvWindow)._env_;
 const API = env?.RPM_PACKAGES_PUBLIC_BACKEND_URL;
 
 export async function getCurrentHost(): Promise<string> {
-    console.log(API);
     try {
 
         const host = await fetch(`${API}/host`).then((res) => {
             const data = res.json();
             return data;
         })
-        console.log(host)
         return host;
     } catch {
         return "";

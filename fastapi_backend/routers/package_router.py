@@ -130,6 +130,8 @@ async def list_orphaned_pkge() -> list[Package]:
         p: Package = Package(name=package.name, repository=[package.directory])
         if p not in complete_list and "rpm" in p.name:
             orphans.append(p)
+
+    print(get_all_packages_with_repos())
     return orphans
 
 

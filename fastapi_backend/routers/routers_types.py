@@ -11,6 +11,17 @@ class Package(BaseModel):
     repository: list[str]
 
 
+class PackageResponse(BaseModel):
+    name: str
+    version: str
+    release: str
+    summary: str
+    description: str
+    packager: str
+    arch: str
+    os: str
+
+
 class RenamePackageResponse(BaseModel):
     old_name: str
     new_name: str

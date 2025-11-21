@@ -16,21 +16,20 @@ import {
 import * as dp_styles from "./DetailsPopup.styles";
 import * as styles from "../../Content.styles";
 import { useEffect, useState } from "react";
-import {
-  getName,
-  getVersion,
-  getDistribution,
-  getArchitecture,
-  getVersionNote,
-} from "../../../helpers/DetailsHelper";
 import ClearIcon from "@mui/icons-material/Clear";
+import DoneIcon from '@mui/icons-material/Done';
+import EditIcon from "@mui/icons-material/Edit";
 import { FileInput } from "../FileInput/FileInput";
+import { getPackageInformation, uploadFileToFolder } from "../../../../services/dataService/dataService";
+import { type EnvWindow, EMPTY, NONE } from "../../../../services/dataService/dataService.types";
+
 
 export function DetailsPopup({
   open,
   pkge,
   isAdd,
   addProps,
+  repository,
   file,
   enableFileUpload = true,
   onClose,
@@ -39,98 +38,115 @@ export function DetailsPopup({
   onSave,
   onRemoveFile,
 }: DetailsPopupProps) {
-  const [formData, setFormData] = useState<DetailsForm>({
-    name: "",
-    version: "",
-    versionNote: "",
-    distribution: "",
-    architecture: "",
-  });
-  const [isSaveDisabled, setIsSaveDisabled] = useState<boolean>(false);
+  const [formData, setFormData] = useState<DetailsForm>(EMPTY);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target; // fixed to e.target.name and e.target.value
-    setFormData(
-      (prevState) =>
-        ({
-          ...prevState,
-          [name]: value,
-        } as DetailsForm)
-    );
-  };
+  const PERMITTED_FILE_ENDING: string =
+    (window as EnvWindow)._env_?.RPM_PACKAGES_CONFIG_ENDING ?? ".repo_cfg";
 
   useEffect(() => {
-    if (formData) checkIfShouldBeDisabled();
   }, [formData]);
 
-  const checkIfShouldBeDisabled = () => {
-    if (
-      formData.name != "" &&
-      formData.version != "" &&
-      formData.distribution != "" &&
-      formData.architecture != ""
-    ) {
-      setIsSaveDisabled(false);
-    } else setIsSaveDisabled(true);
-  };
-
-  const getPName = () => {
-    return getName(pkge);
-  };
-
-  const getPVersion = () => {
-    return getVersion(pkge);
-  };
-
-  const getPVersionNote = () => {
-    return getVersionNote(pkge);
-  };
-
-  const getPDistribution = () => {
-    return getDistribution(pkge);
-  };
-
-  const getPArchitecture = () => {
-    return getArchitecture(pkge);
-  };
-
   useEffect(() => {
+    setPkgeTitle(pkge);
     if (open) {
+      setDisplayTitle(true);
       if (isAdd) {
-        setFormData({
-          name: "",
-          version: "",
-          versionNote: "",
-          distribution: "",
-          architecture: "",
-        });
+        setFormData(NONE);
         if (setFile) setFile(null);
-        setIsSaveDisabled(true);
       } else {
-        setFormData({
-          name: getPName(),
-          version: getPVersion(),
-          versionNote: getPVersionNote(),
-          distribution: getPDistribution(),
-          architecture: getPArchitecture(),
-        });
+        if (pkge) {
+          f().then((val) => {
+            setFormData(val);
+          }).catch(() => {
+            setFormData(NONE)
+          })
+        }
       }
     } else {
       // clear form when closed
-      setFormData({
-        name: "",
-        version: "",
-        versionNote: "",
-        distribution: "",
-        architecture: "",
-      });
+      setFormData(EMPTY);
     }
   }, [open, isAdd, pkge]);
+
+  useEffect(() => {
+    if (file) {
+      var repos = repository?.replace(PERMITTED_FILE_ENDING, "") ?? "";
+      uploadFileToFolder(repos, file).then(() => {
+        getPackageInformation(repository ?? "", file.name).then((val) => {
+          setFormData(val);
+          setPkgeTitle(file.name);
+          setFormData((prevState) => ({
+            ...prevState,
+            ["file_name"]: file.name
+          }))
+        })
+        setIsDeactivated(false);
+      });
+    } else {
+      setIsDeactivated(true);
+    }
+  }, [file])
+
+  async function f() {
+    return (await getPackageInformation(repository ?? "", pkge))
+  }
+
+  const [pkgeTitle, setPkgeTitle] = useState<string>("");
+  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { value } = e.target;
+    setPkgeTitle(value);
+  }
+
+  const [displayTitle, setDisplayTitle] = useState<boolean>(true);
+
+  const saveTitleChange = async () => {
+    if (repository) setFormData((prevState) => ({
+      ...prevState,
+      ["file_name"]: pkgeTitle
+    }))
+    setDisplayTitle(true);
+  }
+
+  const discardTitleChange = () => {
+    setDisplayTitle(true);
+    setPkgeTitle(pkge)
+  }
+
+  const [isDeactivated, setIsDeactivated] = useState<boolean>(true);
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
       <Box sx={dp_styles.dialogTitleWrapper}>
-        {!isAdd && <DialogTitle>{pkge} </DialogTitle>}
+        {
+          !isAdd && <DialogTitle>
+            {displayTitle ?
+              <>
+                <Box sx={{ display: "flex", alignItems: "center", gap: "1vw" }}>
+                  <Box>
+                    {pkgeTitle}
+                  </Box>
+                  <Tooltip title="Edit filename">
+                    <EditIcon fontSize="small" sx={styles.clickButtonBig} onClick={() => setDisplayTitle(!displayTitle)} />
+                  </Tooltip>
+                </Box>
+              </> :
+              <Box sx={{ display: "flex", alignItems: "center", gap: "1vw" }}>
+                <TextField
+                  sx={{ width: (pkgeTitle.length * 9) }}
+                  onChange={handleTitleChange}
+                  value={pkgeTitle}
+                  size="small"
+                />
+                <Tooltip title="Save Changed Title">
+                  <DoneIcon sx={styles.clickButtonBig} onClick={saveTitleChange} />
+                </Tooltip>
+                <Tooltip title="Discard changed title">
+                  <ClearIcon sx={styles.clickButtonBig} onClick={discardTitleChange} />
+                </Tooltip>
+              </Box>
+            }
+          </DialogTitle>
+        }
         {isAdd && <DialogTitle>ADD to {addProps?.data[0]}</DialogTitle>}
         <Tooltip title="Close">
           <ClearIcon sx={styles.clickButtonBig} onClick={onClose} />
@@ -141,70 +157,24 @@ export function DetailsPopup({
           <Table>
             <TableHead>
               <TableRow sx={dp_styles.tableHead}>
-                <TableCell>Package Name</TableCell>
+                <TableCell>Name</TableCell>
                 <TableCell>Version</TableCell>
-                <TableCell>Version-Note</TableCell>
-                <TableCell>Distribution</TableCell>
-                <TableCell>Architecture</TableCell>
+                <TableCell>Release</TableCell>
+                <TableCell>Arch</TableCell>
+                <TableCell>Operating System</TableCell>
+                <TableCell>Packager</TableCell>
+                <TableCell>Summary</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               <TableRow>
-                <TableCell>
-                  <TextField
-                    variant="standard"
-                    required
-                    label={getPName() === "" ? "(empty)" : getPName()}
-                    value={formData.name}
-                    name="name"
-                    onChange={handleChange}
-                  />
-                </TableCell>
-                <TableCell>
-                  <TextField
-                    variant="standard"
-                    required
-                    label={getPVersion() === "" ? "(empty)" : getPVersion()}
-                    value={formData.version}
-                    name="version"
-                    onChange={handleChange}
-                  />
-                </TableCell>
-                <TableCell>
-                  <TextField
-                    variant="standard"
-                    label={
-                      getPVersionNote() === "" ? "(empty)" : getPVersionNote()
-                    }
-                    value={formData.versionNote}
-                    name="versionNote"
-                    onChange={handleChange}
-                  />
-                </TableCell>
-                <TableCell>
-                  <TextField
-                    variant="standard"
-                    required
-                    label={
-                      getPDistribution() === "" ? "(empty)" : getPDistribution()
-                    }
-                    value={formData.distribution}
-                    name="distribution"
-                    onChange={handleChange}
-                  />
-                </TableCell>
-                <TableCell>
-                  <TextField
-                    variant="standard"
-                    label={
-                      getPArchitecture() === "" ? "(empty)" : getPArchitecture()
-                    }
-                    required
-                    value={formData.architecture}
-                    name="architecture"
-                    onChange={handleChange}
-                  />
-                </TableCell>
+                <TableCell> {formData.name} </TableCell>
+                <TableCell> {formData.version} </TableCell>
+                <TableCell> {formData.release} </TableCell>
+                <TableCell> {formData.arch} </TableCell>
+                <TableCell> {formData.os} </TableCell>
+                <TableCell> {formData.packager} </TableCell>
+                <TableCell> {formData.summary} </TableCell>
               </TableRow>
             </TableBody>
           </Table>
@@ -221,8 +191,8 @@ export function DetailsPopup({
       <DialogActions>
         <Button
           onClick={handleSave}
-          disabled={isSaveDisabled}
           form="package-form"
+          disabled={isDeactivated}
         >
           Save
         </Button>
@@ -246,6 +216,7 @@ export type DetailsPopupProps = {
   open: boolean;
   pkge: string;
   isAdd: boolean;
+  repository?: string;
   file?: File | null;
   enableFileUpload: boolean;
   onClose: () => void;
@@ -261,9 +232,13 @@ type AddProps = {
 };
 
 export type DetailsForm = {
-  name: string;
-  version: string;
-  versionNote: string;
-  distribution: string;
-  architecture: string;
+  name: string,
+  version: string,
+  release: string,
+  summary: string,
+  description: string
+  packager: string,
+  arch: string,
+  os: string
+  file_name: string
 };

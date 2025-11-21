@@ -1,11 +1,18 @@
 from fastapi import APIRouter, HTTPException
 import os
-from shared_resources.dataService import REPO_DIR, assemble_repo, reassemble_repo, write_file, read_file
+from shared_resources.dataService import (
+    REPO_DIR,
+    assemble_repo,
+    reassemble_repo,
+    write_file,
+    read_file,
+)
 from routers.routers_types import SubtitleRequest, CreateSubtitleResponse
 
 router = APIRouter()
 
 ROUTER_PATH = "/data/directory"
+
 
 # Add subtitle in repository
 @router.post(ROUTER_PATH + "/{repository}")
@@ -38,10 +45,14 @@ async def create_dir(
 
 
 # Delete subtitle in repository
-@router.delete(ROUTER_PATH +"/{repository}")
+@router.delete(ROUTER_PATH + "/{repository}")
 async def remove_dir(repository: str, request: SubtitleRequest) -> str:
     file_path = os.path.join(REPO_DIR, repository)
+    content = read_file(file_path)
+    new_content = content.replace("\n\n# " + request.directory, "")
 
-    content = read_file(file_path).replace("\n\n# " + request.directory, "")
-    write_file(file_path, content)
-    return content
+    if content == new_content:
+        new_content = content.replace("# " + request.directory + "\n", "")
+    print(new_content)
+    write_file(file_path, new_content)
+    return new_content

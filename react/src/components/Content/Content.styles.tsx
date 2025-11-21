@@ -34,5 +34,5 @@ export const packageTitle: SxProps<Theme> = {
   flexDirection: "row",
   justifyContent: "space-between",
   alignItems: "center",
-  paddingBlockEnd: 2
+  paddingBlockEnd: 0.25,
 };

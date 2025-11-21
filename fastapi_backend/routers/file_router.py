@@ -53,16 +53,23 @@ async def rename_file(package: str, request: RenameRequest) -> RenamePackageResp
 
 # Upload File to Folder
 @router.post(ROUTE_PATH + "/{directory}")
-async def upload_file(directory: str, file: UploadFile) -> bytes:
+async def upload_file(directory: str, file: UploadFile) -> dict:
     file_path = os.path.join(REPO_DIR, directory)
-    content = await file.read()
 
+    # Ensure the directory exists
     os.makedirs(file_path, exist_ok=True)
+
     if file.filename:
-        newfile_path = file_path + "/" + file.filename
-        with open(newfile_path, "wb") as f:
-            f.write(content)
-    return content
+        newfile_path = os.path.join(file_path, file.filename)
+        try:
+            # Read and write the file in binary mode
+            with open(newfile_path, "wb") as f:
+                while chunk := await file.read(1024 * 1024):  # Read in chunks (1 MB)
+                    f.write(chunk)
+            return {"message": f"File '{file.filename}' uploaded successfully."}
+        except Exception as e:
+            return {"error": f"Failed to upload file: {str(e)}"}
+    return {"error": "No filename provided in the uploaded file."}
 
 
 # Get File from Folder by Packagename

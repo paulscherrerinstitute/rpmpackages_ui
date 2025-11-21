@@ -11,7 +11,6 @@ import {
 } from "@mui/material";
 import { useState, useEffect } from "react";
 import {
-  addPackageToRepository,
   addSubtitlteToRepository,
   getFileFromFolderForPackage,
   getAllPackagesFromRepository,
@@ -22,6 +21,7 @@ import {
   updatePackageInRepository,
   uploadFileToFolder,
   renameFileInFolder,
+  addPackageToRepository
 } from "../../../../services/dataService/dataService";
 import { type EnvWindow } from "../../../../services/dataService/dataService.types";
 import * as styles from "../../Content.styles";
@@ -118,19 +118,13 @@ export default function PackagesInRepository() {
   };
 
   const handleSave = async (form: DetailsForm) => {
-    let pk;
-    if (form.versionNote !== "") {
-      pk = `${form.name}-${form.version}-${form.versionNote}.${form.distribution}.${form.architecture}.rpm`;
-    } else {
-      pk = `${form.name}-${form.version}.${form.distribution}.${form.architecture}.rpm`;
-    }
     const repo_path = `${permPath}${PERMITTED_FILE_ENDING}`;
-    await updatePackageInRepository(pkge, pk, repo_path);
+    await updatePackageInRepository(pkge, form.file_name, repo_path);
     if (file != null) {
       await uploadFileToFolder(permPath, file);
       await renameFileInFolder(
         pkge,
-        pk,
+        form.file_name,
         repo_path.replace(PERMITTED_FILE_ENDING, "")
       );
     }
@@ -138,13 +132,9 @@ export default function PackagesInRepository() {
   };
 
   const handleAddSubmit = async (form: DetailsForm) => {
-    let pk;
-    if (form.versionNote !== "") {
-      pk = `${form.name}-${form.version}-${form.versionNote}.${form.distribution}.${form.architecture}.rpm`;
-    } else {
-      pk = `${form.name}-${form.version}.${form.distribution}.${form.architecture}.rpm`;
-    }
+    const pk = form.file_name
     const repo_path = `${permPath}${PERMITTED_FILE_ENDING}`;
+
     await addPackageToRepository(pk, repo_path, outerIdx);
     fetchData();
   };
@@ -168,14 +158,19 @@ export default function PackagesInRepository() {
   }, [fetchData]);
 
   useEffect(() => {
-    if (popupOpen) {
+    if (popupOpen && !isAdd) {
       fetchFile();
     }
   }, [popupOpen]);
 
   const handleRemoveFile = async (file: File) => {
-    await removeFileFromFolder(permPath, file.name);
-    await fetchFile();
+    if (!isAdd) {
+      await removeFileFromFolder(permPath, file.name);
+      await fetchFile();
+    } else {
+      setFile(null);
+      await fetchFile();
+    }
   };
 
   const [packageSearch, setPackageSearch] = useState("");
@@ -247,6 +242,7 @@ export default function PackagesInRepository() {
             open={popupOpen}
             isAdd={isAdd}
             pkge={pkge}
+            repository={permPath}
             file={file}
             setFile={(f) => setFile(f)}
             onRemoveFile={(f) => handleRemoveFile(f)}
@@ -363,7 +359,7 @@ function ListPackagesInRepositories(
   };
 
   const handleSubtitleRemove = async (directory: string) => {
-    const prompt = "Do you want to remove the subtitle '" + directory + "'?";
+    const prompt = confirm("Do you want to remove the subtitle '" + directory + "'?");
     if (prompt) {
       await removeSubtitleFromRepository(
         permPath + PERMITTED_FILE_ENDING,
@@ -391,29 +387,31 @@ function ListPackagesInRepositories(
                 key={`category-${outerIdx}-${item[0]}`}
                 sx={pir_styles.outerList}
               >
-                <Box
-                  onDragEnter={() => handleDragEnter(outerIdx, 1)}
-                  sx={pir_styles.titleList}
-                >
-                  <h3>{formatTitle(item[0])}</h3>
-                  <Box sx={pir_styles.listButtons}>
-                    <Tooltip title="Add package to subtitle">
-                      <AddIcon onClick={() => handleAdd(item, outerIdx)} />
-                    </Tooltip>
-                    <Tooltip title="Remove subtitle">
-                      <DeleteOutlineIcon
-                        sx={styles.clickButtonBig}
-                        onClick={() => handleSubtitleRemove(item[0])}
-                      />
-                    </Tooltip>
+                {item[0].includes(" ") &&
+                  <Box
+                    onDragEnter={() => handleDragEnter(outerIdx, 1)}
+                    sx={pir_styles.titleList}
+                  >
+                    <h3>{formatTitle(item[0])}</h3>
+                    <Box sx={pir_styles.listButtons}>
+                      <Tooltip title="Add package to subtitle">
+                        <AddIcon onClick={() => handleAdd(item, outerIdx)} />
+                      </Tooltip>
+                      <Tooltip title="Remove subtitle">
+                        <DeleteOutlineIcon
+                          sx={styles.clickButtonBig}
+                          onClick={() => handleSubtitleRemove(item[0])}
+                        />
+                      </Tooltip>
+                    </Box>
                   </Box>
-                </Box>
+                }
                 <List>
                   {item.map(
                     (pkg, innerIdx) =>
                       (pkg.includes(packageSearch) ||
                         packageSearch.length == 0) &&
-                      innerIdx != 0 && (
+                      !pkg.includes(" ") && (
                         <ListItem
                           id={pkg}
                           onDragEnter={() =>

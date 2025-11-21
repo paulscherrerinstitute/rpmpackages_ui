@@ -272,7 +272,7 @@ export async function getAllPackagesFromRepository(
     return JSON.parse(text).detail;
   }
 
-  const textByCategory = text.split("\n\n#");
+  const textByCategory = text.split("#").filter((t) => { return t.length > 0 })
   let txt: string[][] = textByCategory.map((t) => t.split("\n"));
   txt = txt.map((t) =>
     t.filter((tChild) => {
@@ -280,6 +280,24 @@ export async function getAllPackagesFromRepository(
     })
   );
   return txt;
+}
+
+export async function getPackageInformation(repository: string, pkge: string): Promise<{
+  name: string,
+  version: string,
+  release: string,
+  summary: string,
+  description: string
+  packager: string,
+  arch: string,
+  os: string,
+  file_name: string
+}> {
+  return await fetch(
+    `${PACKAGE_PATH}/details/${repository}/${pkge}`
+  ).then((val) => {
+    return val.json();
+  })
 }
 
 /////////////

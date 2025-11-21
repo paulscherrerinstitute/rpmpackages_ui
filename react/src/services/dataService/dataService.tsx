@@ -8,6 +8,7 @@ import {
 } from "./dataService.types";
 import { type EnvWindow } from "../services.types";
 import { msalInstance } from "../auth/AuthProvider";
+import { handleLoginRequired } from "../infoService";
 
 const env = (window as EnvWindow)._env_;
 // const API = "http://localhost:8000" + "/data";
@@ -38,7 +39,7 @@ export async function addSubtitlteToRepository(
     "Content-Type": "application/json",
     "Authorization": `Bearer ${TOKEN}`
   }
-
+  await handleLoginRequired();
   return await fetch(`${DIRECTORY_PATH}/${repository}`, {
     method: "POST",
     headers: headers,
@@ -56,6 +57,7 @@ export async function removeSubtitleFromRepository(
   const body = JSON.stringify({
     directory: directory.trim(),
   });
+  await handleLoginRequired();
   return await fetch(`${DIRECTORY_PATH}/${repository}`, {
     method: "DELETE",
     headers: DEFAULT_HEADERS,
@@ -76,6 +78,7 @@ export async function getFileFromFolderForPackage(
   directory: string,
   pkge: string
 ): Promise<File | null> {
+  await handleLoginRequired();
   return await fetch(`${FILES_PATH}/${directory}/${pkge}`, {
     headers: DEFAULT_HEADERS
   }).then(
@@ -94,6 +97,7 @@ export async function getFileFromFolderForPackage(
 export async function getFoldersIncludingFileForPackage(
   pkge: string
 ): Promise<string[]> {
+  await handleLoginRequired();
   return await fetch(`${FILES_PATH}/pkge/${pkge}`, { headers: DEFAULT_HEADERS }).then(async (response) => {
     const data = await response.json();
     return data;
@@ -101,6 +105,7 @@ export async function getFoldersIncludingFileForPackage(
 }
 
 export async function getOrphanedFiles(): Promise<OrphanedFile[]> {
+  await handleLoginRequired();
   return await fetch(`${FILES_PATH}/orphans`, { headers: DEFAULT_HEADERS }).then(async (response) => {
     const data = await response.json();
     return data;
@@ -112,6 +117,7 @@ export async function renameFileInFolder(
   new_name: string,
   directory: string
 ): Promise<RenameFileResponse> {
+  await handleLoginRequired();
   const body = JSON.stringify({
     new_name: new_name,
     directory: directory,
@@ -127,6 +133,7 @@ export async function renameFileInFolder(
 }
 
 export async function uploadFileToFolder(directory: string, file: File) {
+  await handleLoginRequired();
   const formData = new FormData();
   formData.append("file", file);
   return await fetch(`${FILES_PATH}/${directory}`, {
@@ -143,6 +150,7 @@ export async function removeFileFromFolder(
   directory: string,
   pkge: string
 ): Promise<RemovePackageResponse> {
+  await handleLoginRequired();
   return await fetch(`${FILES_PATH}/${directory}/${pkge}`, {
     method: "DELETE",
     headers: DEFAULT_HEADERS
@@ -159,6 +167,7 @@ export async function removeFileFromFolder(
 const PACKAGE_PATH = API + "/package";
 
 export async function getAllUniquePackagesOverAll(): Promise<string[]> {
+  await handleLoginRequired();
   return await fetch(`${PACKAGE_PATH}/all`, { headers: DEFAULT_HEADERS }).then(async (response) => {
     const data = await response.json();
     return data;
@@ -168,6 +177,7 @@ export async function getAllUniquePackagesOverAll(): Promise<string[]> {
 export async function getRepositoriesOfPackage(
   pkge: string
 ): Promise<string[]> {
+  await handleLoginRequired();
   return await fetch(`${PACKAGE_PATH}/${pkge}`, { headers: DEFAULT_HEADERS }).then(async (response) => {
     const data = await response.json();
     return data;
@@ -175,6 +185,7 @@ export async function getRepositoriesOfPackage(
 }
 
 export async function getOrphanedPackages(): Promise<OrphanedPackage[]> {
+  await handleLoginRequired();
   return await fetch(`${PACKAGE_PATH}/orphans`, { headers: DEFAULT_HEADERS }).then(async (response) => {
     const data = await response.json();
     return data;
@@ -186,6 +197,7 @@ export async function updatePackageInRepository(
   updatedPackage: string,
   repository: string
 ): Promise<string[]> {
+  await handleLoginRequired();
   const body = JSON.stringify({
     updatePackageInRepository: updatedPackage,
     repository: repository,
@@ -206,6 +218,7 @@ export async function movePackageToRepository(
   outerIndex: number,
   innerIndex: number
 ) {
+  await handleLoginRequired();
   const body = JSON.stringify({
     repository: repository,
     outer_index: outerIndex,
@@ -226,6 +239,7 @@ export async function addPackageToRepository(
   repository: string,
   insertIndex: number
 ): Promise<string[][]> {
+  await handleLoginRequired();
   // ensure Content-Type is set and body keys match required shape/order
   const body = JSON.stringify({
     item: pkge,
@@ -247,6 +261,7 @@ export async function removePackageFromRepository(
   pkge: string,
   repository: string
 ): Promise<string[]> {
+  await handleLoginRequired();
   return await fetch(
     `${PACKAGE_PATH}/${pkge}/${repository}${PERMITTED_FILE_ENDING}`,
     {
@@ -262,6 +277,7 @@ export async function removePackageFromRepository(
 export async function getAllPackagesFromRepository(
   repository: string
 ): Promise<string[][]> {
+  await handleLoginRequired();
   const response = await fetch(
     `${PACKAGE_PATH}/repository/${repository}${PERMITTED_FILE_ENDING}`, {
     headers: DEFAULT_HEADERS
@@ -293,6 +309,7 @@ export async function getPackageInformation(repository: string, pkge: string): P
   os: string,
   file_name: string
 }> {
+  await handleLoginRequired();
   return await fetch(
     `${PACKAGE_PATH}/details/${repository}/${pkge}`
   ).then((val) => {
@@ -307,6 +324,7 @@ export async function getPackageInformation(repository: string, pkge: string): P
 const REPOSITORY_PATH = API + "/repository";
 
 export async function getAllRepositories(): Promise<string[]> {
+  await handleLoginRequired();
   return await fetch(`${REPOSITORY_PATH}`, { headers: DEFAULT_HEADERS }).then(async (response) => {
     const data = await response.json();
     return data;
@@ -316,6 +334,7 @@ export async function getAllRepositories(): Promise<string[]> {
 export async function addRepositoryAndFolder(
   repository: string
 ): Promise<RepositoryResponse> {
+  await handleLoginRequired();
   const body = JSON.stringify({
     repository: repository,
   });
@@ -332,6 +351,7 @@ export async function addRepositoryAndFolder(
 export async function removeRepositoryAndFolder(
   repository: string
 ): Promise<RepositoryResponse> {
+  await handleLoginRequired();
   return await fetch(
     `${REPOSITORY_PATH}/${repository.replace(PERMITTED_FILE_ENDING, "")}`,
     {

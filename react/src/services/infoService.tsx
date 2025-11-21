@@ -1,6 +1,7 @@
 import { type EnvWindow } from "./services.types"
 import { msalInstance } from "./auth/AuthProvider";
 import { loginRequest } from "./auth/auth-config";
+import { InteractionRequiredAuthError } from "@azure/msal-browser";
 
 const TOKEN: string = msalInstance.getActiveAccount()?.idToken ?? "";
 // const ACCESSTOKEN = account?.idToken;
@@ -51,18 +52,14 @@ export async function getBackendHealth(): Promise<string> {
     }
 }
 
-async function handleLoginRequired() {
-    const activeAccount = msalInstance.getActiveAccount();
-
-    if (activeAccount) {
-        await msalInstance.acquireTokenSilent({
-            ...loginRequest,
-            account: activeAccount
-        })
-    } else {
-        await msalInstance.loginRedirect({
-            ...loginRequest
-        })
-    }
-    window.location.reload();
-} 
+export async function handleLoginRequired() {
+    await msalInstance.acquireTokenSilent(loginRequest).then((req) => {
+        if (req.expiresOn && req.expiresOn.getTime() < Date.now()) {
+            console.log("Token has expired, redirecting to login.");
+            msalInstance.loginRedirect(loginRequest);
+        }
+    }).catch((err) => {
+        console.log("ERROR", err);
+        msalInstance.loginRedirect(loginRequest); // Redirect to login on error
+    });
+}

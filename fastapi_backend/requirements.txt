@@ -1,5 +1,6 @@
 fastapi[standard]==0.120.0
 
 python-multipart==0.0.20
-fastapi-azure-auth
-rpmfile
+fastapi-azure-auth==5.2.0
+watchdog==6.0.0
+rpmfile==2.1.0

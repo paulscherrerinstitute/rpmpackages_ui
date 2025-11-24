@@ -1,9 +1,9 @@
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import JSONResponse
-import os
+import os, shutil
 from shared_resources.dataService import REPO_DIR, FILE_ENDING
 from routers.routers_types import RepositoryRequest, RepositoryResponse
-import shutil
+from shared_resources.watchdog_manager import event_handler
 
 router = APIRouter()
 
@@ -34,6 +34,7 @@ async def create_repository(
 @router.get(ROUTER_PATH, response_class=JSONResponse)
 async def list_files() -> list[str]:
     try:
+        global event_handler
         file_list: list[str] = []
         for element in os.listdir(REPO_DIR):
             if (
@@ -52,16 +53,17 @@ async def list_files() -> list[str]:
             status_code=500, detail=f"Error reading directory: {str(e)}"
         )
 
+
 # Delete Repository and Folder
 @router.delete(ROUTER_PATH + "/{repository}")
 async def snap_repository_and_folder(repository: str):  # -> RepositoryResponse:
+    event_handler.source = "internal"  # Update the shared event_handler's source
+
     repository_path = os.path.join(REPO_DIR, repository + FILE_ENDING)
     folder_path = os.path.join(REPO_DIR, repository)
-    print(repository_path, folder_path)
-
-    if repository_path:
+    if repository_path and os.path.exists(repository_path):
         os.remove(repository_path)
-    if folder_path:
+    if folder_path and os.path.exists(folder_path):
         shutil.rmtree(folder_path)
 
     return RepositoryResponse(

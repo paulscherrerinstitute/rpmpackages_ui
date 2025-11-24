@@ -24,7 +24,6 @@ async def create_dir(
         raise HTTPException(status_code=404, detail="File not found")
 
     text_by_category: list[str] = assemble_repo(file_path)
-    print(len(text_by_category))
 
     for idx, txt_cat in enumerate(text_by_category):
         if request.directory in txt_cat:
@@ -39,7 +38,6 @@ async def create_dir(
         reassenbled_txt = reassemble_repo(text_by_category)
 
     write_file(file_path, reassenbled_txt)
-    print(reassenbled_txt)
     idx = len(text_by_category) - 1
     return CreateSubtitleResponse(added=True, index=idx, directory=request.directory)
 
@@ -53,6 +51,5 @@ async def remove_dir(repository: str, request: SubtitleRequest) -> str:
 
     if content == new_content:
         new_content = content.replace("# " + request.directory + "\n", "")
-    print(new_content)
     write_file(file_path, new_content)
     return new_content

@@ -32,8 +32,7 @@ async def list_folders_containing_pkge(package: str) -> list[str]:
                     break
         return contained_in
     except Exception as e:
-        print(e)
-        return []
+        return [str(e)]
 
 
 # Rename File in Folder

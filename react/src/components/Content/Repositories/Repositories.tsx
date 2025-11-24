@@ -28,12 +28,12 @@ export function Repositories() {
   const navigate = useNavigate();
   const [backendIsHealthy, setBackendIsHealthy] = useState<boolean>(true);
 
+  async function fetchData() {
+    const repos = await getAllRepositories();
+    setAvailableRepos(repos);
+    setIsDataLoading(false);
+  }
   useEffect(() => {
-    async function fetchData() {
-      const repos = await getAllRepositories();
-      setAvailableRepos(repos);
-      setIsDataLoading(false);
-    }
     getBackendHealth().then((val) => {
       if (val == "Alive and Well!") {
         fetchData();
@@ -43,6 +43,7 @@ export function Repositories() {
       }
     });
   }, []);
+
 
   const [repoSearch, setRepoSearch] = useState("");
   const updateRepoSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -67,6 +68,11 @@ export function Repositories() {
 
   const closeActionPopup = () => {
     setOpenActionPopup(false);
+    getBackendHealth().then((val) => {
+      if (val == "Alive and Well!") {
+        fetchData();
+      }
+    })
   };
 
   const [isDataLoading, setIsDataLoading] = useState(true);

@@ -87,7 +87,6 @@ def get_specific_package(pkge: str) -> list[str]:
     files = os.listdir(REPO_DIR)
     includedIn: list[str] = []
     for f in files:
-        print(f)
         file_path = os.path.join(REPO_DIR, f)
         if (
             os.path.isfile(file_path)

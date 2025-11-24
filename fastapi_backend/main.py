@@ -5,6 +5,7 @@ from routers.package_router import router as package_router
 from routers.repository_router import router as repository_router
 from routers.root_router import router as root_router
 from fastapi.middleware.cors import CORSMiddleware
+from shared_resources.watchdog_manager import start_watchdog, stop_watchdog
 
 app = FastAPI()
 
@@ -15,6 +16,16 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+@app.on_event("startup")
+def startup():
+    start_watchdog()
+
+
+@app.on_event("shutdown")
+def shutdown():
+    stop_watchdog()
 
 app.include_router(file_router)
 app.include_router(directory_router)

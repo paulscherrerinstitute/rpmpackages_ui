@@ -158,19 +158,21 @@ async def get_data(file_name: str) -> PlainTextResponse:
 @router.get(ROUTE_PATH + "/details/{repository}/{package}")
 async def get_internal_information(repository: str, package: str):
     file_path = os.path.join(REPO_DIR, repository, package)
-    with rpmfile.open(file_path) as rpm:
-        hdrs = rpm.headers
 
-        return PackageResponse(
-            name=cleanHeaders(hdrs.get("name")),
-            version=cleanHeaders(hdrs.get("version")),
-            release=cleanHeaders(hdrs.get("release")),
-            summary=cleanHeaders(hdrs.get("summary")),
-            description=cleanHeaders(hdrs.get("description")),
-            packager=cleanHeaders(hdrs.get("packager")),
-            arch=cleanHeaders(hdrs.get("arch")),
-            os=cleanHeaders(hdrs.get("os")),
-        )
+    if os.path.isfile(file_path):
+        with rpmfile.open(file_path) as rpm:
+            hdrs = rpm.headers
+
+            return PackageResponse(
+                name=cleanHeaders(hdrs.get("name")),
+                version=cleanHeaders(hdrs.get("version")),
+                release=cleanHeaders(hdrs.get("release")),
+                summary=cleanHeaders(hdrs.get("summary")),
+                description=cleanHeaders(hdrs.get("description")),
+                packager=cleanHeaders(hdrs.get("packager")),
+                arch=cleanHeaders(hdrs.get("arch")),
+                os=cleanHeaders(hdrs.get("os")),
+            )
 
 
 # Get list of repositories where a package is included

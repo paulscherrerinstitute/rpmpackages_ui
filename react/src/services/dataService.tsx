@@ -9,7 +9,6 @@ import {
 } from "./dataService.types";
 
 const env = (window as EnvWindow)._env_;
-// const API = "http://localhost:8000" + "/data";
 const API = env?.RPM_PACKAGES_PUBLIC_BACKEND_URL + "/data";
 const PERMITTED_FILE_ENDING: string =
   env?.RPM_PACKAGES_CONFIG_ENDING ?? ".repo_cfg";

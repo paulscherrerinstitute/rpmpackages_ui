@@ -18,8 +18,10 @@ import { useNavigate } from "react-router-dom";
 import * as styles from "./Topbar.styles";
 import useWebSocket from "react-use-websocket";
 import { useEffect } from "react";
+import { type EnvWindow } from "../../services/dataService.types";
 
 const drawerWidth = 240;
+const WS_URL = (window as EnvWindow)._env_?.RPM_PACKAGES_PUBLIC_BACKEND_URL.replace(/^https?:/g, "ws:") ?? "ws://localhost:8000"
 export default function Topbar() {
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = React.useState(false);
@@ -51,9 +53,8 @@ export default function Topbar() {
 
   const container = window.document.body;
 
-  const WS_URL = "ws://localhost:8000"
   const { lastJsonMessage } = useWebSocket(
-    WS_URL, { share: false, onOpen: () => console.log("opened"), shouldReconnect: () => true }
+    WS_URL, { share: false, onOpen: () => console.info("Connected to Websocket and listening for external changes"), shouldReconnect: () => true }
   )
 
   useEffect(() => {

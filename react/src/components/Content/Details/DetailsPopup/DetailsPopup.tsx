@@ -168,13 +168,13 @@ export function DetailsPopup({
             </TableHead>
             <TableBody>
               <TableRow>
-                <TableCell> {formData.name} </TableCell>
-                <TableCell> {formData.version} </TableCell>
-                <TableCell> {formData.release} </TableCell>
-                <TableCell> {formData.arch} </TableCell>
-                <TableCell> {formData.os} </TableCell>
-                <TableCell> {formData.packager} </TableCell>
-                <TableCell> {formData.summary} </TableCell>
+                <TableCell> {formData?.name ?? "None"} </TableCell>
+                <TableCell> {formData?.version ?? "None"} </TableCell>
+                <TableCell> {formData?.release ?? "None"} </TableCell>
+                <TableCell> {formData?.arch ?? "None"} </TableCell>
+                <TableCell> {formData?.os ?? "None"} </TableCell>
+                <TableCell> {formData?.packager ?? "None"} </TableCell>
+                <TableCell> {formData?.summary ?? "None"} </TableCell>
               </TableRow>
             </TableBody>
           </Table>

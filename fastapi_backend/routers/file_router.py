@@ -12,6 +12,7 @@ from routers.routers_types import (
     PackageFile,
     RenameRequest,
 )
+from shared_resources.watchdog_manager import setHandlerSource
 
 router = APIRouter()
 
@@ -38,6 +39,7 @@ async def list_folders_containing_pkge(package: str) -> list[str]:
 # Rename File in Folder
 @router.patch(ROUTE_PATH + "/{package}")
 async def rename_file(package: str, request: RenameRequest) -> RenamePackageResponse:
+    setHandlerSource("internal")
     file_path = os.path.join(REPO_DIR, request.directory)
 
     for element in os.listdir(file_path):
@@ -53,6 +55,7 @@ async def rename_file(package: str, request: RenameRequest) -> RenamePackageResp
 # Upload File to Folder
 @router.post(ROUTE_PATH + "/{directory}")
 async def upload_file(directory: str, file: UploadFile) -> dict:
+    setHandlerSource("internal")
     file_path = os.path.join(REPO_DIR, directory)
 
     # Ensure the directory exists
@@ -92,6 +95,7 @@ async def get_files(directory: str, package: str):
 # Remove File from Folder
 @router.delete(ROUTE_PATH + "/{directory}/{package}")
 async def remove(directory: str, package: str) -> DeleteFileResponse:
+    setHandlerSource("internal")
     file_path = os.path.join(REPO_DIR, directory, package)
     is_deleted = False
     if os.path.isfile(file_path):

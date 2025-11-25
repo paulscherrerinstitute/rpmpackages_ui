@@ -17,8 +17,14 @@ class DirectoryEventHandler(FileSystemEventHandler):
     def resetSource(self) -> None:
         self.source = self.default_source
 
-    def on_deleted(self, event) -> None:
-        if self.source == "external":
+    def on_any_event(self, event: FileSystemEvent) -> None:
+        type = event.event_type
+        if self.source == "external" and (
+            type == "modified"
+            or type == "moved"
+            or type == "deleted"
+            or type == "created"
+        ):
             ev = Event(
                 name=str(event.src_path), type=event.event_type, date=datetime.now()
             )
@@ -28,6 +34,10 @@ class DirectoryEventHandler(FileSystemEventHandler):
 
 # Global event_handler instance
 event_handler = DirectoryEventHandler(source="external")
+
+
+def setHandlerSource(source: str):
+    event_handler.source = source
 
 
 # Initialize and start the watchdog observer

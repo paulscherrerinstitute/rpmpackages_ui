@@ -19,18 +19,9 @@ import * as styles from "./Topbar.styles";
 import useWebSocket from "react-use-websocket";
 import { useEffect } from "react";
 
-interface Props {
-  /**
-   * Injected by the documentation to work in an iframe.
-   * You won't need it on your project.
-   */
-  window?: () => Window;
-}
-
 const drawerWidth = 240;
-export default function Topbar(props: Props) {
+export default function Topbar() {
   const navigate = useNavigate();
-  const { window } = props;
   const [mobileOpen, setMobileOpen] = React.useState(false);
 
   const handleDrawerToggle = () => {
@@ -58,17 +49,22 @@ export default function Topbar(props: Props) {
     </Box>
   );
 
-  const container =
-    window !== undefined ? () => window().document.body : undefined;
+  const container = window.document.body;
 
-  const WS_URL = "ws://localhost:8000/events"
-  const { lastMessage, lastJsonMessage, readyState } = useWebSocket(
+  const WS_URL = "ws://localhost:8000"
+  const { lastJsonMessage } = useWebSocket(
     WS_URL, { share: false, onOpen: () => console.log("opened"), shouldReconnect: () => true }
   )
 
   useEffect(() => {
     if (lastJsonMessage != null) {
-      console.log(lastJsonMessage)
+      const lastEvent = JSON.parse(`${lastJsonMessage}`);
+      const file = lastEvent.name.split("\\").reverse()[0]
+      console.info(
+        "[" + new Date().toISOString() + "]",
+        `External Input has been recorded: "${file}" has been ${lastEvent.type}.`,
+      );
+      window.location.reload();
     }
   }, [lastJsonMessage])
 

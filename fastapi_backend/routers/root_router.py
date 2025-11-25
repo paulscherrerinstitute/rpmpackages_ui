@@ -1,7 +1,7 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, WebSocket
 from socket import gethostname
 from os import getenv
-from shared_resources.event_manager import get_all_events
+from shared_resources.event_manager import Event, subscribers, get_all_events
 
 router = APIRouter()
 
@@ -22,6 +22,14 @@ async def get_rpm_location() -> str:
     return dir if dir is not None else ""
 
 
-@router.get("/events")
-async def get_events():
-    return get_all_events()
+@router.websocket("/")
+async def get_events(websocket: WebSocket):
+    await websocket.accept()
+    # Add to subscribers
+    subscribers.add(websocket)
+
+    try:
+        while True:
+            await websocket.receive_text()  # keeps connection alive
+    except:
+        subscribers.remove(websocket)

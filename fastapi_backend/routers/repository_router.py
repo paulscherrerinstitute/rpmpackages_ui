@@ -3,7 +3,7 @@ from fastapi.responses import JSONResponse
 import os, shutil
 from shared_resources.dataService import REPO_DIR, FILE_ENDING
 from routers.routers_types import RepositoryRequest, RepositoryResponse
-from shared_resources.watchdog_manager import event_handler
+from shared_resources.watchdog_manager import setHandlerSource
 
 router = APIRouter()
 
@@ -15,6 +15,7 @@ ROUTER_PATH = "/data/repository"
 async def create_repository(
     request: RepositoryRequest,
 ) -> RepositoryResponse:
+    setHandlerSource("internal")
     folder_path = os.path.join(REPO_DIR, request.repository)
     repository_path = os.path.join(REPO_DIR, request.repository + FILE_ENDING)
 
@@ -34,7 +35,6 @@ async def create_repository(
 @router.get(ROUTER_PATH, response_class=JSONResponse)
 async def list_files() -> list[str]:
     try:
-        global event_handler
         file_list: list[str] = []
         for element in os.listdir(REPO_DIR):
             if (
@@ -57,8 +57,7 @@ async def list_files() -> list[str]:
 # Delete Repository and Folder
 @router.delete(ROUTER_PATH + "/{repository}")
 async def snap_repository_and_folder(repository: str):  # -> RepositoryResponse:
-    event_handler.source = "internal"  # Update the shared event_handler's source
-
+    setHandlerSource("internal")
     repository_path = os.path.join(REPO_DIR, repository + FILE_ENDING)
     folder_path = os.path.join(REPO_DIR, repository)
     if repository_path and os.path.exists(repository_path):

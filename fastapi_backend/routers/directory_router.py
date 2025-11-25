@@ -8,6 +8,7 @@ from shared_resources.dataService import (
     read_file,
 )
 from routers.routers_types import SubtitleRequest, CreateSubtitleResponse
+from shared_resources.watchdog_manager import setHandlerSource
 
 router = APIRouter()
 
@@ -19,6 +20,7 @@ ROUTER_PATH = "/data/directory"
 async def create_dir(
     repository: str, request: SubtitleRequest
 ) -> CreateSubtitleResponse:
+    setHandlerSource("internal")
     file_path = os.path.join(REPO_DIR, repository)
     if not os.path.isfile(file_path):
         raise HTTPException(status_code=404, detail="File not found")
@@ -45,6 +47,7 @@ async def create_dir(
 # Delete subtitle in repository
 @router.delete(ROUTER_PATH + "/{repository}")
 async def remove_dir(repository: str, request: SubtitleRequest) -> str:
+    setHandlerSource("internal")
     file_path = os.path.join(REPO_DIR, repository)
     content = read_file(file_path)
     new_content = content.replace("\n\n# " + request.directory, "")

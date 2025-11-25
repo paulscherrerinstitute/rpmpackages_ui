@@ -15,13 +15,14 @@ from shared_resources.dataService import (
     get_repo_directories,
     get_all_packages_with_repos,
 )
-from .routers_types import (
+from routers.routers_types import (
     PatchMoveRequest,
     CreateRequest,
     PatchRequest,
     Package,
     PackageResponse,
 )
+from shared_resources.watchdog_manager import setHandlerSource
 
 router = APIRouter()
 
@@ -31,6 +32,7 @@ ROUTE_PATH = "/data/package"
 # Move package to repository
 @router.patch(ROUTE_PATH + "/{package}/move", response_class=JSONResponse)
 async def move_pkge(package: str, request: PatchMoveRequest) -> list[str]:
+    setHandlerSource("internal")
     file_path = os.path.join(REPO_DIR, request.repository)
     content = read_file(file_path).replace("\n" + package, "").split("\n\n#")
     for idx, pk in enumerate(content):
@@ -48,6 +50,7 @@ async def move_pkge(package: str, request: PatchMoveRequest) -> list[str]:
 # Create a new package inside a repository
 @router.post(ROUTE_PATH + "/new")
 async def create_item(request: CreateRequest) -> list[list[str]]:
+    setHandlerSource("internal")
     package = request.item
     idx = request.subTitleIndex
     file_name = request.file_name
@@ -76,6 +79,7 @@ async def create_item(request: CreateRequest) -> list[list[str]]:
 # Delete single package inside a repository
 @router.delete(ROUTE_PATH + "/{package}/{file_name}")
 async def delete_item_repos(package: str, file_name: str) -> list[str]:
+    setHandlerSource("internal")
     file_path = os.path.join(REPO_DIR, file_name)
 
     if not os.path.isfile(file_path):
@@ -98,6 +102,7 @@ async def delete_item_repos(package: str, file_name: str) -> list[str]:
 # Update Package in repository
 @router.patch(ROUTE_PATH + "/{package}", response_class=JSONResponse)
 async def update_pkges(package, request: PatchRequest) -> list[str]:
+    setHandlerSource("internal")
     file_path = os.path.join(REPO_DIR, request.repository)
     content = read_file(file_path).split("\n")
 

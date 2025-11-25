@@ -16,6 +16,8 @@ import Button from "@mui/material/Button";
 import { NAV_ITEMS, TITLE } from "../helpers/NavbarHelper";
 import { useNavigate } from "react-router-dom";
 import * as styles from "./Topbar.styles";
+import useWebSocket from "react-use-websocket";
+import { useEffect } from "react";
 
 interface Props {
   /**
@@ -58,6 +60,17 @@ export default function Topbar(props: Props) {
 
   const container =
     window !== undefined ? () => window().document.body : undefined;
+
+  const WS_URL = "ws://localhost:8000/events"
+  const { lastMessage, lastJsonMessage, readyState } = useWebSocket(
+    WS_URL, { share: false, onOpen: () => console.log("opened"), shouldReconnect: () => true }
+  )
+
+  useEffect(() => {
+    if (lastJsonMessage != null) {
+      console.log(lastJsonMessage)
+    }
+  }, [lastJsonMessage])
 
   return (
     <Box sx={{ display: "flex" }}>

@@ -22,8 +22,7 @@ class DirectoryEventHandler(FileSystemEventHandler):
             ev = Event(
                 name=str(event.src_path), type=event.event_type, date=datetime.now()
             )
-            print(ev)
-            add_event(ev)
+            asyncio.run(add_event(ev))
         self.resetSource()
 
 

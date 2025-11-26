@@ -283,6 +283,16 @@ function AllPackagesDetailsDialog(
 ) {
   const [formData, setFormData] = useState<DetailsForm>(EMPTY)
   const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [pkgeTitle, setPkgeTitle] = useState<string>("");
+  const [displayTitle, setDisplayTitle] = useState<boolean>(true);
+
+  async function fetchPackageInformation() {
+    if (inclusionsInRepositories[0] != undefined) {
+      setIsLoading(false);
+      return await getPackageInformation(inclusionsInRepositories[0].replace(PERMITTED_FILE_ENDING, ""), pkge)
+    }
+  }
 
   useEffect(() => {
     if (open) {
@@ -290,7 +300,7 @@ function AllPackagesDetailsDialog(
       setIsLoading(true);
     }
     if (inclusionsInRepositories[0]) {
-      f().then((val) => {
+      fetchPackageInformation().then((val) => {
         if (val) { setFormData(val); }
       }).catch(() => {
         setFormData(NONE)
@@ -300,22 +310,10 @@ function AllPackagesDetailsDialog(
     if (pkge) setPkgeTitle(pkge);
   }, [inclusionsInRepositories, pkge, open])
 
-  async function f() {
-    if (inclusionsInRepositories[0] != undefined) {
-      setIsLoading(false);
-      return await getPackageInformation(inclusionsInRepositories[0].replace(PERMITTED_FILE_ENDING, ""), pkge)
-    }
-  }
-
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-
-  const [pkgeTitle, setPkgeTitle] = useState<string>("");
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target;
     setPkgeTitle(value);
   }
-
-  const [displayTitle, setDisplayTitle] = useState<boolean>(true);
 
   const saveTitleChange = async () => {
     if (inclusionsInRepositories[0]) {

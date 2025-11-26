@@ -20,9 +20,6 @@ export default function AllPackagesFileInput({
   updatePackages,
   setFile,
 }: AllPackagesFileInputProps) {
-  useEffect(() => {
-    fetchData();
-  }, [fileIncludedIn]);
 
   const [isPossible, setIsPossible] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -37,6 +34,10 @@ export default function AllPackagesFileInput({
       setIsPossible(false);
     }
   };
+
+  useEffect(() => {
+    fetchData();
+  }, [fileIncludedIn]);
 
   const getFileURL = () => {
     if (file) {

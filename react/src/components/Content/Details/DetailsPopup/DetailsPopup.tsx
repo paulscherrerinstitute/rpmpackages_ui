@@ -46,6 +46,10 @@ export function DetailsPopup({
   useEffect(() => {
   }, [formData]);
 
+  async function fetchPackageInformation() {
+    return (await getPackageInformation(repository ?? "", pkge))
+  }
+
   useEffect(() => {
     setPkgeTitle(pkge);
     if (open) {
@@ -55,7 +59,7 @@ export function DetailsPopup({
         if (setFile) setFile(null);
       } else {
         if (pkge) {
-          f().then((val) => {
+          fetchPackageInformation().then((val) => {
             setFormData(val);
           }).catch(() => {
             setFormData(NONE)
@@ -87,9 +91,6 @@ export function DetailsPopup({
     }
   }, [file])
 
-  async function f() {
-    return (await getPackageInformation(repository ?? "", pkge))
-  }
 
   const [pkgeTitle, setPkgeTitle] = useState<string>("");
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {

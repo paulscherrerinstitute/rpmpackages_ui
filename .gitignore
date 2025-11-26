@@ -1,7 +1,5 @@
 # Front
 /react/node_modules
-/react/public/*.repo_cfg
-/react/public/env-config.js
 
 # Back
 /fastapi_backend/venv

@@ -27,6 +27,7 @@ export function Repositories() {
   const [availableRepos, setAvailableRepos] = useState<string[]>([]);
   const navigate = useNavigate();
   const [backendIsHealthy, setBackendIsHealthy] = useState<boolean>(true);
+  const [isDataLoading, setIsDataLoading] = useState(true);
 
   async function fetchData() {
     const repos = await getAllRepositories();
@@ -74,8 +75,6 @@ export function Repositories() {
       }
     })
   };
-
-  const [isDataLoading, setIsDataLoading] = useState(true);
 
   return (
     <Box component="main" sx={styles.main}>

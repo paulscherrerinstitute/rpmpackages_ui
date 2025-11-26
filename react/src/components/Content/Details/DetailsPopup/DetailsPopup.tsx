@@ -70,7 +70,7 @@ export function DetailsPopup({
 
   useEffect(() => {
     if (file) {
-      var repos = repository?.replace(PERMITTED_FILE_ENDING, "") ?? "";
+      const repos = repository?.replace(PERMITTED_FILE_ENDING, "") ?? "";
       uploadFileToFolder(repos, file).then(() => {
         getPackageInformation(repository ?? "", file.name).then((val) => {
           setFormData(val);

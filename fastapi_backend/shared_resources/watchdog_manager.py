@@ -3,7 +3,8 @@ from watchdog.events import FileSystemEvent, FileSystemEventHandler
 from watchdog.observers import Observer
 from shared_resources.event_manager import add_event, Event
 from datetime import datetime
-import os, asyncio
+import os
+import asyncio
 
 
 class DirectoryEventHandler(FileSystemEventHandler):

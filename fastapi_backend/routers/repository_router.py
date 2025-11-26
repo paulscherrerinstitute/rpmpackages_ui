@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import JSONResponse
-import os, shutil
+import os
+import shutil
 from shared_resources.dataService import REPO_DIR, FILE_ENDING
 from routers.routers_types import RepositoryRequest, RepositoryResponse
 from shared_resources.watchdog_manager import setHandlerSource

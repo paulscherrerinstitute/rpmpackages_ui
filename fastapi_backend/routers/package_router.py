@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import JSONResponse, PlainTextResponse
-import os, rpmfile
+import os
+import rpmfile
 from shared_resources.dataService import (
     REPO_DIR,
     read_file,

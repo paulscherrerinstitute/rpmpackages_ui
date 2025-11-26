@@ -1,7 +1,7 @@
 from fastapi import APIRouter, WebSocket
 from socket import gethostname
 from os import getenv
-from shared_resources.event_manager import Event, subscribers, get_all_events
+from shared_resources.event_manager import subscribers
 
 router = APIRouter()
 
@@ -31,5 +31,5 @@ async def get_events(websocket: WebSocket):
     try:
         while True:
             await websocket.receive_text()  # keeps connection alive
-    except:
+    except Exception:
         subscribers.remove(websocket)

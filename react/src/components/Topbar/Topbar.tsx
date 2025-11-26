@@ -18,10 +18,9 @@ import { useNavigate } from "react-router-dom";
 import * as styles from "./Topbar.styles";
 import useWebSocket from "react-use-websocket";
 import { useEffect } from "react";
-import { type EnvWindow } from "../../services/dataService.types";
 
 const drawerWidth = 240;
-const WS_URL = (window as EnvWindow)._env_?.RPM_PACKAGES_PUBLIC_BACKEND_URL.replace(/^https?:/g, "ws:") ?? "ws://localhost:8000"
+const WS_URL = `ws://${window.location.hostname}/api/ws`
 export default function Topbar() {
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = React.useState(false);

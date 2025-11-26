@@ -22,7 +22,7 @@ async def get_rpm_location() -> str:
     return dir if dir is not None else ""
 
 
-@router.websocket("/")
+@router.websocket("/ws")
 async def get_events(websocket: WebSocket):
     await websocket.accept()
     # Add to subscribers

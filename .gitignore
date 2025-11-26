@@ -9,3 +9,4 @@
 /fastapi_backend/static/*/*.rpm
 /fastapi_backend/__pycache__
 /fastapi_backend/routers/__pycache__
+/fastapi_backend/shared_resources/__pycache__

@@ -8,7 +8,8 @@
         FRONTEND_IMAGE: "{{ FRONTEND_IMAGE | default('ghcr.io/paulscherrerinstitute/rpmpackages_ui-frontend:latest') }}"
         RPM_PACKAGES_CONFIG_ENDING: "{{ RPM_PACKAGES_CONFIG_ENDING | default('.repo_cfg') }}"
         RPM_PACKAGES_INTERNAL_BACKEND_URL: "{{ RPM_PACKAGES_INTERNAL_BACKEND_URL | default('') }}"
-        RPM_PACKAGES_LOCATION: "{{ RPM_PACKAGES_LOCATION | default('/') }}"
+        RPM_PACKAGES_DIRECTORY: "{{ RPM_PACKAGES_DIRECTORY | default('/') }}"
+        RPM_PACKAGES_PUBLIC_BACKEND_URL: "{{ RPM_PACKAGES_PUBLIC_BACKEND_URL | default('/api') }}"
 
     - name: Create Docker network
       docker_network:
@@ -39,12 +40,10 @@
         env:
           RPM_PACKAGES_DIRECTORY: /app/packages
           RPM_PACKAGES_CONFIG_ENDING: "{{ RPM_PACKAGES_CONFIG_ENDING }}"
-        ports:
-          - "8080:8080"
         networks:
           - name: rpmpackages_network
         volumes:
-          - "{{ RPM_PACKAGES_LOCATION }}:/app/packages"
+          - "{{ RPM_PACKAGES_DIRECTORY }}:/app/packages"
 
     - name: Try to pull frontend image
       docker_image:
@@ -70,6 +69,7 @@
         env:
           RPM_PACKAGES_CONFIG_ENDING: "{{ RPM_PACKAGES_CONFIG_ENDING }}"
           RPM_PACKAGES_INTERNAL_BACKEND_URL: "{{ RPM_PACKAGES_INTERNAL_BACKEND_URL }}"
+          RPM_PACKAGES_PUBLIC_BACKEND_URL: "{{ RPM_PACKAGES_PUBLIC_BACKEND_URL }}"
         ports:
           - "80:80"
         networks:

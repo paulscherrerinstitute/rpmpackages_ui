@@ -21,10 +21,7 @@ class DirectoryEventHandler(FileSystemEventHandler):
     def on_any_event(self, event: FileSystemEvent) -> None:
         type = event.event_type
         if self.source == "external" and (
-            type == "modified"
-            or type == "moved"
-            or type == "deleted"
-            or type == "created"
+            type == "moved" or type == "deleted" or type == "created"
         ):
             ev = Event(
                 name=str(event.src_path), type=event.event_type, date=datetime.now()
@@ -47,8 +44,9 @@ def start_watchdog():
     if rpm_directory:
         global observer
         observer = Observer()
-        observer.schedule(event_handler, rpm_directory, recursive=False)
+        observer.schedule(event_handler, rpm_directory, recursive=True)
         observer.start()
+        print("START WATCHDOG", rpm_directory)
     else:
         print("Environment variable RPM_PACKAGES_DIRECTORY is not set.")
 
@@ -58,3 +56,4 @@ def stop_watchdog():
     if observer:
         observer.stop()
         observer.join()
+        print("STOP WATCHDOG")

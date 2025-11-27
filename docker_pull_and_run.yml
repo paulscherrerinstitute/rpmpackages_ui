@@ -7,8 +7,8 @@
         BACKEND_IMAGE: "{{ BACKEND_IMAGE | default('ghcr.io/paulscherrerinstitute/rpmpackages_ui-backend:latest') }}"
         FRONTEND_IMAGE: "{{ FRONTEND_IMAGE | default('ghcr.io/paulscherrerinstitute/rpmpackages_ui-frontend:latest') }}"
         RPM_PACKAGES_CONFIG_ENDING: "{{ RPM_PACKAGES_CONFIG_ENDING | default('.repo_cfg') }}"
-        RPM_PACKAGES_INTERNAL_BACKEND_URL: "{{ RPM_PACKAGES_INTERNAL_BACKEND_URL | default('') }}"
-        RPM_PACKAGES_DIRECTORY: "{{ RPM_PACKAGES_DIRECTORY | default('/') }}"
+        RPM_PACKAGES_INTERNAL_BACKEND_URL: "{{ RPM_PACKAGES_INTERNAL_BACKEND_URL | default('http://rpmpackages_ui_backend:8080') }}"
+        RPM_PACKAGES_DIRECTORY: "{{ RPM_PACKAGES_DIRECTORY | default('/rpm_repos/cas/rhel9') }}"
         RPM_PACKAGES_PUBLIC_BACKEND_URL: "{{ RPM_PACKAGES_PUBLIC_BACKEND_URL | default('/api') }}"
 
     - name: Create Docker network

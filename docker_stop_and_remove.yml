@@ -5,15 +5,15 @@
     - name: Set default values if variables are not defined
       set_fact:
         BACKEND_IMAGE: "{{ BACKEND_IMAGE | default('ghcr.io/paulscherrerinstitute/rpmpackages_ui-backend') }}"
-        FRONTEND_IMAGE: "{{ FRONTEND_IMAGE | default('ghcr.io/paulscherrerinstitute/rpmpackages_ui-backend') }}"
+        FRONTEND_IMAGE: "{{ FRONTEND_IMAGE | default('ghcr.io/paulscherrerinstitute/rpmpackages_ui-frontend') }}"
 
     - name: Stop containers gracefully
       docker_container:
         name: "{{ item }}"
         state: stopped
       loop:
-        - data_board_frontend
-        - data_board_backend
+        - rpmpackages_ui_frontend
+        - rpmpackages_ui_backend
       ignore_errors: yes
 
     - name: Remove containers
@@ -21,8 +21,8 @@
         name: "{{ item }}"
         state: absent
       loop:
-        - data_board_frontend
-        - data_board_backend
+        - rpmpackages_ui_frontend
+        - rpmpackages_ui_backend
       ignore_errors: yes
 
     - name: Remove network

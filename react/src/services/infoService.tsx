@@ -3,32 +3,6 @@ import { type EnvWindow } from "./dataService.types"
 const env = (window as EnvWindow)._env_;
 const API = env?.RPM_PACKAGES_PUBLIC_BACKEND_URL;
 
-export async function getCurrentHost(): Promise<string> {
-    try {
-
-        const host = await fetch(`${API}/host`).then((res) => {
-            const data = res.json();
-            return data;
-        })
-        return host;
-    } catch {
-        return "";
-    }
-}
-
-export async function getRPMLocation(): Promise<string> {
-    try {
-
-        const location = await fetch(`${API}/location`).then((res) => {
-            const data = res.json();
-            return data;
-        })
-        return location;
-    } catch {
-        return "";
-    }
-}
-
 export async function getBackendHealth(): Promise<string> {
     try {
         const health = await fetch(`${API}/health`).then(async (res) => {

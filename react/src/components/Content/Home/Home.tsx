@@ -1,23 +1,15 @@
 import { Box, Typography, Toolbar, List, ListItem } from "@mui/material";
 import * as styles from "../Content.styles";
-import { getBackendHealth, getCurrentHost, getRPMLocation } from "../../../services/infoService";
+import { getBackendHealth } from "../../../services/infoService";
 import { useEffect, useState } from "react";
 
 export function Home() {
   const GITHUB_URL = "https://github.com/paulscherrerinstitute/rpmpackages_ui";
 
-  const [settings, setSettings] = useState({
-    host: "",
-    location: "",
-    health: "",
-  })
+  const [health, setHealth] = useState("")
 
   const fetchData = async () => {
-    setSettings({
-      host: await getCurrentHost(),
-      location: await getRPMLocation(),
-      health: await getBackendHealth(),
-    })
+    setHealth(await getBackendHealth())
   }
 
   useEffect(() => {
@@ -31,11 +23,8 @@ export function Home() {
       <Box>
         This application is a simple UI to manage RPM-Packages and their associated configurations and folders.
         It provides for changes made to packages, adding new packages, adding a new repository or managing orphaned files associated with packages.
-        The current configuration is as follows:
         <List>
-          <ListItem>Host: {settings.host}</ListItem>
-          <ListItem>Location of RPMs: {settings.location}</ListItem>
-          <ListItem>Health of Backend: {settings.health}</ListItem>
+          <ListItem>Health of Backend: {health}</ListItem>
         </List>
       </Box>
       <Box>

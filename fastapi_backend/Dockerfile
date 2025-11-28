@@ -17,8 +17,6 @@ COPY main.py .
 COPY routers/ routers/
 COPY shared_resources/ shared_resources/
 
-RUN chown -R rpm_backend:rpm_ui /app
-
 EXPOSE 8080
 
 CMD ["fastapi", "run", "main.py", "--host", "0.0.0.0", "--port", "8080"]

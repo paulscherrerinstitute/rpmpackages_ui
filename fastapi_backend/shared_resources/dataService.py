@@ -10,7 +10,7 @@ FILE_ENDING: str = os.getenv("RPM_PACKAGES_CONFIG_ENDING", ".repo_cfg")
 
 
 def read_file(file_path: str) -> str:
-    with open(file_path, "r+", encoding="utf-8") as file:
+    with open(file_path, "r", encoding="utf-8") as file:
         return file.read()
 
 

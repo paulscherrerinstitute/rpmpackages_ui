@@ -69,10 +69,16 @@ def get_all_packages() -> list[str]:
 def get_all_packages_with_repos() -> list[PackageFile]:
     files = os.listdir(REPO_DIR)
     packages: list[PackageFile] = []
+
     for f in files:
-        file_path = os.path.join(REPO_DIR, f)
-        if os.path.isfile(file_path):
-            first_arr = assemble_repo(file_path)
+        split: list[str] = f.split(".")
+        appropriate_filename: bool = False
+        if len(split) > 1:
+            ending = f.split(".")[1]
+            appropriate_filename = (ending == FILE_ENDING.replace(".", ""))
+        f_path: str = os.path.join(REPO_DIR, f)
+        if os.path.isfile(f_path) and appropriate_filename:
+            first_arr = assemble_repo(f_path)
             contents = list(map(split_lines, first_arr))
             dir = f.replace(FILE_ENDING, "")
 

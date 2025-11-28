@@ -2,6 +2,8 @@ FROM python:alpine
 
 WORKDIR /app
 
+RUN apk add --update --no-cache --virtual .tmp curl
+
 RUN curl -L https://astral.sh/uv/install.sh | sh
 
 ENV PATH="/root/.local/bin:${PATH}"
@@ -16,7 +18,6 @@ COPY routers/ routers/
 COPY shared_resources/ shared_resources/
 
 RUN chown -R rpm_backend:rpm_ui /app
-USER rpm_backend
 
 EXPOSE 8080
 

@@ -3,6 +3,7 @@ from routers.routers_types import PackageFile
 
 REPO_DIR: str = os.getenv("RPM_PACKAGES_DIRECTORY", "")
 FILE_ENDING: str = os.getenv("RPM_PACKAGES_CONFIG_ENDING", ".repo_cfg")
+IGNORE_PATHS: str = os.getenv("RPM_PACKAGES_IGNORE_PATHS", "")
 
 #########################
 ### General Functions ###
@@ -75,7 +76,7 @@ def get_all_packages_with_repos() -> list[PackageFile]:
         appropriate_filename: bool = False
         if len(split) > 1:
             ending = f.split(".")[1]
-            appropriate_filename = (ending == FILE_ENDING.replace(".", ""))
+            appropriate_filename = ending == FILE_ENDING.replace(".", "")
         f_path: str = os.path.join(REPO_DIR, f)
         if os.path.isfile(f_path) and appropriate_filename:
             first_arr = assemble_repo(f_path)
@@ -119,3 +120,11 @@ def get_specific_package(pkge: str) -> list[str]:
 def split_lines(s: str) -> list[str]:
     arr = s.split("\n")
     return arr
+
+
+def should_ignore(file_path: str):
+    paths: list[str] = IGNORE_PATHS.split(";")
+    for path in paths:
+        if path == file_path:
+            return True
+    return False

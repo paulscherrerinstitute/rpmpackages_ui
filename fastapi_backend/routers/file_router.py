@@ -5,6 +5,7 @@ from shared_resources.dataService import (
     REPO_DIR,
     get_repo_directories,
     get_all_packages_with_repos,
+    should_ignore
 )
 from routers.routers_types import (
     RenamePackageResponse,
@@ -112,7 +113,8 @@ async def list_orphaned_files() -> list[PackageFile]:
     orphans: list[PackageFile] = []
     for directory in get_repo_directories():
         file_path = os.path.join(REPO_DIR, directory)
-
+        if should_ignore(file_path):
+            continue
         for file in os.listdir(file_path):
             current: PackageFile = PackageFile(name=file, directory=directory)
             if current not in complete_list:

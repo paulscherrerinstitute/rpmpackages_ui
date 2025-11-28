@@ -10,6 +10,7 @@
         RPM_PACKAGES_INTERNAL_BACKEND_URL: "{{ RPM_PACKAGES_INTERNAL_BACKEND_URL | default('http://rpmpackages_ui_backend:8080') }}"
         RPM_PACKAGES_DIRECTORY: "{{ RPM_PACKAGES_DIRECTORY | default('/rpm_repos/cas/rhel9') }}"
         RPM_PACKAGES_PUBLIC_BACKEND_URL: "{{ RPM_PACKAGES_PUBLIC_BACKEND_URL | default('/api') }}"
+        RPM_PACKAGES_IGNORE_PATHS: "{{ RPM_PACKAGES_IGNORE_PATHS | default('/rpm_repos/cas/rhel9/all') }}"
 
     - name: Create Docker network
       docker_network:

@@ -92,6 +92,7 @@ For the local setup to work properly, the following env variables can (or must b
 - RPM_PACKAGES_CONFIG_ENDING: Ending of the configuration-files (defaults to ".repo_cfg")
 - RPM_PACKAGES_INTERNAL_BACKEND_URL: Specifies the location of the backend (defaults to "http://localhost:8000")
 - RPM_PACKAGES_PUBLIC_BACKEND_URL: Specifies the public location of the backend (when setting up locally, the actual URL and when running via NGINX then the URL path (ex. `/api` for the path: https://host_name/api))
+- RPM_PACKAGES_IGNORE_PATHS: Specifies the paths that are ignored for orphaned files (f.ex. for an '/all' folder that is included but has no seperate repository.). Must be a list seperated by `;`
 
 ### DOCKER-COMPOSE
 

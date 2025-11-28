@@ -9,6 +9,7 @@ services:
     environment:
       RPM_PACKAGES_DIRECTORY: "/app/packages"
       RPM_PACKAGES_CONFIG_ENDING: "${RPM_PACKAGES_CONFIG_ENDING:-.repo_cfg}"
+      RPM_PACKAGES_IGNORE_PATHS: "/app/packages/Repository"
     volumes:
       - "${RPM_PACKAGES_DIRECTORY}:/app/packages"
     networks:

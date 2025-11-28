@@ -161,6 +161,7 @@ export async function getRepositoriesOfPackage(
 export async function getOrphanedPackages(): Promise<OrphanedPackage[]> {
   return await fetch(`${PACKAGE_PATH}/orphans`).then(async (response) => {
     const data = await response.json();
+    console.log(data);
     return data;
   });
 }

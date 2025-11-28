@@ -46,7 +46,6 @@ def start_watchdog():
         observer = Observer()
         observer.schedule(event_handler, rpm_directory, recursive=True)
         observer.start()
-        print("START WATCHDOG", rpm_directory)
     else:
         print("Environment variable RPM_PACKAGES_DIRECTORY is not set.")
 
@@ -56,4 +55,3 @@ def stop_watchdog():
     if observer:
         observer.stop()
         observer.join()
-        print("STOP WATCHDOG")

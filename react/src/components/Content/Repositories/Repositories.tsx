@@ -84,13 +84,13 @@ export function Repositories() {
           <Typography variant="h5">Available Repositories</Typography>
           <Box sx={r_styles.buttonWrapper}>
             <Button variant="outlined" onClick={() => clickActionPopup("Add")}>
-              Add Repo
+              Add
             </Button>
             <Button
               variant="outlined"
               onClick={() => clickActionPopup("Remove")}
             >
-              Delete Repo
+              Delete
             </Button>
           </Box>
           <Box sx={r_styles.searchWrapper}>

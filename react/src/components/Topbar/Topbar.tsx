@@ -38,11 +38,11 @@ export default function Topbar() {
         {TITLE}
       </Typography>
       <Divider />
-      <List>
+      <List sx={{ display: "flex", flexDirection: "column", justifyContent: "space-evenly", height: "100%" }}>
         {NAV_ITEMS.map((item) => (
           <ListItem key={item.key} disablePadding>
             <ListItemButton
-              sx={styles.topBarButton}
+              sx={{ ...styles.topBarButton, color: "black" }}
               onClick={() => navigate(item.path)}
             >
               <ListItemText primary={item.key} />

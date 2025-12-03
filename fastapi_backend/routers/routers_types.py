@@ -51,6 +51,7 @@ class PatchRequest(BaseModel):
 
 class SubtitleRequest(BaseModel):
     directory: str
+    directory_index: int
 
 
 class CreateSubtitleResponse(BaseModel):
@@ -62,7 +63,8 @@ class CreateSubtitleResponse(BaseModel):
 class CreateRequest(BaseModel):
     item: str
     file_name: str
-    subTitleIndex: int
+    subtitle_index: int
+    directory_index: int
 
 
 class RepositoryRequest(BaseModel):

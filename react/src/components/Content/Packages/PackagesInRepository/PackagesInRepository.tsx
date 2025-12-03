@@ -45,6 +45,7 @@ export default function PackagesInRepository() {
   const [data, setData] = useState<string[][]>([]);
   const { path } = useParams();
   const permPath: string = path ?? "";
+  const loc: number = parseInt((window.location.search)?.split("=")[1])
 
   let isNotFound;
   if (data.length > 0) isNotFound = data[0][0] == "<!doctype html>";
@@ -89,15 +90,13 @@ export default function PackagesInRepository() {
 
   const handleSubtitleAdd = async (newSubtitle: string) => {
     const path = permPath + PERMITTED_FILE_ENDING;
-    await addSubtitlteToRepository(path, newSubtitle);
+    await addSubtitlteToRepository(path, newSubtitle, loc);
     setAddOpen(false);
     await fetchData();
   };
 
   const fetchData = async () => {
     try {
-      const loc: number = parseInt((window.location.search)?.split("=")[1])
-      console.log(loc)
       const resultData = await getAllPackagesFromRepository(permPath, loc);
       if (typeof resultData == "string" && resultData == "File not found") {
         setHasError(true);
@@ -137,7 +136,7 @@ export default function PackagesInRepository() {
     const pk = form.file_name
     const repo_path = `${permPath}${PERMITTED_FILE_ENDING}`;
 
-    await addPackageToRepository(pk, repo_path, outerIdx);
+    await addPackageToRepository(pk, repo_path, outerIdx, loc);
     fetchData();
   };
 
@@ -289,6 +288,7 @@ function ListPackagesInRepositories(
   const [dragging, setDragging] = useState<string>("");
   const { path } = useParams();
   const permPath: string = path ?? "";
+  const loc: number = parseInt((window.location.search)?.split("=")[1])
 
   const mapPackagesForSearchResults = (arr: string[]) => {
     const mapped = arr.map((f) => {
@@ -365,7 +365,8 @@ function ListPackagesInRepositories(
     if (prompt) {
       await removeSubtitleFromRepository(
         permPath + PERMITTED_FILE_ENDING,
-        directory
+        directory,
+        loc
       );
       await fetchData();
     }
@@ -374,7 +375,7 @@ function ListPackagesInRepositories(
   const handleRemove = async (pkg: string) => {
     const prompt = confirm(`Do you want to remove ${pkg} from ${permPath}?`);
     if (prompt) {
-      await removePackageFromRepository(pkg, permPath);
+      await removePackageFromRepository(pkg, permPath, loc);
     }
     fetchData();
   };

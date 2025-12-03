@@ -22,13 +22,14 @@ const DIRECTORY_PATH = API + "/directory";
 
 export async function addSubtitlteToRepository(
   repository: string,
-  directory: string
+  directory: string,
+  directory_index: number
 ): Promise<CreateDirectoryResponse> {
   const body = JSON.stringify({
     directory: directory,
   });
 
-  return await fetch(`${DIRECTORY_PATH}/${repository}`, {
+  return await fetch(`${DIRECTORY_PATH}/${repository}/${directory_index}`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body,
@@ -40,10 +41,12 @@ export async function addSubtitlteToRepository(
 
 export async function removeSubtitleFromRepository(
   repository: string,
-  directory: string
+  directory: string,
+  directory_index: number
 ) {
   const body = JSON.stringify({
     directory: directory.trim(),
+    directory_index
   });
   return await fetch(`${DIRECTORY_PATH}/${repository}`, {
     method: "DELETE",
@@ -209,13 +212,15 @@ export async function movePackageToRepository(
 export async function addPackageToRepository(
   pkge: string,
   repository: string,
-  insertIndex: number
+  insertIndex: number,
+  directory_index: number
 ): Promise<string[][]> {
   // ensure Content-Type is set and body keys match required shape/order
   const body = JSON.stringify({
     item: pkge,
     file_name: repository,
-    subTitleIndex: insertIndex,
+    subtitle_index: insertIndex,
+    directory_index: directory_index
   });
 
   return await fetch(`${PACKAGE_PATH}/new`, {
@@ -230,10 +235,11 @@ export async function addPackageToRepository(
 
 export async function removePackageFromRepository(
   pkge: string,
-  repository: string
+  repository: string,
+  directory_index: number
 ): Promise<string[]> {
   return await fetch(
-    `${PACKAGE_PATH}/${pkge}/${repository}${PERMITTED_FILE_ENDING}`,
+    `${PACKAGE_PATH}/${pkge}/${repository}${PERMITTED_FILE_ENDING}/${directory_index}`,
     {
       method: "DELETE",
     }

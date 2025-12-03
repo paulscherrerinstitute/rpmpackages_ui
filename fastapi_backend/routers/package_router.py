@@ -54,12 +54,12 @@ async def move_pkge(package: str, request: PatchMoveRequest) -> list[str]:
 async def create_item(request: CreateRequest) -> list[list[str]]:
     setHandlerSource("internal")
     package = request.item
-    idx = request.subTitleIndex
+    idx = request.subtitle_index
     file_name = request.file_name
     if FILE_ENDING not in file_name:
         file_name += FILE_ENDING
 
-    file_path = os.path.join(REPO_DIR, file_name)
+    file_path = os.path.join(REPO_DIR_L[request.directory_index], file_name)
     if not os.path.isfile(file_path):
         raise HTTPException(status_code=404, detail="File not found")
 
@@ -79,10 +79,12 @@ async def create_item(request: CreateRequest) -> list[list[str]]:
 
 
 # Delete single package inside a repository
-@router.delete(ROUTE_PATH + "/{package}/{file_name}")
-async def delete_item_repos(package: str, file_name: str) -> list[str]:
+@router.delete(ROUTE_PATH + "/{package}/{file_name}/{directory_index}")
+async def delete_item_repos(
+    package: str, file_name: str, directory_index: int
+) -> list[str]:
     setHandlerSource("internal")
-    file_path = os.path.join(REPO_DIR, file_name)
+    file_path = os.path.join(REPO_DIR_L[directory_index], file_name)
 
     if not os.path.isfile(file_path):
         raise HTTPException(status_code=404, detail="File not found")
@@ -142,7 +144,10 @@ async def list_orphaned_pkge() -> list[Package]:
 
 
 # Get packages from specific repository
-@router.get(ROUTE_PATH + "/repository/{file_name}/{directory_index}", response_class=PlainTextResponse)
+@router.get(
+    ROUTE_PATH + "/repository/{file_name}/{directory_index}",
+    response_class=PlainTextResponse,
+)
 async def get_data(file_name: str, directory_index: int) -> PlainTextResponse:
     file_path = os.path.join(REPO_DIR_L[directory_index], file_name)
     if not os.path.isfile(file_path):

@@ -1,11 +1,12 @@
-import {
-  type OrphanedFile,
-  type OrphanedPackage,
-  type RenameFileResponse,
-  type CreateDirectoryResponse,
-  type RemovePackageResponse,
-  type RepositoryResponse,
-  type EnvWindow,
+import type {
+  OrphanedFile,
+  OrphanedPackage,
+  RenameFileResponse,
+  CreateDirectoryResponse,
+  RemovePackageResponse,
+  RepositoryResponse,
+  EnvWindow,
+  Repository
 } from "./dataService.types";
 
 const env = (window as EnvWindow)._env_;
@@ -243,10 +244,11 @@ export async function removePackageFromRepository(
 }
 
 export async function getAllPackagesFromRepository(
-  repository: string
+  repository: string,
+  directory_index: number
 ): Promise<string[][]> {
   const response = await fetch(
-    `${PACKAGE_PATH}/repository/${repository}${PERMITTED_FILE_ENDING}`
+    `${PACKAGE_PATH}/repository/${repository}${PERMITTED_FILE_ENDING}/${directory_index}`
   );
   const text = await response.text();
   if (text.includes("File not found")) {
@@ -287,7 +289,7 @@ export async function getPackageInformation(repository: string, pkge: string): P
 
 const REPOSITORY_PATH = API + "/repository";
 
-export async function getAllRepositories(): Promise<string[]> {
+export async function getAllRepositories(): Promise<Repository[]> {
   return await fetch(`${REPOSITORY_PATH}`).then(async (response) => {
     const data = await response.json();
     return data;
@@ -295,10 +297,12 @@ export async function getAllRepositories(): Promise<string[]> {
 }
 
 export async function addRepositoryAndFolder(
-  repository: string
+  repository: string,
+  directory_index: number
 ): Promise<RepositoryResponse> {
   const body = JSON.stringify({
     repository: repository,
+    directory_index: directory_index
   });
   return await fetch(`${REPOSITORY_PATH}/new`, {
     method: "POST",
@@ -311,10 +315,11 @@ export async function addRepositoryAndFolder(
 }
 
 export async function removeRepositoryAndFolder(
-  repository: string
+  repository: string,
+  directory_idx: number
 ): Promise<RepositoryResponse> {
   return await fetch(
-    `${REPOSITORY_PATH}/${repository.replace(PERMITTED_FILE_ENDING, "")}`,
+    `${REPOSITORY_PATH}/${repository.replace(PERMITTED_FILE_ENDING, "")}/${directory_idx}`,
     {
       method: "DELETE",
     }

@@ -96,7 +96,9 @@ export default function PackagesInRepository() {
 
   const fetchData = async () => {
     try {
-      const resultData = await getAllPackagesFromRepository(permPath);
+      const loc: number = parseInt((window.location.search)?.split("=")[1])
+      console.log(loc)
+      const resultData = await getAllPackagesFromRepository(permPath, loc);
       if (typeof resultData == "string" && resultData == "File not found") {
         setHasError(true);
         setData([]);
@@ -407,7 +409,7 @@ function ListPackagesInRepositories(
                   </Box>
                 }
                 <List>
-                  { item.map(
+                  {item.map(
                     (pkg, innerIdx) =>
                       (pkg.includes(packageSearch) ||
                         packageSearch.length == 0) &&

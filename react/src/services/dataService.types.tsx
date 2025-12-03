@@ -8,6 +8,11 @@ export type OrphanedPackage = {
   repository: string[];
 };
 
+export type Repository = {
+  element: string
+  dir_idx: number
+}
+
 export type RenameFileResponse = {
   old_name: string;
   new_name: string;

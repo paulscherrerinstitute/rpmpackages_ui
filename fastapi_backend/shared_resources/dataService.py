@@ -2,6 +2,7 @@ import os
 from routers.routers_types import PackageFile
 
 REPO_DIR: str = os.getenv("RPM_PACKAGES_DIRECTORY", "")
+REPO_DIR_L = str(os.getenv("RPM_PACKAGES_DIRECTORY_L", "")).split(";")
 FILE_ENDING: str = os.getenv("RPM_PACKAGES_CONFIG_ENDING", ".repo_cfg")
 IGNORE_PATHS: str = os.getenv("RPM_PACKAGES_IGNORE_PATHS", "")
 

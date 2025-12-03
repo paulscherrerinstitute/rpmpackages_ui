@@ -4,6 +4,7 @@ import os
 import rpmfile
 from shared_resources.dataService import (
     REPO_DIR,
+    REPO_DIR_L,
     read_file,
     write_file,
     reassemble_repo,
@@ -141,10 +142,9 @@ async def list_orphaned_pkge() -> list[Package]:
 
 
 # Get packages from specific repository
-@router.get(ROUTE_PATH + "/repository/{file_name}", response_class=PlainTextResponse)
-async def get_data(file_name: str) -> PlainTextResponse:
-    file_path = os.path.join(REPO_DIR, file_name)
-
+@router.get(ROUTE_PATH + "/repository/{file_name}/{directory_index}", response_class=PlainTextResponse)
+async def get_data(file_name: str, directory_index: int) -> PlainTextResponse:
+    file_path = os.path.join(REPO_DIR_L[directory_index], file_name)
     if not os.path.isfile(file_path):
         raise HTTPException(status_code=404, detail="File not found")
 

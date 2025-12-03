@@ -15,7 +15,7 @@ import {
   addPackageToRepository,
   addSubtitlteToRepository,
 } from "../../../../services/dataService";
-import { type CreateDirectoryResponse } from "../../../../services/dataService.types";
+import { type CreateDirectoryResponse, type Repository } from "../../../../services/dataService.types";
 import * as ar_styles from "./AddRepository.styles";
 import * as styles from "../../Content.styles";
 import { useEffect, useState } from "react";
@@ -27,7 +27,7 @@ export function AddRepositoryPopup({
   item,
   inclusions,
 }: AddRepository) {
-  const [availableRepos, setAvailableRepos] = useState<string[]>([]);
+  const [availableRepos, setAvailableRepos] = useState<Repository[]>([]);
   const [newRepo, setNewRepo] = useState("");
   const [isDisabled, setIsDisabled] = useState<boolean>(false);
 
@@ -87,8 +87,8 @@ export function AddRepositoryPopup({
               label="Repositories"
             >
               {availableRepos.map((repo) => (
-                <MenuItem disabled={doesExist(repo)} value={repo}>
-                  {repo}
+                <MenuItem disabled={doesExist(repo.element)} value={repo.element}>
+                  {repo.element}
                 </MenuItem>
               ))}
             </Select>

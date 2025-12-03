@@ -22,9 +22,10 @@ import {
 } from "./RepositoryActionsPopup/RepositoryActionsPopup";
 import { getBackendHealth } from "../../../services/infoService";
 import { ErrorBar } from "../Details/ErrorBar";
+import type { Repository } from "../../../services/dataService.types";
 
 export function Repositories() {
-  const [availableRepos, setAvailableRepos] = useState<string[]>([]);
+  const [availableRepos, setAvailableRepos] = useState<Repository[]>([]);
   const navigate = useNavigate();
   const [backendIsHealthy, setBackendIsHealthy] = useState<boolean>(true);
   const [isDataLoading, setIsDataLoading] = useState(true);
@@ -52,9 +53,9 @@ export function Repositories() {
   };
 
   const clearRepoSearch = () => setRepoSearch("");
-  const mapAvailableRepos = (arr: string[]) => {
+  const mapAvailableRepos = (arr: Repository[]) => {
     const mapped = arr.map((f) => {
-      return { name: f };
+      return { name: f.element };
     });
     return mapped;
   };
@@ -114,14 +115,14 @@ export function Repositories() {
           <TableBody>
             {!isDataLoading && availableRepos.map(
               (item) =>
-                (item.includes(repoSearch) || repoSearch.length == 0) && (
+                (item.element.includes(repoSearch) || repoSearch.length == 0) && (
                   <TableRow
                     hover
-                    key={`repos-${item}`}
-                    onClick={() => navigate(`/Packages/${item.split(".")[0]}`)}
+                    key={`repos-${item.element}`}
+                    onClick={() => navigate(`/Packages/${item.element.split(".")[0]}?idx=${item.dir_idx}`)}
                   >
                     <TableCell sx={styles.clickButton}>
-                      {item.split(".")[0]}
+                      {item.element.split(".")[0]}
                     </TableCell>
                   </TableRow>
                 )

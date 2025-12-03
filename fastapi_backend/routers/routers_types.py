@@ -67,9 +67,14 @@ class CreateRequest(BaseModel):
 
 class RepositoryRequest(BaseModel):
     repository: str
+    directory_index: int
 
 
 class RepositoryResponse(BaseModel):
     repository: str
     repository_location: str
     folder_location: str
+
+class Repository(BaseModel):
+    element: str
+    dir_idx: int

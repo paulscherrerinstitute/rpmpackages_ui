@@ -132,13 +132,15 @@ async def list_orphaned_pkge() -> list[Package]:
     orphans: list[Package] = []
 
     for directory in get_repo_directories():
-        file_path = os.path.join(REPO_DIR, directory)
-        for file in os.listdir(file_path):
-            complete_list.append(Package(name=file, repository=[directory]))
+        for idx, el in enumerate(REPO_DIR_L):
+            file_path = os.path.join(el, directory)
+            if not os.path.isdir(file_path): continue
+            for file in os.listdir(file_path):
+                complete_list.append(Package(name=file, repository=[directory], directory_index=idx))
 
     for package in get_all_packages_with_repos():
-        p: Package = Package(name=package.name, repository=[package.directory])
-        if p not in complete_list and "rpm" in p.name:
+        p: Package = Package(name=package.name, repository=[package.directory], directory_index=package.directory_index)
+        if p not in complete_list:
             orphans.append(p)
 
     return orphans

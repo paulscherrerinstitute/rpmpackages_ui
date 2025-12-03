@@ -73,24 +73,25 @@ def get_all_packages() -> list[str]:
 
 
 def get_all_packages_with_repos() -> list[PackageFile]:
-    files = os.listdir(REPO_DIR)
     packages: list[PackageFile] = []
+    for idx, el in enumerate(REPO_DIR_L):
+        files = os.listdir(el)
+        for f in files:
+            split: list[str] = f.split(".")
+            appropriate_filename: bool = False
+            if len(split) > 1:
+                ending = f.split(".")[1]
+                appropriate_filename = ending == FILE_ENDING.replace(".", "")
+            f_path: str = os.path.join(el, f)
+            if os.path.isfile(f_path) and appropriate_filename:
+                first_arr = assemble_repo(f_path)
+                contents = list(map(split_lines, first_arr))
+                dir = f.replace(FILE_ENDING, "")
 
-    for f in files:
-        split: list[str] = f.split(".")
-        appropriate_filename: bool = False
-        if len(split) > 1:
-            ending = f.split(".")[1]
-            appropriate_filename = ending == FILE_ENDING.replace(".", "")
-        f_path: str = os.path.join(REPO_DIR, f)
-        if os.path.isfile(f_path) and appropriate_filename:
-            first_arr = assemble_repo(f_path)
-            contents = list(map(split_lines, first_arr))
-            dir = f.replace(FILE_ENDING, "")
-
-            for category in contents:
-                for pkge in category:
-                    packages.append(PackageFile(name=pkge, directory=dir))
+                for category in contents:
+                    for pkge in category:
+                        if ".rpm" in pkge: 
+                            packages.append(PackageFile(name=pkge, directory=dir, directory_index=idx))
 
     return packages
 

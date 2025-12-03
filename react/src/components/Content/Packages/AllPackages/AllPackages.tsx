@@ -116,13 +116,11 @@ export default function AllPackages() {
   const fetchFile = async () => {
     setIsFileLoading(true);
     if (inclusionsInDirectories.length > 0) {
-      console.log(inclusionsInDirectories[0])
       const pk = await getFileFromFolderForPackage(
         inclusionsInDirectories[0].directory,
         pkge,
         inclusionsInDirectories[0].directory_index
       );
-      console.log(pk)
       setFile(pk);
     }
     setIsFileLoading(false)

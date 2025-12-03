@@ -111,7 +111,7 @@ export default function PackagesInRepository() {
 
   const fetchFile = async () => {
     try {
-      const res = await getFileFromFolderForPackage(permPath, pkge);
+      const res = await getFileFromFolderForPackage(permPath, pkge, loc);
       setFile(res);
     } catch (err) {
       console.error("Error loading data:", err);
@@ -120,13 +120,14 @@ export default function PackagesInRepository() {
 
   const handleSave = async (form: DetailsForm) => {
     const repo_path = `${permPath}${PERMITTED_FILE_ENDING}`;
-    await updatePackageInRepository(pkge, form.file_name, repo_path);
+    await updatePackageInRepository(pkge, form.file_name, repo_path, loc);
     if (file != null) {
-      await uploadFileToFolder(permPath, file);
+      await uploadFileToFolder(permPath, file, loc);
       await renameFileInFolder(
         pkge,
         form.file_name,
-        repo_path.replace(PERMITTED_FILE_ENDING, "")
+        repo_path.replace(PERMITTED_FILE_ENDING, ""),
+        loc
       );
     }
     await fetchData();
@@ -166,7 +167,7 @@ export default function PackagesInRepository() {
 
   const handleRemoveFile = async (file: File) => {
     if (!isAdd) {
-      await removeFileFromFolder(permPath, file.name);
+      await removeFileFromFolder(permPath, file.name, loc);
       await fetchFile();
     } else {
       setFile(null);

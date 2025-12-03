@@ -6,6 +6,7 @@ export type OrphanedFile = {
 export type OrphanedPackage = {
   name: string;
   repository: string[];
+  directory_index: number
 };
 
 export type Repository = {

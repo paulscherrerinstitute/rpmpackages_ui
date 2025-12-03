@@ -83,7 +83,6 @@ async def upload_file(directory: str, directory_index: int, file: UploadFile) ->
 @router.get(ROUTE_PATH + "/{directory}/{package}/{directory_index}")
 async def get_files(directory: str, package: str, directory_index: int):
     file_path = os.path.join(REPO_DIR_L[directory_index], directory)
-    print(directory)
     if not os.path.exists(file_path):
         return PlainTextResponse("No file found.")
 
@@ -118,12 +117,12 @@ async def list_orphaned_files() -> list[PackageFile]:
     complete_list: list[PackageFile] = get_all_packages_with_repos()
     orphans: list[PackageFile] = []
     for directory in get_repo_directories():
-        file_path = os.path.join(REPO_DIR, directory)
-        if should_ignore(file_path):
-            continue
-        for file in os.listdir(file_path):
-            current: PackageFile = PackageFile(name=file, directory=directory)
-            if current not in complete_list:
-                orphans.append(current)
-
+        for idx, el in enumerate(REPO_DIR_L):
+            file_path = os.path.join(el, directory)
+            if should_ignore(file_path) or not os.path.isdir(file_path):
+                continue
+            for file in os.listdir(file_path):
+                current: PackageFile = PackageFile(name=file, directory=directory, directory_index=idx)
+                if current not in complete_list:
+                    orphans.append(current)
     return orphans

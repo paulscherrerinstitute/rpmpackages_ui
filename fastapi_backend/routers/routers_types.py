@@ -5,10 +5,12 @@ from typing import Optional
 class PackageFile(BaseModel):
     name: str
     directory: str
+    directory_index: int
 
 class Package(BaseModel):
     name: str
     repository: list[str]
+    directory_index: int
 
 class PackageResponse(BaseModel):
     name: str

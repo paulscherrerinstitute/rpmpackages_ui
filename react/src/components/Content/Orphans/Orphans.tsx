@@ -73,7 +73,7 @@ export function Orphans() {
 
   const navigateToPackage = (o: OrphanedPackage) => {
     const rep_path = o.repository[0].split(".")[0];
-    navigate(`/Packages/${rep_path}#${o.name}`);
+    navigate(`/Packages/${rep_path}?idx=${o.directory_index}#${o.name}`);
   };
 
   const clearFoSearch = () => setFoSearch("");
@@ -82,7 +82,7 @@ export function Orphans() {
   const deleteOrphanedFile = async (o: OrphanedFile) => {
     const prompt = confirm("Do you want to delete the orphaned file '" + o.name + "'?");
     if (prompt) {
-      await removeFileFromFolder(o.directory, o.name);
+      await removeFileFromFolder(o.directory, o.name, -1);
       await fetchData();
     }
   };
@@ -94,7 +94,7 @@ export function Orphans() {
   const addOrphanedFile = async (o: OrphanedFile) => {
     const prompt = confirm("Do you want to add the orphaned file '" + o.name + "' to '" + o.directory + "'?")
     if(prompt){
-      await addPackageToRepository(o.name, o.directory, -1);
+      await addPackageToRepository(o.name, o.directory, -1, -1);
       await fetchData();
     }
   };
@@ -102,7 +102,7 @@ export function Orphans() {
   const removeOrphanedPackage = async (o: OrphanedPackage) => {
     const prompt = confirm("Do you want to delete the orphaned package '" + o.name + "'?");
     if (prompt) {
-      await removePackageFromRepository(o.name, o.repository[0]);
+      await removePackageFromRepository(o.name, o.repository[0], -1);
       await fetchData();
     }
   };
@@ -111,6 +111,7 @@ export function Orphans() {
   const [pkge, setPkge] = useState<OrphanedPackage>({
     name: "",
     repository: [],
+    directory_index: -1
   });
 
   const openOrphanedPackageDialog = (o: OrphanedPackage) => {
@@ -263,7 +264,8 @@ function UploadFileDialog({ open, pkge, onClose }: UploadFileDialogProps) {
     if (file)
       await uploadFileToFolder(
         pkge.repository[0].replace(PERMITTED_FILE_ENDING, ""),
-        file
+        file,
+        -1
       );
     onClose();
   };

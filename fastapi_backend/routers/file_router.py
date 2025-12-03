@@ -3,15 +3,17 @@ from fastapi.responses import PlainTextResponse, JSONResponse, FileResponse
 import os
 from shared_resources.dataService import (
     REPO_DIR,
+    REPO_DIR_L,
     get_repo_directories,
     get_all_packages_with_repos,
-    should_ignore
+    should_ignore,
 )
 from routers.routers_types import (
     RenamePackageResponse,
     DeleteFileResponse,
     PackageFile,
     RenameRequest,
+    FetchInclusionResponse
 )
 from shared_resources.watchdog_manager import setHandlerSource
 
@@ -22,28 +24,30 @@ ROUTE_PATH = "/data/files"
 
 # Get list of folders where a file for the specified package exists
 @router.get(ROUTE_PATH + "/pkge/{package}", response_class=JSONResponse)
-async def list_folders_containing_pkge(package: str) -> list[str]:
+async def list_folders_containing_pkge(package: str) -> list[FetchInclusionResponse]:
     try:
-        contained_in: list[str] = []
+        contained_in: list[FetchInclusionResponse] = []
         directory_list: list[str] = get_repo_directories()
         for directory in directory_list:
-            directory_path = os.path.join(REPO_DIR, directory)
-            for file in os.listdir(directory_path):
-                if file == package and not os.path.isdir(file):
-                    contained_in.append(directory)
-                    break
+            for idx, el in enumerate(REPO_DIR_L):
+                directory_path = os.path.join(el, directory)
+                if os.path.isdir(directory_path):
+                    for file in os.listdir(directory_path):
+                        if file == package and not os.path.isdir(file):
+                            contained_in.append(FetchInclusionResponse(directory=directory, directory_index=idx))
+                            break
         return contained_in
     except Exception as e:
-        return [str(e)]
+        return [FetchInclusionResponse(directory=str(e), directory_index=-1)]
 
 
 # Rename File in Folder
 @router.patch(ROUTE_PATH + "/{package}")
 async def rename_file(package: str, request: RenameRequest) -> RenamePackageResponse:
     setHandlerSource("internal")
-    file_path = os.path.join(REPO_DIR, request.directory)
-
+    file_path = os.path.join(REPO_DIR_L[request.directory_index], request.directory)
     for element in os.listdir(file_path):
+        os.rename(os.path.join(file_path, element), os.path.join(file_path, package))
         if element == package and ".rpm" in element:
             element_path = os.path.join(file_path, element)
             new_path = os.path.join(file_path, request.new_name)
@@ -54,10 +58,10 @@ async def rename_file(package: str, request: RenameRequest) -> RenamePackageResp
 
 
 # Upload File to Folder
-@router.post(ROUTE_PATH + "/{directory}")
-async def upload_file(directory: str, file: UploadFile) -> dict:
+@router.post(ROUTE_PATH + "/{directory}/{directory_index}")
+async def upload_file(directory: str, directory_index: int, file: UploadFile) -> dict:
     setHandlerSource("internal")
-    file_path = os.path.join(REPO_DIR, directory)
+    file_path = os.path.join(REPO_DIR_L[directory_index], directory)
 
     # Ensure the directory exists
     os.makedirs(file_path, exist_ok=True)
@@ -76,13 +80,15 @@ async def upload_file(directory: str, file: UploadFile) -> dict:
 
 
 # Get File from Folder by Packagename
-@router.get(ROUTE_PATH + "/{directory}/{package}")
-async def get_files(directory: str, package: str):
-    file_path = os.path.join(REPO_DIR, directory)
+@router.get(ROUTE_PATH + "/{directory}/{package}/{directory_index}")
+async def get_files(directory: str, package: str, directory_index: int):
+    file_path = os.path.join(REPO_DIR_L[directory_index], directory)
+    print(directory)
     if not os.path.exists(file_path):
         return PlainTextResponse("No file found.")
 
     for element in os.listdir(file_path):
+ 
         if element == package:
             file: str = os.path.join(file_path, element)
             if os.path.isfile(file):
@@ -94,10 +100,10 @@ async def get_files(directory: str, package: str):
 
 
 # Remove File from Folder
-@router.delete(ROUTE_PATH + "/{directory}/{package}")
-async def remove(directory: str, package: str) -> DeleteFileResponse:
+@router.delete(ROUTE_PATH + "/{directory}/{package}/{directory_index}")
+async def remove(directory: str, package: str, directory_index: int) -> DeleteFileResponse:
     setHandlerSource("internal")
-    file_path = os.path.join(REPO_DIR, directory, package)
+    file_path = os.path.join(REPO_DIR_L[directory_index], directory, package)
     is_deleted = False
     if os.path.isfile(file_path):
         os.remove(file_path)

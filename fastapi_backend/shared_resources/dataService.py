@@ -12,9 +12,11 @@ IGNORE_PATHS: str = os.getenv("RPM_PACKAGES_IGNORE_PATHS", "")
 
 
 def read_file(file_path: str) -> str:
-    with open(file_path, "r", encoding="utf-8") as file:
-        return file.read()
-
+    if ".rpm" not in file_path:
+        with open(file_path, "r", encoding="utf-8") as file:
+            data = file.read()
+            return data
+    return ""
 
 def assemble_repo(file_path: str) -> list[str]:
     return read_file(file_path).split("\n\n#")
@@ -40,9 +42,10 @@ def reassemble_repo_nested(content: list[list[str]]) -> str:
 
 def get_repo_directories() -> list[str]:
     file_list: list[str] = []
-    for element in os.listdir(REPO_DIR):
-        if element not in file_list and os.path.isdir(os.path.join(REPO_DIR, element)):
-            file_list.append(element)
+    for el in REPO_DIR_L:
+        for element in os.listdir(el):
+            if element not in file_list and os.path.isdir(os.path.join(el, element)):
+                file_list.append(element)
     return file_list
 
 

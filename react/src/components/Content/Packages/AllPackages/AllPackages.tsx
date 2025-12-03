@@ -24,7 +24,7 @@ import {
   renameFileInFolder,
   updatePackageInRepository,
 } from "../../../../services/dataService";
-import { type EnvWindow, NONE, EMPTY, type Repository } from "../../../../services/dataService.types";
+import { type EnvWindow, NONE, EMPTY, type Repository, type FolderInclusions } from "../../../../services/dataService.types";
 import { useNavigate } from "react-router-dom";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
@@ -50,7 +50,7 @@ export default function AllPackages() {
   const [openNested, setOpenNested] = useState(false);
   const [pkge, setPkge] = useState("");
   const [inclusionsInDirectories, setInclusionsInDirectories] = useState<
-    string[]
+    FolderInclusions[]
   >([]);
   const [file, setFile] = useState<File | null>(null);
   const [displayInput, setDisplayInput] = useState<boolean>(true);
@@ -74,7 +74,9 @@ export default function AllPackages() {
     fetchRepositoryInclusionData(pk);
   };
 
-  const handleClose = () => setOpen(false);
+  const handleClose = () => {
+    setOpen(false)
+  };
 
   const handleNestedClose = () => {
     setOpenNested(false);
@@ -89,7 +91,6 @@ export default function AllPackages() {
     );
     if (prompt) {
       inclusionsInRepositories.forEach(async (it) => {
-        console.log(pkge, it.element, it.directory_index)
         await removePackageFromRepository(pkge, it.element.split(".")[0], it.directory_index);
       });
       handleClose();
@@ -98,7 +99,6 @@ export default function AllPackages() {
   };
 
   const handleRemove = async (repo: string, idx: number) => {
-    console.log(repo, idx)
     const prompt = confirm(`Do you want to remove ${pkge} from ${repo}?`);
     if (prompt) {
       await removePackageFromRepository(pkge, repo.split(".")[0], idx);
@@ -116,10 +116,13 @@ export default function AllPackages() {
   const fetchFile = async () => {
     setIsFileLoading(true);
     if (inclusionsInDirectories.length > 0) {
+      console.log(inclusionsInDirectories[0])
       const pk = await getFileFromFolderForPackage(
-        inclusionsInDirectories[0],
-        pkge
+        inclusionsInDirectories[0].directory,
+        pkge,
+        inclusionsInDirectories[0].directory_index
       );
+      console.log(pk)
       setFile(pk);
     }
     setIsFileLoading(false)
@@ -227,22 +230,26 @@ export default function AllPackages() {
         handleAdd={handleAdd}
         handleRemove={handleRemove}
         handleRemoveAll={handleRemoveAll}
-        inclusionsInDirectories={inclusionsInDirectories}
+        inclusionsInDirectories={inclusionsInDirectories.map((val) => val.directory)}
         inclusionsInRepositories={inclusionsInRepositories}
+        fetchData={fetchData}
         fileInputElement={
           <>
             {isFileLoading ? <Box sx={{ padding: 3 }}>
               <LoadingSpinner isLoading={isFileLoading} />
             </Box>
               :
-              <AllPackagesFileInput
-                fileIncludedIn={inclusionsInDirectories}
-                packageIncludedIn={inclusionsInRepositories}
-                displayInput={displayInput}
-                file={file}
-                setFile={setFile}
-                updatePackages={updatedPackage}
-              />}
+              <>
+                <AllPackagesFileInput
+                  fileIncludedIn={inclusionsInDirectories}
+                  packageIncludedIn={inclusionsInRepositories}
+                  displayInput={displayInput}
+                  file={file}
+                  setFile={setFile}
+                  updatePackages={updatedPackage}
+                />
+              </>
+            }
 
           </>
         }
@@ -268,7 +275,8 @@ function AllPackagesDetailsDialog(
     handleRemoveAll,
     inclusionsInRepositories,
     inclusionsInDirectories,
-    fileInputElement
+    fileInputElement,
+    fetchData
   }
     :
     {
@@ -281,6 +289,7 @@ function AllPackagesDetailsDialog(
       inclusionsInRepositories: Repository[],
       inclusionsInDirectories: string[],
       fileInputElement: React.ReactElement,
+      fetchData: () => Promise<void>
     }
 ) {
   const [formData, setFormData] = useState<DetailsForm>(EMPTY)
@@ -328,10 +337,12 @@ function AllPackagesDetailsDialog(
       setDisplayTitle(true);
 
       inclusionsInRepositories.forEach(async (val) => {
-        const repo_path = `${val}`;
-        await updatePackageInRepository(pkge, pkgeTitle, repo_path);
-        await renameFileInFolder(pkge, pkgeTitle, repo_path.replace(PERMITTED_FILE_ENDING, ""));
+        const repo_path = `${val.element}`;
+        await updatePackageInRepository(pkge, pkgeTitle, repo_path, val.directory_index);
+        await renameFileInFolder(pkge, pkgeTitle, repo_path.replace(PERMITTED_FILE_ENDING, ""), val.directory_index);
+        await fetchData()
       })
+      handleClose()
     }
   }
 

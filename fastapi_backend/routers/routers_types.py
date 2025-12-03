@@ -29,6 +29,7 @@ class RenamePackageResponse(BaseModel):
 class RenameRequest(BaseModel):
     new_name: str
     directory: str
+    directory_index: int
 
 
 class DeleteFileResponse(BaseModel):
@@ -46,12 +47,16 @@ class PatchMoveRequest(BaseModel):
 class PatchRequest(BaseModel):
     updatePackageInRepository: str
     repository: str
+    directory_index: int
 
 
 class SubtitleRequest(BaseModel):
     directory: str
     directory_index: int
 
+class FetchInclusionResponse(BaseModel):
+    directory: str
+    directory_index: int
 
 class CreateSubtitleResponse(BaseModel):
     added: bool

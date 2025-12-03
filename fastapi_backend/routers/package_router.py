@@ -23,7 +23,7 @@ from routers.routers_types import (
     PatchRequest,
     Package,
     PackageResponse,
-    Repository
+    Repository,
 )
 from shared_resources.watchdog_manager import setHandlerSource
 
@@ -86,7 +86,6 @@ async def delete_item_repos(
 ) -> list[str]:
     setHandlerSource("internal")
     file_path = os.path.join(REPO_DIR_L[directory_index], file_name)
-    print(file_path)
 
     if not os.path.isfile(file_path):
         raise HTTPException(status_code=404, detail="File not found")
@@ -109,7 +108,7 @@ async def delete_item_repos(
 @router.patch(ROUTE_PATH + "/{package}", response_class=JSONResponse)
 async def update_pkges(package, request: PatchRequest) -> list[str]:
     setHandlerSource("internal")
-    file_path = os.path.join(REPO_DIR, request.repository)
+    file_path = os.path.join(REPO_DIR_L[request.directory_index], request.repository)
     content = read_file(file_path).split("\n")
 
     for idx, pk in enumerate(content):

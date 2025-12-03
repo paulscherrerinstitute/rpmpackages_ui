@@ -7,6 +7,7 @@ import type {
   RepositoryResponse,
   EnvWindow,
   Repository,
+  FolderInclusions,
 } from "./dataService.types";
 
 const env = (window as EnvWindow)._env_;
@@ -67,9 +68,10 @@ const FILES_PATH = API + "/files";
 
 export async function getFileFromFolderForPackage(
   directory: string,
-  pkge: string
+  pkge: string,
+  directory_index: number
 ): Promise<File | null> {
-  return await fetch(`${FILES_PATH}/${directory}/${pkge}`).then(
+  return await fetch(`${FILES_PATH}/${directory}/${pkge}/${directory_index}`).then(
     async (response) => {
       const content_type = response.headers.get("Content-Type");
       if (content_type == "application/octet-stream") {
@@ -84,7 +86,7 @@ export async function getFileFromFolderForPackage(
 
 export async function getFoldersIncludingFileForPackage(
   pkge: string
-): Promise<string[]> {
+): Promise<FolderInclusions[]> {
   return await fetch(`${FILES_PATH}/pkge/${pkge}`).then(async (response) => {
     const data = await response.json();
     return data;
@@ -101,11 +103,13 @@ export async function getOrphanedFiles(): Promise<OrphanedFile[]> {
 export async function renameFileInFolder(
   pkge: string,
   new_name: string,
-  directory: string
+  directory: string,
+  directory_index: number
 ): Promise<RenameFileResponse> {
   const body = JSON.stringify({
     new_name: new_name,
     directory: directory,
+    directory_index
   });
   return await fetch(`${FILES_PATH}/${pkge}`, {
     method: "PATCH",
@@ -117,10 +121,10 @@ export async function renameFileInFolder(
   });
 }
 
-export async function uploadFileToFolder(directory: string, file: File) {
+export async function uploadFileToFolder(directory: string, file: File, directory_index: number) {
   const formData = new FormData();
   formData.append("file", file);
-  return await fetch(`${FILES_PATH}/${directory}`, {
+  return await fetch(`${FILES_PATH}/${directory}/${directory_index}`, {
     method: "POST",
     body: formData,
   }).then(async (response) => {
@@ -131,9 +135,10 @@ export async function uploadFileToFolder(directory: string, file: File) {
 
 export async function removeFileFromFolder(
   directory: string,
-  pkge: string
+  pkge: string,
+  directory_index: number
 ): Promise<RemovePackageResponse> {
-  return await fetch(`${FILES_PATH}/${directory}/${pkge}`, {
+  return await fetch(`${FILES_PATH}/${directory}/${pkge}/${directory_index}`, {
     method: "DELETE",
   }).then(async (response) => {
     const data = await response.json();
@@ -173,11 +178,13 @@ export async function getOrphanedPackages(): Promise<OrphanedPackage[]> {
 export async function updatePackageInRepository(
   pkge: string,
   updatedPackage: string,
-  repository: string
+  repository: string,
+  directory_index: number
 ): Promise<string[]> {
   const body = JSON.stringify({
     updatePackageInRepository: updatedPackage,
     repository: repository,
+    directory_index
   });
   return await fetch(`${PACKAGE_PATH}/${pkge}`, {
     method: "PATCH",

@@ -13,6 +13,11 @@ export type Repository = {
   directory_index: number
 }
 
+export type FolderInclusions = {
+  directory: string,
+  directory_index: number
+}
+
 export type Package = {
   name: string,
   directory_index: number

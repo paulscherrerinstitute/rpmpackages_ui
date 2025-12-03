@@ -23,6 +23,7 @@ from routers.routers_types import (
     PatchRequest,
     Package,
     PackageResponse,
+    Repository
 )
 from shared_resources.watchdog_manager import setHandlerSource
 
@@ -85,6 +86,7 @@ async def delete_item_repos(
 ) -> list[str]:
     setHandlerSource("internal")
     file_path = os.path.join(REPO_DIR_L[directory_index], file_name)
+    print(file_path)
 
     if not os.path.isfile(file_path):
         raise HTTPException(status_code=404, detail="File not found")
@@ -183,7 +185,7 @@ async def get_internal_information(repository: str, package: str):
 
 # Get list of repositories where a package is included
 @router.get(ROUTE_PATH + "/{package}")
-async def pkge_inc_in_repos(package: str) -> list[str]:
+async def pkge_inc_in_repos(package: str) -> list[Repository]:
     return get_specific_package(package)
 
 

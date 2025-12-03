@@ -1,15 +1,14 @@
 from pydantic import BaseModel
+from typing import Optional
 
 
 class PackageFile(BaseModel):
     name: str
     directory: str
 
-
 class Package(BaseModel):
     name: str
     repository: list[str]
-
 
 class PackageResponse(BaseModel):
     name: str
@@ -79,4 +78,4 @@ class RepositoryResponse(BaseModel):
 
 class Repository(BaseModel):
     element: str
-    dir_idx: int
+    directory_index: int

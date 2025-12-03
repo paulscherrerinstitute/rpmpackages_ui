@@ -17,12 +17,12 @@ ROUTER_PATH = "/data/directory"
 
 
 # Add subtitle in repository
-@router.post(ROUTER_PATH + "/{repository}/{directory_index}")
+@router.post(ROUTER_PATH + "/{repository}")
 async def create_dir(
-    repository: str, directory_index: int, request: SubtitleRequest
+    repository: str, request: SubtitleRequest
 ) -> CreateSubtitleResponse:
     setHandlerSource("internal")
-    file_path = os.path.join(REPO_DIR_L[directory_index], repository)
+    file_path = os.path.join(REPO_DIR_L[request.directory_index], repository)
     if not os.path.isfile(file_path):
         raise HTTPException(status_code=404, detail="File not found")
 

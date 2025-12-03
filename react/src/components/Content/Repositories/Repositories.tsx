@@ -119,7 +119,7 @@ export function Repositories() {
                   <TableRow
                     hover
                     key={`repos-${item.element}`}
-                    onClick={() => navigate(`/Packages/${item.element.split(".")[0]}?idx=${item.dir_idx}`)}
+                    onClick={() => navigate(`/Packages/${item.element.split(".")[0]}?idx=${item.directory_index}`)}
                   >
                     <TableCell sx={styles.clickButton}>
                       {item.element.split(".")[0]}

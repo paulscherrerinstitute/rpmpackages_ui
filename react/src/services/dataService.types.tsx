@@ -10,7 +10,12 @@ export type OrphanedPackage = {
 
 export type Repository = {
   element: string
-  dir_idx: number
+  directory_index: number
+}
+
+export type Package = {
+  name: string,
+  directory_index: number
 }
 
 export type RenameFileResponse = {

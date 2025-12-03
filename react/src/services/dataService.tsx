@@ -6,7 +6,7 @@ import type {
   RemovePackageResponse,
   RepositoryResponse,
   EnvWindow,
-  Repository
+  Repository,
 } from "./dataService.types";
 
 const env = (window as EnvWindow)._env_;
@@ -27,9 +27,10 @@ export async function addSubtitlteToRepository(
 ): Promise<CreateDirectoryResponse> {
   const body = JSON.stringify({
     directory: directory,
+    directory_index
   });
 
-  return await fetch(`${DIRECTORY_PATH}/${repository}/${directory_index}`, {
+  return await fetch(`${DIRECTORY_PATH}/${repository}`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body,
@@ -155,7 +156,7 @@ export async function getAllUniquePackagesOverAll(): Promise<string[]> {
 
 export async function getRepositoriesOfPackage(
   pkge: string
-): Promise<string[]> {
+): Promise<Repository[]> {
   return await fetch(`${PACKAGE_PATH}/${pkge}`).then(async (response) => {
     const data = await response.json();
     return data;

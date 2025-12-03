@@ -24,7 +24,7 @@ import {
   renameFileInFolder,
   updatePackageInRepository,
 } from "../../../../services/dataService";
-import { type EnvWindow, NONE, EMPTY } from "../../../../services/dataService.types";
+import { type EnvWindow, NONE, EMPTY, type Repository } from "../../../../services/dataService.types";
 import { useNavigate } from "react-router-dom";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
@@ -44,7 +44,7 @@ const PERMITTED_FILE_ENDING: string =
 export default function AllPackages() {
   const [data, setData] = useState<string[]>([]);
   const [inclusionsInRepositories, setinclusionsInRepositories] = useState<
-    string[]
+    Repository[]
   >([]);
   const [open, setOpen] = useState(false);
   const [openNested, setOpenNested] = useState(false);
@@ -89,17 +89,19 @@ export default function AllPackages() {
     );
     if (prompt) {
       inclusionsInRepositories.forEach(async (it) => {
-        await removePackageFromRepository(pkge, it);
+        console.log(pkge, it.element, it.directory_index)
+        await removePackageFromRepository(pkge, it.element.split(".")[0], it.directory_index);
       });
       handleClose();
     }
     await fetchData();
   };
 
-  const handleRemove = async (repo: string) => {
+  const handleRemove = async (repo: string, idx: number) => {
+    console.log(repo, idx)
     const prompt = confirm(`Do you want to remove ${pkge} from ${repo}?`);
     if (prompt) {
-      await removePackageFromRepository(pkge, repo);
+      await removePackageFromRepository(pkge, repo.split(".")[0], idx);
     }
     fetchRepositoryInclusionData(pkge);
   };
@@ -274,9 +276,9 @@ function AllPackagesDetailsDialog(
       pkge: string,
       handleClose: () => void,
       handleAdd: () => void,
-      handleRemove: (repo: string) => void,
+      handleRemove: (repo: string, idx: number) => void,
       handleRemoveAll: () => void,
-      inclusionsInRepositories: string[],
+      inclusionsInRepositories: Repository[],
       inclusionsInDirectories: string[],
       fileInputElement: React.ReactElement,
     }
@@ -290,14 +292,15 @@ function AllPackagesDetailsDialog(
   async function fetchPackageInformation() {
     if (inclusionsInRepositories[0] != undefined) {
       setIsLoading(false);
-      return await getPackageInformation(inclusionsInRepositories[0].replace(PERMITTED_FILE_ENDING, ""), pkge)
+      return await getPackageInformation(inclusionsInRepositories[0].element.replace(PERMITTED_FILE_ENDING, ""), pkge)
     }
   }
 
   useEffect(() => {
     if (open) {
-      setFormData(NONE)
+      setFormData(NONE);
       setIsLoading(true);
+      setDisplayTitle(true);
     }
     if (inclusionsInRepositories[0]) {
       fetchPackageInformation().then((val) => {
@@ -350,9 +353,9 @@ function AllPackagesDetailsDialog(
             </Tooltip>
           </Box>
         </> :
-        <Box sx={{ display: "flex", alignItems: "center", gap: "1vw", paddingInline: 2 }}>
+        <Box sx={{ display: "flex", alignItems: "center", gap: "1vw", paddingInline: 2, minWidth: "15vw" }}>
           <TextField
-            sx={{ width: (pkgeTitle.length * 9) }}
+            sx={{ width: (pkgeTitle.length * 10), minWidth: "15vw" }}
             onChange={handleTitleChange}
             value={pkgeTitle}
             size="small"
@@ -412,7 +415,7 @@ function AllPackagesDetailsDialog(
             {inclusionsInRepositories.map((i) => (
               <TableRow
                 hover
-                key={"included-" + i}
+                key={"included-" + i.element}
                 sx={ap_styles.packageRow}
               >
                 <TableCell>
@@ -420,11 +423,11 @@ function AllPackagesDetailsDialog(
                     sx={styles.clickButton}
                     onClick={() =>
                       navigate(
-                        `/Packages/${i.replace(PERMITTED_FILE_ENDING, "")}`
+                        `/Packages/${i.element.replace(PERMITTED_FILE_ENDING, "")}`
                       )
                     }
                   >
-                    {i}
+                    {i.element}
                   </Typography>
                 </TableCell>
                 <TableCell
@@ -433,17 +436,17 @@ function AllPackagesDetailsDialog(
                 >
                   {Array.isArray(inclusionsInDirectories) &&
                     !inclusionsInDirectories.includes(
-                      i.replace(PERMITTED_FILE_ENDING, "")
+                      i.element.replace(PERMITTED_FILE_ENDING, "")
                     ) && <Box sx={ap_styles.noFile}>No File detected.</Box>}
                   {Array.isArray(inclusionsInDirectories) &&
                     inclusionsInDirectories.includes(
-                      i.replace(PERMITTED_FILE_ENDING, "")
+                      i.element.replace(PERMITTED_FILE_ENDING, "")
                     ) && <Box sx={ap_styles.isFile}>File detected.</Box>}
                   <Tooltip
                     sx={styles.clickButtonBig}
                     title="Delete from this repository"
                   >
-                    <DeleteOutlineIcon onClick={() => handleRemove(i)} />
+                    <DeleteOutlineIcon onClick={() => handleRemove(i.element, i.directory_index)} />
                   </Tooltip>
                 </TableCell>
               </TableRow>

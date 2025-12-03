@@ -1,5 +1,5 @@
 import os
-from routers.routers_types import PackageFile
+from routers.routers_types import PackageFile, Repository
 
 REPO_DIR: str = os.getenv("RPM_PACKAGES_DIRECTORY", "")
 REPO_DIR_L = str(os.getenv("RPM_PACKAGES_DIRECTORY_L", "")).split(";")
@@ -47,24 +47,25 @@ def get_repo_directories() -> list[str]:
 
 
 def get_all_packages() -> list[str]:
-    files = os.listdir(REPO_DIR)
     unique_pkges: list[str] = []
-    for f in files:
-        file_path = os.path.join(REPO_DIR, f)
-        if os.path.isfile(file_path):
+    for el in REPO_DIR_L:
+        files = os.listdir(el)
+        for f in files:
+            file_path = os.path.join(el, f)
+            if os.path.isfile(file_path):
 
-            # GET DATA
-            first_arr = assemble_repo(file_path)
-            contents = list(map(split_lines, first_arr))
+                # GET DATA
+                first_arr = assemble_repo(file_path)
+                contents = list(map(split_lines, first_arr))
 
-            # Save if exists within
-            for category in contents:
-                for pk in category:
-                    isIncluded = (
-                        unique_pkges.count(pk) == 0 and pk != "" and (".rpm" in pk)
-                    )
-                    if isIncluded:
-                        unique_pkges.append(pk)
+                # Save if exists within
+                for category in contents:
+                    for pk in category:
+                        isIncluded = (
+                            unique_pkges.count(pk) == 0 and pk != "" and (".rpm" in pk)
+                        )
+                        if isIncluded:
+                            unique_pkges.append(pk)
     return unique_pkges
 
 
@@ -91,30 +92,31 @@ def get_all_packages_with_repos() -> list[PackageFile]:
     return packages
 
 
-def get_specific_package(pkge: str) -> list[str]:
-    files = os.listdir(REPO_DIR)
-    includedIn: list[str] = []
-    for f in files:
-        file_path = os.path.join(REPO_DIR, f)
-        if (
-            os.path.isfile(file_path)
-            and FILE_ENDING in file_path
-            and (FILE_ENDING + "n") not in file_path
-        ):
+def get_specific_package(pkge: str) -> list[Repository]:
+    includedIn: list[Repository] = []
+    for idx, el in enumerate(REPO_DIR_L):
+        files = os.listdir(el)
+        for f in files:
+            file_path = os.path.join(el, f)
+            if (
+                os.path.isfile(file_path)
+                and FILE_ENDING in file_path
+                and (FILE_ENDING + "n") not in file_path
+            ):
 
-            # GET DATA
-            first_arr = assemble_repo(file_path)
-            contents = list(map(split_lines, first_arr))
+                # GET DATA
+                first_arr = assemble_repo(file_path)
+                contents = list(map(split_lines, first_arr))
 
-            # Save if exists within
-            for category in contents:
-                for pk in category:
-                    isIncluded = pk == pkge
+                # Save if exists within
+                for category in contents:
+                    for pk in category:
+                        isIncluded = pk == pkge
+                        if isIncluded:
+                            includedIn.append(Repository(element=f, directory_index=idx))
+                            break
                     if isIncluded:
-                        includedIn.append(f)
                         break
-                if isIncluded:
-                    break
     return includedIn
 
 

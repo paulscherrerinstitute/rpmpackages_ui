@@ -38,7 +38,6 @@ async def list_files() -> list[Repository]:
     try:
         file_list: list[Repository] = []
         for idx, li in enumerate(REPO_DIR_L):
-            print(li, os.path.isdir(li))
             for element in os.listdir(li):
                 if (
                     element not in file_list
@@ -47,10 +46,9 @@ async def list_files() -> list[Repository]:
                     # ignore legacy .repo_cfgn-Files
                     and FILE_ENDING + "n" not in element
                 ):
-                    file_list.append(Repository(element=element, dir_idx=idx))
+                    file_list.append(Repository(element=element, directory_index=idx))
         return file_list
     except Exception as e:
-        print(e.args)
         raise HTTPException(
             status_code=500, detail=f"Error reading directory: {str(e)}"
         )
@@ -66,7 +64,6 @@ async def snap_repository_and_folder(
         REPO_DIR_L[directory_index], repository + FILE_ENDING
     )
     folder_path = os.path.join(REPO_DIR_L[directory_index], repository)
-    print(folder_path)
     if repository_path and os.path.exists(repository_path):
         os.remove(repository_path)
     if folder_path and os.path.exists(folder_path):

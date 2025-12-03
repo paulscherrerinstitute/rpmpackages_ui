@@ -179,7 +179,7 @@ function ActionPopupRemove({ open, onClose }: ActionPopupElementProps) {
   const removeRepository = () => {
     const prompt = confirm(`Do you want to permanently delete the repository '${selectedRepository?.element}'?`)
     if (prompt) {
-      if (selectedRepository) removeRepositoryAndFolder(selectedRepository.element, selectedRepository.dir_idx);
+      if (selectedRepository) removeRepositoryAndFolder(selectedRepository.element, selectedRepository.directory_index);
       onClose();
     }
   };

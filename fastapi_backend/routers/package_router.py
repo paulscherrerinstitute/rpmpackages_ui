@@ -23,7 +23,6 @@ from routers.routers_types import (
     Package,
     PackageResponse,
     Repository,
-    PackageFile,
 )
 from shared_resources.watchdog_manager import setHandlerSource
 

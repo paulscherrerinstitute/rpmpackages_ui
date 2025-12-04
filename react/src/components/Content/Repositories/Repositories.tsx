@@ -22,7 +22,7 @@ import {
 } from "./RepositoryActionsPopup/RepositoryActionsPopup";
 import { getBackendHealth } from "../../../services/infoService";
 import { ErrorBar } from "../Details/ErrorBar";
-import type { Repository } from "../../../services/dataService.types";
+import type { PackageSearchObject, Repository } from "../../../services/dataService.types";
 import { handleSearch_RepositoryandPackages } from "../../../services/searchService";
 
 export function Repositories() {
@@ -30,7 +30,7 @@ export function Repositories() {
   const navigate = useNavigate();
   const [backendIsHealthy, setBackendIsHealthy] = useState<boolean>(true);
   const [isDataLoading, setIsDataLoading] = useState(true);
-  const [allPackages, setAllPackages] = useState<any[]>([]);
+  const [allPackages, setAllPackages] = useState<PackageSearchObject[]>([]);
 
   async function fetchData() {
     const repos = await getAllRepositories();

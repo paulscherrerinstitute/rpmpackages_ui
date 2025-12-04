@@ -15,6 +15,11 @@ export type Repository = {
   directory_index: number
 }
 
+export type PackageSearchObject = {
+  name: string
+  repository: string[]
+}
+
 export type FolderInclusions = {
   directory: string,
   directory_index: number

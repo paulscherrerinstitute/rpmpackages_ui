@@ -1,4 +1,4 @@
-import type { Repository } from "./dataService.types";
+import type { PackageSearchObject, Repository } from "./dataService.types";
 import type { EnvWindow } from "./dataService.types";
 
 const PERMITTED_FILE_ENDING: string =
@@ -7,7 +7,7 @@ const PERMITTED_FILE_ENDING: string =
 export function handleSearch_RepositoryandPackages(
     searchString: string,
     element: Repository,
-    allPackages: any[]
+    allPackages: PackageSearchObject[]
 ): boolean {
 
     // 1) Search by repository name

@@ -36,6 +36,7 @@ import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import AddIcon from "@mui/icons-material/Add";
 import ClearIcon from "@mui/icons-material/Clear";
 import { SearchResultsNotes } from "../../Details/SearchResultsNotes/SearchResultsNotes";
+import { getPaths } from "../../../../services/infoService";
 
 const PERMITTED_FILE_ENDING: string =
   (window as EnvWindow)._env_?.RPM_PACKAGES_CONFIG_ENDING ?? ".repo_cfg";
@@ -95,8 +96,12 @@ export default function PackagesInRepository() {
     await fetchData();
   };
 
+  const [paths, setPaths] = useState<string[]>([])
+
   const fetchData = async () => {
     try {
+      const path = await getPaths();
+      setPaths(path)
       const resultData = await getAllPackagesFromRepository(permPath, current_directory_index);
       if (typeof resultData == "string" && resultData == "File not found") {
         setHasError(true);
@@ -182,7 +187,6 @@ export default function PackagesInRepository() {
 
   const clearPackageSearch = () => setPackageSearch("");
 
-
   return (
     <Box sx={styles.main}>
       {permPath.length > 0 && !isNotFound && (
@@ -223,6 +227,9 @@ export default function PackagesInRepository() {
               onAdd={handleSubtitleAdd}
               repoName={permPath}
             />
+          </Box>
+          <Box sx={{paddingBottom: 3, paddingLeft: 1, color: "rgb(180, 180, 180)"}}>
+            {paths[current_directory_index]}
           </Box>
           {!hasError ?
             <ListPackagesInRepositories

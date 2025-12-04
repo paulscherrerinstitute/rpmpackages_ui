@@ -21,7 +21,7 @@ import {
   removePackageFromRepository,
   uploadFileToFolder,
 } from "../../../services/dataService";
-import { getBackendHealth } from "../../../services/infoService";
+import { getBackendHealth, getPaths } from "../../../services/infoService";
 import {
   type OrphanedFile,
   type OrphanedPackage,
@@ -55,6 +55,7 @@ export function Orphans() {
 
   const [isBackendHealthy, setIsBackendHealthy] = useState<boolean>(true);
   const [isDataLoading, setIsDataLoading] = useState<boolean>(true);
+  const [paths, setPaths] = useState<string[]>([])
 
   const navigate = useNavigate();
 
@@ -63,6 +64,8 @@ export function Orphans() {
       if (val == "Alive and Well!") {
         const o_f = await getOrphanedFiles();
         setFileOrphans(o_f);
+        const path = await getPaths();
+        setPaths(path)
         const o_p = await getOrphanedPackages();
         setPkgeOrphans(o_p);
         setIsBackendHealthy(true);
@@ -160,6 +163,7 @@ export function Orphans() {
                       >
                         <TableCell>{o.name}</TableCell>
                         <TableCell>{o.directory}</TableCell>
+                        <TableCell sx={{color: "rgb(180, 180, 180)"}}>{paths[o.directory_index]}</TableCell>
                         <TableCell sx={o_styles.fileOrphanIcons}>
                           <Tooltip title="Add Orphaned File to repository">
                             <AddIcon onClick={() => addOrphanedFile(o)} />
@@ -210,7 +214,12 @@ export function Orphans() {
                     poSearch.length == 0) && (
                     <TableRow key={`${o.repository}-${o.name}-${idx}`} hover>
                       <TableCell>{o.name}</TableCell>
-                      <TableCell>{o.repository}</TableCell>
+                      <TableCell>
+                        {o.repository}
+                      </TableCell>
+                      <TableCell sx={{color: "rgb(180, 180, 180)"}}>
+                        {paths[o.directory_index]}
+                      </TableCell>
                       <TableCell sx={o_styles.packageOrphanIcons}>
                         <Tooltip title="Open in repository">
                           <LaunchIcon

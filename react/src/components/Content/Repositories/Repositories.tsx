@@ -20,7 +20,7 @@ import {
   RepositoryActionPopup,
   type Action,
 } from "./RepositoryActionsPopup/RepositoryActionsPopup";
-import { getBackendHealth } from "../../../services/infoService";
+import { getBackendHealth, getPaths } from "../../../services/infoService";
 import { ErrorBar } from "../Details/ErrorBar";
 import type { PackageSearchObject, Repository } from "../../../services/dataService.types";
 import { handleSearch_RepositoryandPackages } from "../../../services/searchService";
@@ -31,10 +31,13 @@ export function Repositories() {
   const [backendIsHealthy, setBackendIsHealthy] = useState<boolean>(true);
   const [isDataLoading, setIsDataLoading] = useState(true);
   const [allPackages, setAllPackages] = useState<PackageSearchObject[]>([]);
+  const [paths, setPaths] = useState<string[]>([]);
 
   async function fetchData() {
     const repos = await getAllRepositories();
     setAvailableRepos(repos);
+    const path = await getPaths();
+    setPaths(path)
     setIsDataLoading(false);
   }
   useEffect(() => {
@@ -125,8 +128,13 @@ export function Repositories() {
                     key={`repos-${item.element}`}
                     onClick={() => navigate(`/Packages/${item.element.split(".")[0]}?idx=${item.directory_index}`)}
                   >
-                    <TableCell sx={styles.clickButton}>
-                      {item.element.split(".")[0]}
+                    <TableCell sx={{ ...styles.clickButton, display: "flex", flexDirection: "row", justifyContent: "space-between" }}>
+                      <span>
+                        {item.element.split(".")[0]}
+                      </span>
+                      <span style={{ color: "rgb(180, 180, 180)" }}>
+                        {paths[item.directory_index]}
+                      </span>
                     </TableCell>
                   </TableRow>
                 )

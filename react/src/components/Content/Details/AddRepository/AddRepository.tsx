@@ -20,6 +20,7 @@ import * as ar_styles from "./AddRepository.styles";
 import * as styles from "../../Content.styles";
 import { useEffect, useState } from "react";
 import ClearIcon from "@mui/icons-material/Clear";
+import { getPaths } from "../../../../services/infoService";
 
 export function AddRepositoryPopup({
   open,
@@ -32,10 +33,13 @@ export function AddRepositoryPopup({
   const [newRepo, setNewRepo] = useState<Repository | undefined>();
   const [isDisabled, setIsDisabled] = useState<boolean>(false);
 
+  const [paths, setPaths] = useState<string[]>([])
 
   const fetchRepos = async () => {
     const res = await getAllRepositories();
     setAvailableRepos(res);
+    const path = await getPaths();
+    setPaths(path)
   };
 
   const handleChange = (event: SelectChangeEvent<string>) => {
@@ -77,7 +81,7 @@ export function AddRepositoryPopup({
 
   useEffect(() => {
     fetchRepos();
-    if(open) setNewRepoValue("")
+    if (open) setNewRepoValue("")
   }, [open]);
 
   return (
@@ -104,8 +108,14 @@ export function AddRepositoryPopup({
                   key={repo.element}
                   disabled={doesExist(repo.element)}
                   value={repo.element}
+                  sx={{display: "flex", flexDirection: "column"}}
                 >
-                  {repo.element}
+                  <span>
+                    {repo.element}
+                  </span>
+                  <span style={{color: "rgb(180, 180, 180)"}}>
+                    {paths[repo.directory_index]}
+                  </span>
                 </MenuItem>
               ))}
             </Select>

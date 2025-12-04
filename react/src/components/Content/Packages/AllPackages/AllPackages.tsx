@@ -37,6 +37,7 @@ import {
 } from "../../Details/DetailsPopup/DetailsPopup";
 import AllPackagesFileInput from "../../Details/AllPackagesFileInput/AllPackagesFileInput";
 import { LoadingSpinner, SearchResultsNotes } from "../../Details/SearchResultsNotes/SearchResultsNotes";
+import { getPaths } from "../../../../services/infoService";
 
 const PERMITTED_FILE_ENDING: string =
   (window as EnvWindow)._env_?.RPM_PACKAGES_CONFIG_ENDING ?? ".repo_cfg";
@@ -295,6 +296,7 @@ function AllPackagesDetailsDialog(
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [pkgeTitle, setPkgeTitle] = useState<string>("");
   const [displayTitle, setDisplayTitle] = useState<boolean>(true);
+  const [paths, setPaths] = useState<string[]>([])
 
   async function fetchPackageInformation() {
     const incl = inclusionsInRepositories[0]
@@ -311,6 +313,9 @@ function AllPackagesDetailsDialog(
       setDisplayTitle(true);
     }
     if (inclusionsInRepositories[0]) {
+      getPaths().then((val) => {
+        setPaths(val);
+      })
       fetchPackageInformation().then((val) => {
         if (val) { setFormData(val); }
       }).catch(() => {
@@ -439,6 +444,9 @@ function AllPackagesDetailsDialog(
                   >
                     {i.element}
                   </Typography>
+                  <span style={{color: "rgb(180, 180, 180)"}}>
+                    {paths[i.directory_index]}
+                  </span>
                 </TableCell>
                 <TableCell
                   colSpan={2}

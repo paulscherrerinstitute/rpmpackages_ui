@@ -454,7 +454,7 @@ function ListPackagesInRepositories(
                       )
                   )}
                   <SearchResultsNotes
-                    allResults={mapPackagesForSearchResults(item)}
+                    allResults={mapPackagesForSearchResults(item.filter((v) => v.includes(packageSearch)))}
                     searchField={packageSearch}
                     onEmpty="No package"
                     onNoMatch="No Match"

@@ -149,13 +149,13 @@ export function Orphans() {
             <Table>
               <TableBody>
                 {!isDataLoading && fileOrphans.map(
-                  (o) =>
+                  (o, idx) =>
                     (o.name.includes(foSearch) || foSearch.length == 0) && (
                       <TableRow
                         key={`${o.directory.replace(
                           PERMITTED_FILE_ENDING,
                           ""
-                        )}-${o.name}`}
+                        )}-${o.name}-${idx}`}
                         hover
                       >
                         <TableCell>{o.name}</TableCell>
@@ -174,7 +174,7 @@ export function Orphans() {
                     )
                 )}
                 <SearchResultsNotes
-                  allResults={fileOrphans}
+                  allResults={fileOrphans.filter((v) => v.name.includes(foSearch))}
                   searchField={foSearch}
                   isLoading={isDataLoading}
                   onEmpty="No Orphans"
@@ -205,10 +205,10 @@ export function Orphans() {
           <Table>
             <TableBody>
               {!isDataLoading && pkgeOrphans.map(
-                (o) =>
+                (o, idx) =>
                   ((o.name.includes(poSearch) && poSearch.length > 0) ||
                     poSearch.length == 0) && (
-                    <TableRow key={`${o.repository}-${o.name}`} hover>
+                    <TableRow key={`${o.repository}-${o.name}-${idx}`} hover>
                       <TableCell>{o.name}</TableCell>
                       <TableCell>{o.repository}</TableCell>
                       <TableCell sx={o_styles.packageOrphanIcons}>
@@ -235,7 +235,7 @@ export function Orphans() {
                   )
               )}
               <SearchResultsNotes
-                allResults={pkgeOrphans}
+                allResults={pkgeOrphans.filter((v) => v.name.includes(poSearch))}
                 searchField={poSearch}
                 isLoading={isDataLoading}
                 onEmpty="No Orphans"

@@ -209,7 +209,7 @@ export default function AllPackages() {
                 )
             )}
             <SearchResultsNotes
-              allResults={mapDataForSearchResults(data)}
+              allResults={mapDataForSearchResults(data.filter((v) => v.includes(packageSearch)))}
               searchField={packageSearch}
               isLoading={isDataLoading}
               onEmpty="No packages found in any repository"

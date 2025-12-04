@@ -1,6 +1,7 @@
 export type OrphanedFile = {
   name: string;
   directory: string;
+  directory_index: number
 };
 
 export type OrphanedPackage = {

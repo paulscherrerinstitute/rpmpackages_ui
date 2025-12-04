@@ -81,5 +81,6 @@ export const dialogueTitleWrapper: SxProps<Theme> = {
 export const dialogueButtonWrapper: SxProps<Theme> = {
   display: "flex",
   flexDirection: "row",
+  alignItemS: "center",
   justifyContent: "center",
 };

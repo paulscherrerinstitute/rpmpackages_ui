@@ -23,6 +23,7 @@ from routers.routers_types import (
     Package,
     PackageResponse,
     Repository,
+    PackageFile,
 )
 from shared_resources.watchdog_manager import setHandlerSource
 
@@ -122,6 +123,27 @@ async def update_pkges(package, request: PatchRequest) -> list[str]:
 @router.get(ROUTE_PATH + "/all", response_class=JSONResponse)
 async def get_all_pkg() -> list[str]:
     return get_all_packages()
+
+
+# Return all packages with their associated repositories
+@router.get(ROUTE_PATH + "/all/repositories", response_class=JSONResponse)
+async def get_all_pkg_repository() -> list[Package]:
+    completeList: list[Package] = []
+    for f in get_all_packages_with_repos():
+        current: list[Package] = list(filter(lambda x: x.name == f.name, completeList))
+        if len(current) > 0:
+            idx: int = completeList.index(current[0])
+            if f.directory not in completeList[idx].repository:
+                completeList[idx].repository.append(f.directory)
+        else:
+            completeList.append(
+                Package(
+                    name=f.name,
+                    repository=[f.directory],
+                    directory_index=f.directory_index,
+                )
+            )
+    return completeList
 
 
 # Get list of packages without a corresponding file

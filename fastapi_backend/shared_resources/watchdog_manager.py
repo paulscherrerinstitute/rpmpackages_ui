@@ -41,10 +41,19 @@ def setHandlerSource(source: str):
 # Initialize and start the watchdog observer
 def start_watchdog():
     rpm_directory = os.getenv("RPM_PACKAGES_DIRECTORY", "").split(";")
-    if rpm_directory:
+    if len(rpm_directory) > 0:
         global observer
         observer = Observer()
-        observer.schedule(event_handler, rpm_directory[0], recursive=True)
+
+        for directory in rpm_directory:
+            directory = directory.strip()
+            if os.path.isdir(directory):
+                print(f"Watching directory: {directory}")
+                observer.schedule(event_handler, rpm_directory[0], recursive=True)
+            else:
+                print(
+                    f"Warning {directory} is not a valid directory for watchdog, skipping."
+                )
         observer.start()
     else:
         print("Environment variable RPM_PACKAGES_DIRECTORY is not set.")

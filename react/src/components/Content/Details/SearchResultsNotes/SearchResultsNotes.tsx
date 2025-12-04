@@ -48,7 +48,7 @@ function EmptySearchTable({ allResults, searchField, onEmpty, onNoMatch, onNoMat
         <TableCell>{onEmpty}</TableCell>
       </TableRow>
     )}
-    {allResults.filter((f) => f.name.includes(searchField)).length == 0 &&
+    {allResults.length === 0 && searchField.length > 0 &&
       searchField.length > 0 && (
         <TableRow sx={styles.noMatch(onNoMatchColor ?? "")}>
           <TableCell>{onNoMatch}</TableCell>
@@ -64,7 +64,7 @@ function EmptySearchList({ allResults, searchField, onEmpty, onNoMatch, onNoMatc
         <ListItemText>{onEmpty}</ListItemText>
       </ListItem>
     )}
-    {allResults.filter((f) => f.name.includes(searchField)).length == 0 &&
+    {allResults.length === 0 && searchField.length > 0 &&
       searchField.length > 0 && (
         <ListItem sx={styles.noMatch(onNoMatchColor ?? "")}>
           <ListItemText>{onNoMatch}</ListItemText>

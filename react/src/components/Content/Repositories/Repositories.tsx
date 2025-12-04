@@ -10,7 +10,7 @@ import {
   Button,
 } from "@mui/material";
 import { useEffect, useState } from "react";
-import { getAllRepositories } from "../../../services/dataService";
+import { getAllRepositories, getAllPackagesWithRepository } from "../../../services/dataService";
 import * as styles from "../Content.styles";
 import { useNavigate } from "react-router-dom";
 import * as r_styles from "./Repositories.styles";
@@ -23,12 +23,14 @@ import {
 import { getBackendHealth } from "../../../services/infoService";
 import { ErrorBar } from "../Details/ErrorBar";
 import type { Repository } from "../../../services/dataService.types";
+import { handleSearch_RepositoryandPackages } from "../../../services/searchService";
 
 export function Repositories() {
   const [availableRepos, setAvailableRepos] = useState<Repository[]>([]);
   const navigate = useNavigate();
   const [backendIsHealthy, setBackendIsHealthy] = useState<boolean>(true);
   const [isDataLoading, setIsDataLoading] = useState(true);
+  const [allPackages, setAllPackages] = useState<any[]>([]);
 
   async function fetchData() {
     const repos = await getAllRepositories();
@@ -44,6 +46,7 @@ export function Repositories() {
         setBackendIsHealthy(false);
       }
     });
+    getAllPackagesWithRepository().then((val) => setAllPackages(val))
   }, []);
 
 
@@ -99,7 +102,7 @@ export function Repositories() {
               variant="standard"
               value={repoSearch}
               onChange={updateRepoSearch}
-              label="Search Packages"
+              label="Search Repos or Package"
             />
             <Tooltip title="Clear search">
               <ClearIcon onClick={clearRepoSearch} sx={styles.clickButtonBig} />
@@ -115,7 +118,8 @@ export function Repositories() {
           <TableBody>
             {!isDataLoading && availableRepos.map(
               (item) =>
-                (item.element.includes(repoSearch) || repoSearch.length == 0) && (
+                handleSearch_RepositoryandPackages(repoSearch, item, allPackages) && (
+                  // (item.element.includes(repoSearch) || repoSearch.length == 0) && (
                   <TableRow
                     hover
                     key={`repos-${item.element}`}
@@ -128,7 +132,7 @@ export function Repositories() {
                 )
             )}
             <SearchResultsNotes
-              allResults={mapAvailableRepos(availableRepos)}
+              allResults={mapAvailableRepos(availableRepos.filter((item) => handleSearch_RepositoryandPackages(repoSearch, item, allPackages)))}
               searchField={repoSearch}
               isLoading={isDataLoading}
               onEmpty="No .repo_cfg files found"

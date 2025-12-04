@@ -159,6 +159,14 @@ export async function getAllUniquePackagesOverAll(): Promise<string[]> {
   });
 }
 
+export async function getAllPackagesWithRepository() {
+  const response = await fetch(`${PACKAGE_PATH}/all/repositories`).then(async (res) => {
+    const data = await res.json();
+    return data
+  })
+  return response
+}
+
 export async function getRepositoriesOfPackage(
   pkge: string
 ): Promise<Repository[]> {
@@ -280,6 +288,7 @@ export async function getAllPackagesFromRepository(
   );
   return txt;
 }
+
 
 export async function getPackageInformation(repository: string, pkge: string, directory_index: number): Promise<{
   name: string,

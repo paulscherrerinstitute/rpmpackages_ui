@@ -1,15 +1,14 @@
 from pydantic import BaseModel
 
-
 class PackageFile(BaseModel):
     name: str
     directory: str
-
+    directory_index: int
 
 class Package(BaseModel):
     name: str
     repository: list[str]
-
+    directory_index: int
 
 class PackageResponse(BaseModel):
     name: str
@@ -30,6 +29,7 @@ class RenamePackageResponse(BaseModel):
 class RenameRequest(BaseModel):
     new_name: str
     directory: str
+    directory_index: int
 
 
 class DeleteFileResponse(BaseModel):
@@ -42,16 +42,22 @@ class PatchMoveRequest(BaseModel):
     repository: str
     outer_index: int
     inner_index: int
+    directory_index: int
 
 
 class PatchRequest(BaseModel):
     updatePackageInRepository: str
     repository: str
+    directory_index: int
 
 
 class SubtitleRequest(BaseModel):
     directory: str
+    directory_index: int
 
+class FetchInclusionResponse(BaseModel):
+    directory: str
+    directory_index: int
 
 class CreateSubtitleResponse(BaseModel):
     added: bool
@@ -62,14 +68,20 @@ class CreateSubtitleResponse(BaseModel):
 class CreateRequest(BaseModel):
     item: str
     file_name: str
-    subTitleIndex: int
+    subtitle_index: int
+    directory_index: int
 
 
 class RepositoryRequest(BaseModel):
     repository: str
+    directory_index: int
 
 
 class RepositoryResponse(BaseModel):
     repository: str
     repository_location: str
     folder_location: str
+
+class Repository(BaseModel):
+    element: str
+    directory_index: int

@@ -15,7 +15,8 @@ As external changes can still be made to the directory, a watchdog is implemente
 
 `Repositories`:  
 This view shows all available repositories that exist within the path that has been specified for the GUI.
-It only searches and displayes repositories with the file ending specified (as standard ".repo_cfg").
+The searchfield in the upper right corner allows you to search for the repositories by name (i.e. the files mathing the permitted file ending, standard ".repo_cfg").
+> ℹ️ By using `pk:` infront of any search input in this field, the search does not filter the repositories by name, but checks for repositories that include that package.
 
 > ℹ️".repo_cfgn" files are not supported: However, you can change the file ending to ".repo_cfg" and it should work.
 
@@ -88,7 +89,8 @@ It consists of two parts:
 
 For the local setup to work properly, the following env variables can (or must be set):
 
-- RPM_PACKAGES_DIRECTORY: Place where your files and rpmpackages are located (ℹ️ - this field is required when running docker-compose
+- RPM_PACKAGES_DIRECTORY: Place where your files and rpmpackages are located. 
+> ℹ️ The .repo_cfg Files must be direct children of the path. The backend can handle a list of directories, so if multiple folders should be searched through, they must be seperated by a `semicolon`: `RPM_PACKAGES_DIRECTORY=C:\PathOne;C:\PathTwo`
 - RPM_PACKAGES_CONFIG_ENDING: Ending of the configuration-files (defaults to ".repo_cfg")
 - RPM_PACKAGES_INTERNAL_BACKEND_URL: Specifies the location of the backend (defaults to "http://localhost:8000")
 - RPM_PACKAGES_PUBLIC_BACKEND_URL: Specifies the public location of the backend (when setting up locally, the actual URL and when running via NGINX then the URL path (ex. `/api` for the path: https://host_name/api))

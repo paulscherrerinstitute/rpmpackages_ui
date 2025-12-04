@@ -73,16 +73,16 @@ export function Orphans() {
 
   const navigateToPackage = (o: OrphanedPackage) => {
     const rep_path = o.repository[0].split(".")[0];
-    navigate(`/Packages/${rep_path}#${o.name}`);
+    navigate(`/Packages/${rep_path}?idx=${o.directory_index}#${o.name}`);
   };
 
   const clearFoSearch = () => setFoSearch("");
   const clearPoSearch = () => setPoSearch("");
 
   const deleteOrphanedFile = async (o: OrphanedFile) => {
-    const prompt = confirm("Do you want to delete the orphaned file '" + o.name + "'?");
+    const prompt = confirm(`Do you want to delete the orphaned file '${o.name}' from '${o.directory}'?`);
     if (prompt) {
-      await removeFileFromFolder(o.directory, o.name);
+      await removeFileFromFolder(o.directory, o.name, o.directory_index);
       await fetchData();
     }
   };
@@ -93,16 +93,16 @@ export function Orphans() {
 
   const addOrphanedFile = async (o: OrphanedFile) => {
     const prompt = confirm("Do you want to add the orphaned file '" + o.name + "' to '" + o.directory + "'?")
-    if(prompt){
-      await addPackageToRepository(o.name, o.directory, -1);
+    if (prompt) {
+      await addPackageToRepository(o.name, o.directory, -1, o.directory_index);
       await fetchData();
     }
   };
 
   const removeOrphanedPackage = async (o: OrphanedPackage) => {
-    const prompt = confirm("Do you want to delete the orphaned package '" + o.name + "'?");
+    const prompt = confirm(`Do you want to delete the orphaned package '${o.name}' from '${o.repository}'?`);
     if (prompt) {
-      await removePackageFromRepository(o.name, o.repository[0]);
+      await removePackageFromRepository(o.name, o.repository[0], o.directory_index);
       await fetchData();
     }
   };
@@ -111,6 +111,7 @@ export function Orphans() {
   const [pkge, setPkge] = useState<OrphanedPackage>({
     name: "",
     repository: [],
+    directory_index: -1
   });
 
   const openOrphanedPackageDialog = (o: OrphanedPackage) => {
@@ -148,13 +149,13 @@ export function Orphans() {
             <Table>
               <TableBody>
                 {!isDataLoading && fileOrphans.map(
-                  (o) =>
+                  (o, idx) =>
                     (o.name.includes(foSearch) || foSearch.length == 0) && (
                       <TableRow
                         key={`${o.directory.replace(
                           PERMITTED_FILE_ENDING,
                           ""
-                        )}-${o.name}`}
+                        )}-${o.name}-${idx}`}
                         hover
                       >
                         <TableCell>{o.name}</TableCell>
@@ -173,7 +174,7 @@ export function Orphans() {
                     )
                 )}
                 <SearchResultsNotes
-                  allResults={fileOrphans}
+                  allResults={fileOrphans.filter((v) => v.name.includes(foSearch))}
                   searchField={foSearch}
                   isLoading={isDataLoading}
                   onEmpty="No Orphans"
@@ -204,10 +205,10 @@ export function Orphans() {
           <Table>
             <TableBody>
               {!isDataLoading && pkgeOrphans.map(
-                (o) =>
+                (o, idx) =>
                   ((o.name.includes(poSearch) && poSearch.length > 0) ||
                     poSearch.length == 0) && (
-                    <TableRow key={`${o.repository}-${o.name}`} hover>
+                    <TableRow key={`${o.repository}-${o.name}-${idx}`} hover>
                       <TableCell>{o.name}</TableCell>
                       <TableCell>{o.repository}</TableCell>
                       <TableCell sx={o_styles.packageOrphanIcons}>
@@ -234,7 +235,7 @@ export function Orphans() {
                   )
               )}
               <SearchResultsNotes
-                allResults={pkgeOrphans}
+                allResults={pkgeOrphans.filter((v) => v.name.includes(poSearch))}
                 searchField={poSearch}
                 isLoading={isDataLoading}
                 onEmpty="No Orphans"
@@ -263,7 +264,8 @@ function UploadFileDialog({ open, pkge, onClose }: UploadFileDialogProps) {
     if (file)
       await uploadFileToFolder(
         pkge.repository[0].replace(PERMITTED_FILE_ENDING, ""),
-        file
+        file,
+        pkge.directory_index
       );
     onClose();
   };
@@ -279,6 +281,7 @@ function UploadFileDialog({ open, pkge, onClose }: UploadFileDialogProps) {
 
   useEffect(() => {
     if (open) setIsDisabled(true);
+    else setFile(null)
   }, [open]);
 
   return (

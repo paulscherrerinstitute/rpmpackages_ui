@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException
 import os
 from shared_resources.dataService import (
-    REPO_DIR,
+    REPO_DIR_L,
     assemble_repo,
     reassemble_repo,
     write_file,
@@ -21,7 +21,7 @@ async def create_dir(
     repository: str, request: SubtitleRequest
 ) -> CreateSubtitleResponse:
     setHandlerSource("internal")
-    file_path = os.path.join(REPO_DIR, repository)
+    file_path = os.path.join(REPO_DIR_L[request.directory_index], repository)
     if not os.path.isfile(file_path):
         raise HTTPException(status_code=404, detail="File not found")
 
@@ -48,7 +48,7 @@ async def create_dir(
 @router.delete(ROUTER_PATH + "/{repository}")
 async def remove_dir(repository: str, request: SubtitleRequest) -> str:
     setHandlerSource("internal")
-    file_path = os.path.join(REPO_DIR, repository)
+    file_path = os.path.join(REPO_DIR_L[request.directory_index], repository)
     content = read_file(file_path)
     new_content = content.replace("\n\n# " + request.directory, "")
 

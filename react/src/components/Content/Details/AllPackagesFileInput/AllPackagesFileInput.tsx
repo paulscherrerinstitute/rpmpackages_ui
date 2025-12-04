@@ -8,7 +8,7 @@ import {
   removeFileFromFolder,
   uploadFileToFolder,
 } from "../../../../services/dataService";
-import { type EnvWindow } from "../../../../services/dataService.types";
+import { type EnvWindow, type FolderInclusions, type Repository } from "../../../../services/dataService.types";
 const PERMITTED_FILE_ENDING: string =
   (window as EnvWindow)._env_?.RPM_PACKAGES_CONFIG_ENDING ?? ".repo_cfg";
 
@@ -21,7 +21,7 @@ export default function AllPackagesFileInput({
   setFile,
 }: AllPackagesFileInputProps) {
 
-  const [isPossible, setIsPossible] = useState(false);
+  const [isPossible, setIsPossible] = useState(true);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const fetchData = () => {
@@ -51,10 +51,10 @@ export default function AllPackagesFileInput({
   };
 
   const handleAddAll = async () => {
-    packageIncludedIn.forEach(async (pkge) => {
-      const withoutEnd = pkge.replace(PERMITTED_FILE_ENDING, "");
-      if (!fileIncludedIn.includes(withoutEnd) && file != null) {
-        await uploadFileToFolder(withoutEnd, file);
+    packageIncludedIn.forEach(async (repository) => {
+      const repos = repository.element.replace(PERMITTED_FILE_ENDING, "");
+      if (fileIncludedIn.filter((val) => val.directory == repos).length > 0 && file != null) {
+        await uploadFileToFolder(repos, file, repository.directory_index);
         updatePackages();
       }
     });
@@ -65,10 +65,10 @@ export default function AllPackagesFileInput({
       "Do you want to delete all instances of this everywhere?"
     );
     if (prompt) {
-      packageIncludedIn.forEach(async (pkge) => {
-        const withoutEnd = pkge.replace(PERMITTED_FILE_ENDING, "");
-        if (fileIncludedIn.includes(withoutEnd) && file != null) {
-          await removeFileFromFolder(withoutEnd, file.name);
+      packageIncludedIn.forEach(async (repository) => {
+        const repos = repository.element.replace(PERMITTED_FILE_ENDING, "");
+        if (fileIncludedIn.filter((val) => val.directory == repos).length > 0 && file != null) {
+          await removeFileFromFolder(repos, file.name, repository.directory_index);
           updatePackages();
         }
       });
@@ -81,10 +81,10 @@ export default function AllPackagesFileInput({
 
       if (f) {
         setFile(f);
-        packageIncludedIn.forEach(async (pkge) => {
-          const withoutEnd = pkge.replace(PERMITTED_FILE_ENDING, "");
-          if (!fileIncludedIn.includes(withoutEnd) && f.name != null) {
-            await uploadFileToFolder(withoutEnd, f);
+        packageIncludedIn.forEach(async (repository) => {
+          const repos = repository.element.replace(PERMITTED_FILE_ENDING, "");
+          if (!(fileIncludedIn.filter((val) => val.directory == repos).length > 0) && f.name != null) {
+            await uploadFileToFolder(repos, f, repository.directory_index);
           }
         });
       }
@@ -94,7 +94,7 @@ export default function AllPackagesFileInput({
 
   return (
     <Box sx={styles.wrapper}>
-      {file != null && (
+      {file != null ? (
         <Box sx={styles.iconWrapper}>
           <Tooltip title="Click to download the .rpm">
             <Box sx={con_styles.clickButtonBig} onClick={getFileURL}>
@@ -111,17 +111,17 @@ export default function AllPackagesFileInput({
             />
           </Tooltip>
         </Box>
-      )}
-      {displayInput && isPossible && (
-        <Box>
-          <input
-            type="file"
-            ref={fileInputRef}
-            accept=".rpm"
-            onChange={updateFile}
-          />
-        </Box>
-      )}
+      ) :
+        displayInput && isPossible && (
+          <Box>
+            <input
+              type="file"
+              ref={fileInputRef}
+              accept=".rpm"
+              onChange={updateFile}
+            />
+          </Box>
+        )}
     </Box>
   );
 }
@@ -129,8 +129,8 @@ export default function AllPackagesFileInput({
 type AllPackagesFileInputProps = {
   displayInput: boolean;
   file: File | null;
-  packageIncludedIn: string[];
-  fileIncludedIn: string[];
+  packageIncludedIn: Repository[];
+  fileIncludedIn: FolderInclusions[];
   updatePackages: () => void;
   setFile: (f: File) => void;
 };

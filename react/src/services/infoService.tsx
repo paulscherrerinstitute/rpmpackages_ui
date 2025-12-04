@@ -28,3 +28,11 @@ export async function getBackendHealth(): Promise<string> {
         return "Does not feel so good";
     }
 }
+
+export async function getPaths(): Promise<string[]>{
+    const paths = await fetch(`${API}/paths`).then(async (res) =>{
+        const data = res.json()
+        return data
+    })
+    return paths
+}

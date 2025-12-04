@@ -20,6 +20,8 @@ import {
   removeRepositoryAndFolder,
 } from "../../../../services/dataService";
 import ClearIcon from "@mui/icons-material/Clear";
+import type { Repository } from "../../../../services/dataService.types";
+import { getPaths } from "../../../../services/infoService";
 
 export function RepositoryActionPopup({
   action,
@@ -58,24 +60,42 @@ export type Action = "Add" | "Remove" | "None";
 
 function ActionPopupAdd({ open, onClose }: ActionPopupElementProps) {
   const [repository, setRepository] = useState("");
+  const [paths, setPaths] = useState<string[]>([]);
+  const [selectedPath, setSelectedPath] = useState<string>("");
   const [isDisabled, setIsDisabled] = useState<boolean>(false);
 
   const updateRepository = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target) setRepository(e.target.value);
-    if (e.target.value == "") setIsDisabled(true);
-    else setIsDisabled(false);
   };
 
   const addRepository = () => {
-    if (repository) addRepositoryAndFolder(repository);
+    if (repository) addRepositoryAndFolder(repository, paths.indexOf(selectedPath));
     onClose();
   };
 
+  const fetchPaths = async () => {
+    getPaths().then((val) => {
+      setPaths(val)
+    })
+  }
+
+  const handleChange = (e: SelectChangeEvent<string>) => {
+    const value = e.target.value;
+    setSelectedPath(value)
+  }
+
   useEffect(() => {
     if (open) {
+      fetchPaths()
       setIsDisabled(true);
     }
   }, [open]);
+
+  useEffect(() => {
+    if (repository != "" && selectedPath != "") {
+      setIsDisabled(false)
+    } else setIsDisabled(true)
+  }, [repository, selectedPath])
 
   return (
     <Box>
@@ -85,12 +105,31 @@ function ActionPopupAdd({ open, onClose }: ActionPopupElementProps) {
           <ClearIcon onClick={onClose} sx={styles.clickButtonBig} />
         </Tooltip>
       </Box>
-      <TextField
-        variant="standard"
-        value={repository}
-        onChange={updateRepository}
-        label="Repository"
-      />
+      <Box sx={{ "& > *": {marginTop: 2}}}>
+        <TextField
+          variant="standard"
+          value={repository}
+          onChange={updateRepository}
+          label="Repository"
+          fullWidth
+        />
+        <FormControl fullWidth>
+          <InputLabel id="select-label">Save at path:</InputLabel>
+          <Select
+            value={selectedPath}
+            onChange={handleChange}
+            id="select"
+            labelId="select-label"
+            label="Save at path:"
+          >
+            {paths.map((r) => (
+              <MenuItem key={r} value={r}>
+                {r}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+      </Box>
       <Box sx={rap_styles.buttonWrapper}>
         <Button
           variant="outlined"
@@ -105,14 +144,24 @@ function ActionPopupAdd({ open, onClose }: ActionPopupElementProps) {
 }
 
 function ActionPopupRemove({ open, onClose }: ActionPopupElementProps) {
-  const [repositories, setRepositories] = useState<string[]>([]);
-  const [selectedRepository, setSelectedRepository] = useState<string>("");
+  const [repositories, setRepositories] = useState<Repository[]>([]);
+  const [selectedRepository, setSelectedRepository] = useState<Repository | null>(null);
+  const [selectedRepoValue, setSelectedRepoValue] = useState<string>("");
   const [isDisabled, setIsDisabled] = useState<boolean>(false);
 
-  const handleRepositoryChange = (e: SelectChangeEvent) => {
-    if (e.target.value != "") setIsDisabled(false);
-    else setIsDisabled(true);
-    setSelectedRepository(e.target.value as string);
+  const handleRepositoryChange = (e: SelectChangeEvent<string>) => {
+    const value = e.target.value;
+
+    setSelectedRepoValue(value);
+
+    if (value !== "") {
+      setIsDisabled(false);
+      const repo = repositories.find((r) => r.element === value) || null;
+      setSelectedRepository(repo);
+    } else {
+      setIsDisabled(true);
+      setSelectedRepository(null);
+    }
   };
 
   const fetchData = async () => {
@@ -128,9 +177,9 @@ function ActionPopupRemove({ open, onClose }: ActionPopupElementProps) {
   }, [open]);
 
   const removeRepository = () => {
-    const prompt = confirm(`Do you want to permanently delete the repository '${selectedRepository}'?`)
+    const prompt = confirm(`Do you want to permanently delete the repository '${selectedRepository?.element}'?`)
     if (prompt) {
-      if (selectedRepository) removeRepositoryAndFolder(selectedRepository);
+      if (selectedRepository) removeRepositoryAndFolder(selectedRepository.element, selectedRepository.directory_index);
       onClose();
     }
   };
@@ -146,17 +195,18 @@ function ActionPopupRemove({ open, onClose }: ActionPopupElementProps) {
       <FormControl fullWidth>
         <InputLabel id="select-label">Repositories</InputLabel>
         <Select
-          value={selectedRepository}
+          value={selectedRepoValue}
           onChange={handleRepositoryChange}
           id="select"
           labelId="select-label"
           label="Repositories"
         >
           {repositories.map((r) => (
-            <MenuItem value={r}>{r}</MenuItem>
+            <MenuItem key={r.element} value={r.element}>
+              {r.element}
+            </MenuItem>
           ))}
-        </Select>
-      </FormControl>
+        </Select> </FormControl>
       <Box sx={rap_styles.buttonWrapper}>
         <Button
           variant="outlined"

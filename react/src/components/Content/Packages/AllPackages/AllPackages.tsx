@@ -24,7 +24,7 @@ import {
   renameFileInFolder,
   updatePackageInRepository,
 } from "../../../../services/dataService";
-import { type EnvWindow, NONE, EMPTY } from "../../../../services/dataService.types";
+import { type EnvWindow, NONE, EMPTY, type Repository, type FolderInclusions } from "../../../../services/dataService.types";
 import { useNavigate } from "react-router-dom";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
@@ -44,13 +44,13 @@ const PERMITTED_FILE_ENDING: string =
 export default function AllPackages() {
   const [data, setData] = useState<string[]>([]);
   const [inclusionsInRepositories, setinclusionsInRepositories] = useState<
-    string[]
+    Repository[]
   >([]);
   const [open, setOpen] = useState(false);
   const [openNested, setOpenNested] = useState(false);
   const [pkge, setPkge] = useState("");
   const [inclusionsInDirectories, setInclusionsInDirectories] = useState<
-    string[]
+    FolderInclusions[]
   >([]);
   const [file, setFile] = useState<File | null>(null);
   const [displayInput, setDisplayInput] = useState<boolean>(true);
@@ -74,7 +74,9 @@ export default function AllPackages() {
     fetchRepositoryInclusionData(pk);
   };
 
-  const handleClose = () => setOpen(false);
+  const handleClose = () => {
+    setOpen(false)
+  };
 
   const handleNestedClose = () => {
     setOpenNested(false);
@@ -89,17 +91,17 @@ export default function AllPackages() {
     );
     if (prompt) {
       inclusionsInRepositories.forEach(async (it) => {
-        await removePackageFromRepository(pkge, it);
+        await removePackageFromRepository(pkge, it.element.split(".")[0], it.directory_index);
       });
       handleClose();
     }
     await fetchData();
   };
 
-  const handleRemove = async (repo: string) => {
+  const handleRemove = async (repo: string, idx: number) => {
     const prompt = confirm(`Do you want to remove ${pkge} from ${repo}?`);
     if (prompt) {
-      await removePackageFromRepository(pkge, repo);
+      await removePackageFromRepository(pkge, repo.split(".")[0], idx);
     }
     fetchRepositoryInclusionData(pkge);
   };
@@ -115,8 +117,9 @@ export default function AllPackages() {
     setIsFileLoading(true);
     if (inclusionsInDirectories.length > 0) {
       const pk = await getFileFromFolderForPackage(
-        inclusionsInDirectories[0],
-        pkge
+        inclusionsInDirectories[0].directory,
+        pkge,
+        inclusionsInDirectories[0].directory_index
       );
       setFile(pk);
     }
@@ -206,7 +209,7 @@ export default function AllPackages() {
                 )
             )}
             <SearchResultsNotes
-              allResults={mapDataForSearchResults(data)}
+              allResults={mapDataForSearchResults(data.filter((v) => v.includes(packageSearch)))}
               searchField={packageSearch}
               isLoading={isDataLoading}
               onEmpty="No packages found in any repository"
@@ -225,22 +228,26 @@ export default function AllPackages() {
         handleAdd={handleAdd}
         handleRemove={handleRemove}
         handleRemoveAll={handleRemoveAll}
-        inclusionsInDirectories={inclusionsInDirectories}
+        inclusionsInDirectories={inclusionsInDirectories.map((val) => val.directory)}
         inclusionsInRepositories={inclusionsInRepositories}
+        fetchData={fetchData}
         fileInputElement={
           <>
             {isFileLoading ? <Box sx={{ padding: 3 }}>
               <LoadingSpinner isLoading={isFileLoading} />
             </Box>
               :
-              <AllPackagesFileInput
-                fileIncludedIn={inclusionsInDirectories}
-                packageIncludedIn={inclusionsInRepositories}
-                displayInput={displayInput}
-                file={file}
-                setFile={setFile}
-                updatePackages={updatedPackage}
-              />}
+              <>
+                <AllPackagesFileInput
+                  fileIncludedIn={inclusionsInDirectories}
+                  packageIncludedIn={inclusionsInRepositories}
+                  displayInput={displayInput}
+                  file={file}
+                  setFile={setFile}
+                  updatePackages={updatedPackage}
+                />
+              </>
+            }
 
           </>
         }
@@ -266,7 +273,8 @@ function AllPackagesDetailsDialog(
     handleRemoveAll,
     inclusionsInRepositories,
     inclusionsInDirectories,
-    fileInputElement
+    fileInputElement,
+    fetchData
   }
     :
     {
@@ -274,11 +282,12 @@ function AllPackagesDetailsDialog(
       pkge: string,
       handleClose: () => void,
       handleAdd: () => void,
-      handleRemove: (repo: string) => void,
+      handleRemove: (repo: string, idx: number) => void,
       handleRemoveAll: () => void,
-      inclusionsInRepositories: string[],
+      inclusionsInRepositories: Repository[],
       inclusionsInDirectories: string[],
       fileInputElement: React.ReactElement,
+      fetchData: () => Promise<void>
     }
 ) {
   const [formData, setFormData] = useState<DetailsForm>(EMPTY)
@@ -288,16 +297,18 @@ function AllPackagesDetailsDialog(
   const [displayTitle, setDisplayTitle] = useState<boolean>(true);
 
   async function fetchPackageInformation() {
-    if (inclusionsInRepositories[0] != undefined) {
+    const incl = inclusionsInRepositories[0]
+    if (incl != undefined) {
       setIsLoading(false);
-      return await getPackageInformation(inclusionsInRepositories[0].replace(PERMITTED_FILE_ENDING, ""), pkge)
+      return await getPackageInformation(incl.element.replace(PERMITTED_FILE_ENDING, ""), pkge, incl.directory_index)
     }
   }
 
   useEffect(() => {
     if (open) {
-      setFormData(NONE)
+      setFormData(NONE);
       setIsLoading(true);
+      setDisplayTitle(true);
     }
     if (inclusionsInRepositories[0]) {
       fetchPackageInformation().then((val) => {
@@ -325,10 +336,12 @@ function AllPackagesDetailsDialog(
       setDisplayTitle(true);
 
       inclusionsInRepositories.forEach(async (val) => {
-        const repo_path = `${val}`;
-        await updatePackageInRepository(pkge, pkgeTitle, repo_path);
-        await renameFileInFolder(pkge, pkgeTitle, repo_path.replace(PERMITTED_FILE_ENDING, ""));
+        const repo_path = `${val.element}`;
+        await updatePackageInRepository(pkge, pkgeTitle, repo_path, val.directory_index);
+        await renameFileInFolder(pkge, pkgeTitle, repo_path.replace(PERMITTED_FILE_ENDING, ""), val.directory_index);
+        await fetchData()
       })
+      handleClose()
     }
   }
 
@@ -350,9 +363,9 @@ function AllPackagesDetailsDialog(
             </Tooltip>
           </Box>
         </> :
-        <Box sx={{ display: "flex", alignItems: "center", gap: "1vw", paddingInline: 2 }}>
+        <Box sx={{ display: "flex", alignItems: "center", gap: "1vw", paddingInline: 2, minWidth: "15vw" }}>
           <TextField
-            sx={{ width: (pkgeTitle.length * 9) }}
+            sx={{ width: (pkgeTitle.length * 10), minWidth: "15vw" }}
             onChange={handleTitleChange}
             value={pkgeTitle}
             size="small"
@@ -412,7 +425,7 @@ function AllPackagesDetailsDialog(
             {inclusionsInRepositories.map((i) => (
               <TableRow
                 hover
-                key={"included-" + i}
+                key={"included-" + i.element}
                 sx={ap_styles.packageRow}
               >
                 <TableCell>
@@ -420,11 +433,11 @@ function AllPackagesDetailsDialog(
                     sx={styles.clickButton}
                     onClick={() =>
                       navigate(
-                        `/Packages/${i.replace(PERMITTED_FILE_ENDING, "")}`
+                        `/Packages/${i.element.replace(PERMITTED_FILE_ENDING, "")}`
                       )
                     }
                   >
-                    {i}
+                    {i.element}
                   </Typography>
                 </TableCell>
                 <TableCell
@@ -433,17 +446,17 @@ function AllPackagesDetailsDialog(
                 >
                   {Array.isArray(inclusionsInDirectories) &&
                     !inclusionsInDirectories.includes(
-                      i.replace(PERMITTED_FILE_ENDING, "")
+                      i.element.replace(PERMITTED_FILE_ENDING, "")
                     ) && <Box sx={ap_styles.noFile}>No File detected.</Box>}
                   {Array.isArray(inclusionsInDirectories) &&
                     inclusionsInDirectories.includes(
-                      i.replace(PERMITTED_FILE_ENDING, "")
+                      i.element.replace(PERMITTED_FILE_ENDING, "")
                     ) && <Box sx={ap_styles.isFile}>File detected.</Box>}
                   <Tooltip
                     sx={styles.clickButtonBig}
                     title="Delete from this repository"
                   >
-                    <DeleteOutlineIcon onClick={() => handleRemove(i)} />
+                    <DeleteOutlineIcon onClick={() => handleRemove(i.element, i.directory_index)} />
                   </Tooltip>
                 </TableCell>
               </TableRow>

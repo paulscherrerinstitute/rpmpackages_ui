@@ -3,7 +3,7 @@ from fastapi.responses import JSONResponse, PlainTextResponse
 import os
 import rpmfile
 from shared_resources.dataService import (
-    REPO_DIR,
+    REPO_DIR_L,
     read_file,
     write_file,
     reassemble_repo,
@@ -22,6 +22,7 @@ from routers.routers_types import (
     PatchRequest,
     Package,
     PackageResponse,
+    Repository,
 )
 from shared_resources.watchdog_manager import setHandlerSource
 
@@ -34,7 +35,7 @@ ROUTE_PATH = "/data/package"
 @router.patch(ROUTE_PATH + "/{package}/move", response_class=JSONResponse)
 async def move_pkge(package: str, request: PatchMoveRequest) -> list[str]:
     setHandlerSource("internal")
-    file_path = os.path.join(REPO_DIR, request.repository)
+    file_path = os.path.join(REPO_DIR_L[request.directory_index], request.repository)
     content = read_file(file_path).replace("\n" + package, "").split("\n\n#")
     for idx, pk in enumerate(content):
         if idx == request.outer_index:
@@ -53,12 +54,12 @@ async def move_pkge(package: str, request: PatchMoveRequest) -> list[str]:
 async def create_item(request: CreateRequest) -> list[list[str]]:
     setHandlerSource("internal")
     package = request.item
-    idx = request.subTitleIndex
+    idx = request.subtitle_index
     file_name = request.file_name
     if FILE_ENDING not in file_name:
         file_name += FILE_ENDING
 
-    file_path = os.path.join(REPO_DIR, file_name)
+    file_path = os.path.join(REPO_DIR_L[request.directory_index], file_name)
     if not os.path.isfile(file_path):
         raise HTTPException(status_code=404, detail="File not found")
 
@@ -78,10 +79,12 @@ async def create_item(request: CreateRequest) -> list[list[str]]:
 
 
 # Delete single package inside a repository
-@router.delete(ROUTE_PATH + "/{package}/{file_name}")
-async def delete_item_repos(package: str, file_name: str) -> list[str]:
+@router.delete(ROUTE_PATH + "/{package}/{file_name}/{directory_index}")
+async def delete_item_repos(
+    package: str, file_name: str, directory_index: int
+) -> list[str]:
     setHandlerSource("internal")
-    file_path = os.path.join(REPO_DIR, file_name)
+    file_path = os.path.join(REPO_DIR_L[directory_index], file_name)
 
     if not os.path.isfile(file_path):
         raise HTTPException(status_code=404, detail="File not found")
@@ -104,7 +107,7 @@ async def delete_item_repos(package: str, file_name: str) -> list[str]:
 @router.patch(ROUTE_PATH + "/{package}", response_class=JSONResponse)
 async def update_pkges(package, request: PatchRequest) -> list[str]:
     setHandlerSource("internal")
-    file_path = os.path.join(REPO_DIR, request.repository)
+    file_path = os.path.join(REPO_DIR_L[request.directory_index], request.repository)
     content = read_file(file_path).split("\n")
 
     for idx, pk in enumerate(content):
@@ -121,6 +124,27 @@ async def get_all_pkg() -> list[str]:
     return get_all_packages()
 
 
+# Return all packages with their associated repositories
+@router.get(ROUTE_PATH + "/all/repositories", response_class=JSONResponse)
+async def get_all_pkg_repository() -> list[Package]:
+    completeList: list[Package] = []
+    for f in get_all_packages_with_repos():
+        current: list[Package] = list(filter(lambda x: x.name == f.name, completeList))
+        if len(current) > 0:
+            idx: int = completeList.index(current[0])
+            if f.directory not in completeList[idx].repository:
+                completeList[idx].repository.append(f.directory)
+        else:
+            completeList.append(
+                Package(
+                    name=f.name,
+                    repository=[f.directory],
+                    directory_index=f.directory_index,
+                )
+            )
+    return completeList
+
+
 # Get list of packages without a corresponding file
 @router.get(ROUTE_PATH + "/orphans", response_class=JSONResponse)
 async def list_orphaned_pkge() -> list[Package]:
@@ -128,23 +152,34 @@ async def list_orphaned_pkge() -> list[Package]:
     orphans: list[Package] = []
 
     for directory in get_repo_directories():
-        file_path = os.path.join(REPO_DIR, directory)
-        for file in os.listdir(file_path):
-            complete_list.append(Package(name=file, repository=[directory]))
+        for idx, el in enumerate(REPO_DIR_L):
+            file_path = os.path.join(el, directory)
+            if not os.path.isdir(file_path):
+                continue
+            for file in os.listdir(file_path):
+                complete_list.append(
+                    Package(name=file, repository=[directory], directory_index=idx)
+                )
 
     for package in get_all_packages_with_repos():
-        p: Package = Package(name=package.name, repository=[package.directory])
-        if p not in complete_list and "rpm" in p.name:
+        p: Package = Package(
+            name=package.name,
+            repository=[package.directory],
+            directory_index=package.directory_index,
+        )
+        if p not in complete_list:
             orphans.append(p)
 
     return orphans
 
 
 # Get packages from specific repository
-@router.get(ROUTE_PATH + "/repository/{file_name}", response_class=PlainTextResponse)
-async def get_data(file_name: str) -> PlainTextResponse:
-    file_path = os.path.join(REPO_DIR, file_name)
-
+@router.get(
+    ROUTE_PATH + "/repository/{file_name}/{directory_index}",
+    response_class=PlainTextResponse,
+)
+async def get_data(file_name: str, directory_index: int) -> PlainTextResponse:
+    file_path = os.path.join(REPO_DIR_L[directory_index], file_name)
     if not os.path.isfile(file_path):
         raise HTTPException(status_code=404, detail="File not found")
 
@@ -156,9 +191,9 @@ async def get_data(file_name: str) -> PlainTextResponse:
 
 
 # Get a packages internal information
-@router.get(ROUTE_PATH + "/details/{repository}/{package}")
-async def get_internal_information(repository: str, package: str):
-    file_path = os.path.join(REPO_DIR, repository, package)
+@router.get(ROUTE_PATH + "/details/{repository}/{package}/{directory_index}")
+async def get_internal_information(repository: str, package: str, directory_index: int):
+    file_path = os.path.join(REPO_DIR_L[directory_index], repository, package)
 
     if os.path.isfile(file_path):
         with rpmfile.open(file_path) as rpm:
@@ -178,7 +213,7 @@ async def get_internal_information(repository: str, package: str):
 
 # Get list of repositories where a package is included
 @router.get(ROUTE_PATH + "/{package}")
-async def pkge_inc_in_repos(package: str) -> list[str]:
+async def pkge_inc_in_repos(package: str) -> list[Repository]:
     return get_specific_package(package)
 
 

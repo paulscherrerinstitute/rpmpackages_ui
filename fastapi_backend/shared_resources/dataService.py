@@ -1,7 +1,7 @@
 import os
-from routers.routers_types import PackageFile
+from routers.routers_types import PackageFile, Repository
 
-REPO_DIR: str = os.getenv("RPM_PACKAGES_DIRECTORY", "")
+REPO_DIR_L = str(os.getenv("RPM_PACKAGES_DIRECTORY", "")).split(";")
 FILE_ENDING: str = os.getenv("RPM_PACKAGES_CONFIG_ENDING", ".repo_cfg")
 IGNORE_PATHS: str = os.getenv("RPM_PACKAGES_IGNORE_PATHS", "")
 
@@ -11,9 +11,11 @@ IGNORE_PATHS: str = os.getenv("RPM_PACKAGES_IGNORE_PATHS", "")
 
 
 def read_file(file_path: str) -> str:
-    with open(file_path, "r", encoding="utf-8") as file:
-        return file.read()
-
+    if ".rpm" not in file_path:
+        with open(file_path, "r", encoding="utf-8") as file:
+            data = file.read()
+            return data
+    return ""
 
 def assemble_repo(file_path: str) -> list[str]:
     return read_file(file_path).split("\n\n#")
@@ -39,81 +41,85 @@ def reassemble_repo_nested(content: list[list[str]]) -> str:
 
 def get_repo_directories() -> list[str]:
     file_list: list[str] = []
-    for element in os.listdir(REPO_DIR):
-        if element not in file_list and os.path.isdir(os.path.join(REPO_DIR, element)):
-            file_list.append(element)
+    for el in REPO_DIR_L:
+        for element in os.listdir(el):
+            if element not in file_list and os.path.isdir(os.path.join(el, element)):
+                file_list.append(element)
     return file_list
 
 
 def get_all_packages() -> list[str]:
-    files = os.listdir(REPO_DIR)
     unique_pkges: list[str] = []
-    for f in files:
-        file_path = os.path.join(REPO_DIR, f)
-        if os.path.isfile(file_path):
+    for el in REPO_DIR_L:
+        files = os.listdir(el)
+        for f in files:
+            file_path = os.path.join(el, f)
+            if os.path.isfile(file_path):
 
-            # GET DATA
-            first_arr = assemble_repo(file_path)
-            contents = list(map(split_lines, first_arr))
+                # GET DATA
+                first_arr = assemble_repo(file_path)
+                contents = list(map(split_lines, first_arr))
 
-            # Save if exists within
-            for category in contents:
-                for pk in category:
-                    isIncluded = (
-                        unique_pkges.count(pk) == 0 and pk != "" and (".rpm" in pk)
-                    )
-                    if isIncluded:
-                        unique_pkges.append(pk)
+                # Save if exists within
+                for category in contents:
+                    for pk in category:
+                        isIncluded = (
+                            unique_pkges.count(pk) == 0 and pk != "" and (".rpm" in pk)
+                        )
+                        if isIncluded:
+                            unique_pkges.append(pk)
     return unique_pkges
 
 
 def get_all_packages_with_repos() -> list[PackageFile]:
-    files = os.listdir(REPO_DIR)
     packages: list[PackageFile] = []
+    for idx, el in enumerate(REPO_DIR_L):
+        files = os.listdir(el)
+        for f in files:
+            split: list[str] = f.split(".")
+            appropriate_filename: bool = False
+            if len(split) > 1:
+                ending = f.split(".")[1]
+                appropriate_filename = ending == FILE_ENDING.replace(".", "")
+            f_path: str = os.path.join(el, f)
+            if os.path.isfile(f_path) and appropriate_filename:
+                first_arr = assemble_repo(f_path)
+                contents = list(map(split_lines, first_arr))
+                dir = f.replace(FILE_ENDING, "")
 
-    for f in files:
-        split: list[str] = f.split(".")
-        appropriate_filename: bool = False
-        if len(split) > 1:
-            ending = f.split(".")[1]
-            appropriate_filename = ending == FILE_ENDING.replace(".", "")
-        f_path: str = os.path.join(REPO_DIR, f)
-        if os.path.isfile(f_path) and appropriate_filename:
-            first_arr = assemble_repo(f_path)
-            contents = list(map(split_lines, first_arr))
-            dir = f.replace(FILE_ENDING, "")
-
-            for category in contents:
-                for pkge in category:
-                    packages.append(PackageFile(name=pkge, directory=dir))
+                for category in contents:
+                    for pkge in category:
+                        if ".rpm" in pkge: 
+                            packages.append(PackageFile(name=pkge, directory=dir, directory_index=idx))
 
     return packages
 
 
-def get_specific_package(pkge: str) -> list[str]:
-    files = os.listdir(REPO_DIR)
-    includedIn: list[str] = []
-    for f in files:
-        file_path = os.path.join(REPO_DIR, f)
-        if (
-            os.path.isfile(file_path)
-            and FILE_ENDING in file_path
-            and (FILE_ENDING + "n") not in file_path
-        ):
+def get_specific_package(pkge: str) -> list[Repository]:
+    includedIn: list[Repository] = []
+    for idx, el in enumerate(REPO_DIR_L):
+        files = os.listdir(el)
+        for f in files:
+            file_path = os.path.join(el, f)
+            if (
+                os.path.isfile(file_path)
+                and FILE_ENDING in file_path
+                and (FILE_ENDING + "n") not in file_path
+            ):
 
-            # GET DATA
-            first_arr = assemble_repo(file_path)
-            contents = list(map(split_lines, first_arr))
+                # GET DATA
+                first_arr = assemble_repo(file_path)
+                contents = list(map(split_lines, first_arr))
 
-            # Save if exists within
-            for category in contents:
-                for pk in category:
-                    isIncluded = pk == pkge
+                # Save if exists within
+                for category in contents:
+                    for pk in category:
+                        isIncluded = pk == pkge
+                        if isIncluded:
+                            includedIn.append(Repository(element=f, directory_index=idx))
+                            break
                     if isIncluded:
-                        includedIn.append(f)
                         break
-                if isIncluded:
-                    break
     return includedIn
 
 

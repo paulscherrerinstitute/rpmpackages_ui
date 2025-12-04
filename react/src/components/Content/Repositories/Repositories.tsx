@@ -10,7 +10,7 @@ import {
   Button,
 } from "@mui/material";
 import { useEffect, useState } from "react";
-import { getAllRepositories } from "../../../services/dataService";
+import { getAllRepositories, getAllPackagesWithRepository } from "../../../services/dataService";
 import * as styles from "../Content.styles";
 import { useNavigate } from "react-router-dom";
 import * as r_styles from "./Repositories.styles";
@@ -22,12 +22,15 @@ import {
 } from "./RepositoryActionsPopup/RepositoryActionsPopup";
 import { getBackendHealth } from "../../../services/infoService";
 import { ErrorBar } from "../Details/ErrorBar";
+import type { PackageSearchObject, Repository } from "../../../services/dataService.types";
+import { handleSearch_RepositoryandPackages } from "../../../services/searchService";
 
 export function Repositories() {
-  const [availableRepos, setAvailableRepos] = useState<string[]>([]);
+  const [availableRepos, setAvailableRepos] = useState<Repository[]>([]);
   const navigate = useNavigate();
   const [backendIsHealthy, setBackendIsHealthy] = useState<boolean>(true);
   const [isDataLoading, setIsDataLoading] = useState(true);
+  const [allPackages, setAllPackages] = useState<PackageSearchObject[]>([]);
 
   async function fetchData() {
     const repos = await getAllRepositories();
@@ -43,6 +46,7 @@ export function Repositories() {
         setBackendIsHealthy(false);
       }
     });
+    getAllPackagesWithRepository().then((val) => setAllPackages(val))
   }, []);
 
 
@@ -52,9 +56,9 @@ export function Repositories() {
   };
 
   const clearRepoSearch = () => setRepoSearch("");
-  const mapAvailableRepos = (arr: string[]) => {
+  const mapAvailableRepos = (arr: Repository[]) => {
     const mapped = arr.map((f) => {
-      return { name: f };
+      return { name: f.element };
     });
     return mapped;
   };
@@ -98,7 +102,7 @@ export function Repositories() {
               variant="standard"
               value={repoSearch}
               onChange={updateRepoSearch}
-              label="Search Packages"
+              label="Search Repos or Package"
             />
             <Tooltip title="Clear search">
               <ClearIcon onClick={clearRepoSearch} sx={styles.clickButtonBig} />
@@ -114,20 +118,21 @@ export function Repositories() {
           <TableBody>
             {!isDataLoading && availableRepos.map(
               (item) =>
-                (item.includes(repoSearch) || repoSearch.length == 0) && (
+                handleSearch_RepositoryandPackages(repoSearch, item, allPackages) && (
+                  // (item.element.includes(repoSearch) || repoSearch.length == 0) && (
                   <TableRow
                     hover
-                    key={`repos-${item}`}
-                    onClick={() => navigate(`/Packages/${item.split(".")[0]}`)}
+                    key={`repos-${item.element}`}
+                    onClick={() => navigate(`/Packages/${item.element.split(".")[0]}?idx=${item.directory_index}`)}
                   >
                     <TableCell sx={styles.clickButton}>
-                      {item.split(".")[0]}
+                      {item.element.split(".")[0]}
                     </TableCell>
                   </TableRow>
                 )
             )}
             <SearchResultsNotes
-              allResults={mapAvailableRepos(availableRepos)}
+              allResults={mapAvailableRepos(availableRepos.filter((item) => handleSearch_RepositoryandPackages(repoSearch, item, allPackages)))}
               searchField={repoSearch}
               isLoading={isDataLoading}
               onEmpty="No .repo_cfg files found"

@@ -1,12 +1,34 @@
 export type OrphanedFile = {
   name: string;
   directory: string;
+  directory_index: number
 };
 
 export type OrphanedPackage = {
   name: string;
   repository: string[];
+  directory_index: number
 };
+
+export type Repository = {
+  element: string
+  directory_index: number
+}
+
+export type PackageSearchObject = {
+  name: string
+  repository: string[]
+}
+
+export type FolderInclusions = {
+  directory: string,
+  directory_index: number
+}
+
+export type Package = {
+  name: string,
+  directory_index: number
+}
 
 export type RenameFileResponse = {
   old_name: string;

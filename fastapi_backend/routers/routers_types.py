@@ -44,6 +44,7 @@ class PatchMoveRequest(BaseModel):
     repository: str
     outer_index: int
     inner_index: int
+    directory_index: int
 
 
 class PatchRequest(BaseModel):

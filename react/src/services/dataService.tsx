@@ -200,12 +200,14 @@ export async function movePackageToRepository(
   pkge: string,
   repository: string,
   outerIndex: number,
-  innerIndex: number
+  innerIndex: number,
+  directory_index: number
 ) {
   const body = JSON.stringify({
-    repository: repository,
+    repository,
     outer_index: outerIndex,
     inner_index: innerIndex,
+    directory_index
   });
   return await fetch(`${PACKAGE_PATH}/${pkge}/move`, {
     method: "PATCH",
@@ -279,7 +281,7 @@ export async function getAllPackagesFromRepository(
   return txt;
 }
 
-export async function getPackageInformation(repository: string, pkge: string): Promise<{
+export async function getPackageInformation(repository: string, pkge: string, directory_index: number): Promise<{
   name: string,
   version: string,
   release: string,
@@ -291,7 +293,7 @@ export async function getPackageInformation(repository: string, pkge: string): P
   file_name: string
 }> {
   return await fetch(
-    `${PACKAGE_PATH}/details/${repository}/${pkge}`
+    `${PACKAGE_PATH}/details/${repository}/${pkge}/${directory_index}`
   ).then((val) => {
     return val.json();
   })

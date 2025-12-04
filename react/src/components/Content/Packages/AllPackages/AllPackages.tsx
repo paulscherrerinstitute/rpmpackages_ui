@@ -297,9 +297,10 @@ function AllPackagesDetailsDialog(
   const [displayTitle, setDisplayTitle] = useState<boolean>(true);
 
   async function fetchPackageInformation() {
-    if (inclusionsInRepositories[0] != undefined) {
+    const incl = inclusionsInRepositories[0]
+    if (incl != undefined) {
       setIsLoading(false);
-      return await getPackageInformation(inclusionsInRepositories[0].element.replace(PERMITTED_FILE_ENDING, ""), pkge)
+      return await getPackageInformation(incl.element.replace(PERMITTED_FILE_ENDING, ""), pkge, incl.directory_index)
     }
   }
 

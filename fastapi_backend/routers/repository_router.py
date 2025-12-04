@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException
 from fastapi.responses import JSONResponse
 import os
 import shutil
-from shared_resources.dataService import REPO_DIR, FILE_ENDING, REPO_DIR_L
+from shared_resources.dataService import FILE_ENDING, REPO_DIR_L
 from routers.routers_types import RepositoryRequest, RepositoryResponse, Repository
 from shared_resources.watchdog_manager import setHandlerSource
 

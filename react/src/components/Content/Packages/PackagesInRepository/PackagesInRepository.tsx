@@ -45,7 +45,7 @@ export default function PackagesInRepository() {
   const [data, setData] = useState<string[][]>([]);
   const { path } = useParams();
   const permPath: string = path ?? "";
-  const loc: number = parseInt((window.location.search)?.split("=")[1])
+  const current_directory_index: number = parseInt((window.location.search)?.split("=")[1])
 
   let isNotFound;
   if (data.length > 0) isNotFound = data[0][0] == "<!doctype html>";
@@ -90,14 +90,14 @@ export default function PackagesInRepository() {
 
   const handleSubtitleAdd = async (newSubtitle: string) => {
     const path = permPath + PERMITTED_FILE_ENDING;
-    await addSubtitlteToRepository(path, newSubtitle, loc);
+    await addSubtitlteToRepository(path, newSubtitle, current_directory_index);
     setAddOpen(false);
     await fetchData();
   };
 
   const fetchData = async () => {
     try {
-      const resultData = await getAllPackagesFromRepository(permPath, loc);
+      const resultData = await getAllPackagesFromRepository(permPath, current_directory_index);
       if (typeof resultData == "string" && resultData == "File not found") {
         setHasError(true);
         setData([]);
@@ -111,7 +111,7 @@ export default function PackagesInRepository() {
 
   const fetchFile = async () => {
     try {
-      const res = await getFileFromFolderForPackage(permPath, pkge, loc);
+      const res = await getFileFromFolderForPackage(permPath, pkge, current_directory_index);
       setFile(res);
     } catch (err) {
       console.error("Error loading data:", err);
@@ -120,14 +120,14 @@ export default function PackagesInRepository() {
 
   const handleSave = async (form: DetailsForm) => {
     const repo_path = `${permPath}${PERMITTED_FILE_ENDING}`;
-    await updatePackageInRepository(pkge, form.file_name, repo_path, loc);
+    await updatePackageInRepository(pkge, form.file_name, repo_path, current_directory_index);
     if (file != null) {
-      await uploadFileToFolder(permPath, file, loc);
+      await uploadFileToFolder(permPath, file, current_directory_index);
       await renameFileInFolder(
         pkge,
         form.file_name,
         repo_path.replace(PERMITTED_FILE_ENDING, ""),
-        loc
+        current_directory_index
       );
     }
     await fetchData();
@@ -137,7 +137,7 @@ export default function PackagesInRepository() {
     const pk = form.file_name
     const repo_path = `${permPath}${PERMITTED_FILE_ENDING}`;
 
-    await addPackageToRepository(pk, repo_path, outerIdx, loc);
+    await addPackageToRepository(pk, repo_path, outerIdx, current_directory_index);
     fetchData();
   };
 
@@ -167,7 +167,7 @@ export default function PackagesInRepository() {
 
   const handleRemoveFile = async (file: File) => {
     if (!isAdd) {
-      await removeFileFromFolder(permPath, file.name, loc);
+      await removeFileFromFolder(permPath, file.name, current_directory_index);
       await fetchFile();
     } else {
       setFile(null);
@@ -246,6 +246,7 @@ export default function PackagesInRepository() {
             pkge={pkge}
             repository={permPath}
             file={file}
+            directory_index={current_directory_index}
             setFile={(f) => setFile(f)}
             onRemoveFile={(f) => handleRemoveFile(f)}
             onSave={(f) => handleSave(f)}
@@ -289,7 +290,7 @@ function ListPackagesInRepositories(
   const [dragging, setDragging] = useState<string>("");
   const { path } = useParams();
   const permPath: string = path ?? "";
-  const loc: number = parseInt((window.location.search)?.split("=")[1])
+  const current_directory_index: number = parseInt((window.location.search)?.split("=")[1])
 
   const mapPackagesForSearchResults = (arr: string[]) => {
     const mapped = arr.map((f) => {
@@ -350,7 +351,8 @@ function ListPackagesInRepositories(
         dragging,
         permPath + PERMITTED_FILE_ENDING,
         o_idx,
-        i_idx
+        i_idx,
+        current_directory_index
       );
       await fetchData();
     }
@@ -367,7 +369,7 @@ function ListPackagesInRepositories(
       await removeSubtitleFromRepository(
         permPath + PERMITTED_FILE_ENDING,
         directory,
-        loc
+        current_directory_index
       );
       await fetchData();
     }
@@ -376,7 +378,7 @@ function ListPackagesInRepositories(
   const handleRemove = async (pkg: string) => {
     const prompt = confirm(`Do you want to remove ${pkg} from ${permPath}?`);
     if (prompt) {
-      await removePackageFromRepository(pkg, permPath, loc);
+      await removePackageFromRepository(pkg, permPath, current_directory_index);
     }
     fetchData();
   };

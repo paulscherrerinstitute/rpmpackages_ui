@@ -32,6 +32,7 @@ export function DetailsPopup({
   repository,
   file,
   enableFileUpload = true,
+  directory_index,
   onClose,
   setFile,
   onAdd,
@@ -47,7 +48,7 @@ export function DetailsPopup({
   }, [formData]);
 
   async function fetchPackageInformation() {
-    return (await getPackageInformation(repository ?? "", pkge))
+    return (await getPackageInformation(repository ?? "", pkge, directory_index))
   }
 
   useEffect(() => {
@@ -75,8 +76,8 @@ export function DetailsPopup({
   useEffect(() => {
     if (file) {
       const repos = repository?.replace(PERMITTED_FILE_ENDING, "") ?? "";
-      uploadFileToFolder(repos, file).then(() => {
-        getPackageInformation(repository ?? "", file.name).then((val) => {
+      uploadFileToFolder(repos, file, directory_index).then(() => {
+        getPackageInformation(repository ?? "", file.name, directory_index).then((val) => {
           setFormData(val);
           setPkgeTitle(file.name);
           setFormData((prevState) => ({
@@ -217,6 +218,7 @@ export type DetailsPopupProps = {
   open: boolean;
   pkge: string;
   isAdd: boolean;
+  directory_index: number
   repository?: string;
   file?: File | null;
   enableFileUpload: boolean;

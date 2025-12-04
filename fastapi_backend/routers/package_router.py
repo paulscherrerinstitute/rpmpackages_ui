@@ -3,7 +3,6 @@ from fastapi.responses import JSONResponse, PlainTextResponse
 import os
 import rpmfile
 from shared_resources.dataService import (
-    REPO_DIR,
     REPO_DIR_L,
     read_file,
     write_file,
@@ -36,7 +35,7 @@ ROUTE_PATH = "/data/package"
 @router.patch(ROUTE_PATH + "/{package}/move", response_class=JSONResponse)
 async def move_pkge(package: str, request: PatchMoveRequest) -> list[str]:
     setHandlerSource("internal")
-    file_path = os.path.join(REPO_DIR, request.repository)
+    file_path = os.path.join(REPO_DIR_L[request.directory_index], request.repository)
     content = read_file(file_path).replace("\n" + package, "").split("\n\n#")
     for idx, pk in enumerate(content):
         if idx == request.outer_index:
@@ -134,12 +133,19 @@ async def list_orphaned_pkge() -> list[Package]:
     for directory in get_repo_directories():
         for idx, el in enumerate(REPO_DIR_L):
             file_path = os.path.join(el, directory)
-            if not os.path.isdir(file_path): continue
+            if not os.path.isdir(file_path):
+                continue
             for file in os.listdir(file_path):
-                complete_list.append(Package(name=file, repository=[directory], directory_index=idx))
+                complete_list.append(
+                    Package(name=file, repository=[directory], directory_index=idx)
+                )
 
     for package in get_all_packages_with_repos():
-        p: Package = Package(name=package.name, repository=[package.directory], directory_index=package.directory_index)
+        p: Package = Package(
+            name=package.name,
+            repository=[package.directory],
+            directory_index=package.directory_index,
+        )
         if p not in complete_list:
             orphans.append(p)
 
@@ -164,9 +170,9 @@ async def get_data(file_name: str, directory_index: int) -> PlainTextResponse:
 
 
 # Get a packages internal information
-@router.get(ROUTE_PATH + "/details/{repository}/{package}")
-async def get_internal_information(repository: str, package: str):
-    file_path = os.path.join(REPO_DIR, repository, package)
+@router.get(ROUTE_PATH + "/details/{repository}/{package}/{directory_index}")
+async def get_internal_information(repository: str, package: str, directory_index: int):
+    file_path = os.path.join(REPO_DIR_L[directory_index], repository, package)
 
     if os.path.isfile(file_path):
         with rpmfile.open(file_path) as rpm:

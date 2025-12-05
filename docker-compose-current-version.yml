@@ -4,10 +4,10 @@ services:
     container_name: rpm_backend
     restart: unless-stopped
     environment:
-      RPM_PACKAGES_DIRECTORY: "/app/packages"
+      RPM_PACKAGES_DIRECTORY: "/app/packages/rhel7;/app/packages/rhel8;/app/packages/rhel9"
       RPM_PACKAGES_CONFIG_ENDING: "${RPM_PACKAGES_CONFIG_ENDING:-.repo_cfg}"
     volumes:
-      - "${RPM_PACKAGES_DIRECTORY}:/app/packages"
+      - "C:\\PathToSharedParent:/app/packages"
     networks:
       - rpmpackages_network
   rpm_frontend:

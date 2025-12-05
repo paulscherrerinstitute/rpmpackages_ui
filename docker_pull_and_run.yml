@@ -8,6 +8,7 @@
         FRONTEND_IMAGE: "{{ FRONTEND_IMAGE | default('ghcr.io/paulscherrerinstitute/rpmpackages_ui-frontend:latest') }}"
         RPM_PACKAGES_CONFIG_ENDING: "{{ RPM_PACKAGES_CONFIG_ENDING | default('.repo_cfg') }}"
         RPM_PACKAGES_INTERNAL_BACKEND_URL: "{{ RPM_PACKAGES_INTERNAL_BACKEND_URL | default('http://rpmpackages_ui_backend:8080') }}"
+        RPM_PACKAGES_DIRECTORY_SHARED_PATH: "{{ RPM_PACKAGES_DIRECTORY_SHARED_PATH | default('/rpm_repos/cas') }}"
         RPM_PACKAGES_DIRECTORY: "{{ RPM_PACKAGES_DIRECTORY | default('/rpm_repos/cas/rhel9') }}"
         RPM_PACKAGES_PUBLIC_BACKEND_URL: "{{ RPM_PACKAGES_PUBLIC_BACKEND_URL | default('/api') }}"
         RPM_PACKAGES_IGNORE_PATHS: "{{ RPM_PACKAGES_IGNORE_PATHS | default('/app/packages/all') }}"
@@ -39,13 +40,13 @@
         state: started
         restart_policy: unless-stopped
         env:
-          RPM_PACKAGES_DIRECTORY: /app/packages
+          RPM_PACKAGES_DIRECTORY: "{{ RPM_PACKAGES_DIRECTORY }}"
           RPM_PACKAGES_CONFIG_ENDING: "{{ RPM_PACKAGES_CONFIG_ENDING }}"
           RPM_PACKAGES_IGNORE_PATHS: "{{ RPM_PACKAGES_IGNORE_PATHS }}"
         networks:
           - name: rpmpackages_network
         volumes:
-          - "{{ RPM_PACKAGES_DIRECTORY }}:/app/packages"
+          - "{{ RPM_PACKAGES_DIRECTORY_SHARED_PATH }}:/app/packages"
 
     - name: Try to pull frontend image
       docker_image:

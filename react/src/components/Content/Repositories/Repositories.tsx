@@ -15,6 +15,7 @@ import * as styles from "../Content.styles";
 import { useNavigate } from "react-router-dom";
 import * as r_styles from "./Repositories.styles";
 import ClearIcon from "@mui/icons-material/Clear";
+import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import { LoadingSpinner, SearchResultsNotes } from "../Details/SearchResultsNotes/SearchResultsNotes";
 import {
   RepositoryActionPopup,
@@ -101,11 +102,15 @@ export function Repositories() {
             </Button>
           </Box>
           <Box sx={r_styles.searchWrapper}>
+            <Tooltip title="Start your search with 'pk:' to search repositories by their included packages.">
+              <HelpOutlineIcon sx={{...styles.clickButtonBig, marginRight: 2}} />
+            </Tooltip>
             <TextField
               variant="standard"
               value={repoSearch}
               onChange={updateRepoSearch}
               label="Search Repos or Package"
+              fullWidth
             />
             <Tooltip title="Clear search">
               <ClearIcon onClick={clearRepoSearch} sx={styles.clickButtonBig} />

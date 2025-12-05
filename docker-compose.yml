@@ -10,7 +10,7 @@ services:
       RPM_PACKAGES_CONFIG_ENDING: "${RPM_PACKAGES_CONFIG_ENDING:-.repo_cfg}"
       RPM_PACKAGES_IGNORE_PATHS: "/app/packages/Repository"
     volumes:
-      - "C:\\PathToSharedParent:/app/packages"
+      - "C:\\Users\\wernle_y\\Documents\\rpm_packages:/app/packages"
     networks:
       - rpmpackages_network
   frontend:
@@ -23,8 +23,11 @@ services:
       RPM_PACKAGES_CONFIG_ENDING: "${RPM_PACKAGES_CONFIG_ENDING:-.repo_cfg}"
       RPM_PACKAGES_INTERNAL_BACKEND_URL: "${RPM_PACKAGES_INTERNAL_BACKEND_URL:-http://rpm_backend:8080}"
       RPM_PACKAGES_PUBLIC_BACKEND_URL: "/api"
+    volumes:
+      - "C:\\Users\\wernle_y\\Documents\\ssl:/etc/ssl/rpmpackages_ui"
     ports:
       - "80:80"
+      - "443:443"
     networks:
       - rpmpackages_network
 networks:

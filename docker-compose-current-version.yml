@@ -17,8 +17,11 @@ services:
     environment:
       RPM_PACKAGES_CONFIG_ENDING: "${RPM_PACKAGES_CONFIG_ENDING:-.repo_cfg}"
       RPM_PACKAGES_INTERNAL_BACKEND_URL: "${RPM_PACKAGES_INTERNAL_BACKEND_URL:-http://rpm_backend:8080}"
+    volumes:
+      - "C:\\PathToSSLCertificate:/etc/ssl/rpmpackages_ui"
     ports:
       - "80:80"
+      - "443:443"
     networks:
       - rpmpackages_network
 networks:

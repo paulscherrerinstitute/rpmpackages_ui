@@ -75,5 +75,8 @@
           RPM_PACKAGES_PUBLIC_BACKEND_URL: "{{ RPM_PACKAGES_PUBLIC_BACKEND_URL }}"
         ports:
           - "80:80"
+          - "443:443"
         networks:
           - name: rpmpackages_network
+        volumes:
+          - /etc/ssl/rpmpackages_ui:/etc/ssl/rpmpackages_ui

@@ -134,23 +134,20 @@ export function Repositories() {
           <TableBody>
             {!isDataLoading && availableRepos.filter(i => handleSearch_RepositoryandPackages(repoSearch, i, allPackages)).map(
               (item) =>
-              (
-                // (item.element.includes(repoSearch) || repoSearch.length == 0) && (
                 <TableRow
                   hover
-                  key={`repos-${item.element}`}
+                  key={`repos-${item.element}-${item.directory_index}`}
                   onClick={() => navigate(`/Packages/${item.element.split(".")[0]}?idx=${item.directory_index}`)}
                 >
-                  <TableCell sx={{ ...styles.clickButton, display: "flex", flexDirection: "row", justifyContent: "space-between" }}>
-                    <span>
+                  <TableCell sx={{ ...styles.clickButton, display: "flex", flexDirection: "row", justifyContent: "space-between" }} key={`repos-${item.element}-${item.directory_index}`}>
+                    <span key={`repos-${item.element}-${item.directory_index}-1`}>
                       {item.element.split(".")[0]}
                     </span>
-                    <span style={{ color: "rgb(180, 180, 180)" }}>
+                    <span style={{ color: "rgb(180, 180, 180)" }} key={`repos-${item.element}-${item.directory_index}-path`}>
                       {paths[item.directory_index]}
                     </span>
                   </TableCell>
                 </TableRow>
-              )
             )}
             <SearchResultsNotes
               allResults={mapAvailableRepos(availableRepos.filter((item) => handleSearch_RepositoryandPackages(repoSearch, item, allPackages)))}

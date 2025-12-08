@@ -132,25 +132,25 @@ export function Repositories() {
         </Box>
         <Table>
           <TableBody>
-            {!isDataLoading && availableRepos.map(
+            {!isDataLoading && availableRepos.filter(i => handleSearch_RepositoryandPackages(repoSearch, i, allPackages)).map(
               (item) =>
-                handleSearch_RepositoryandPackages(repoSearch, item, allPackages) && (
-                  // (item.element.includes(repoSearch) || repoSearch.length == 0) && (
-                  <TableRow
-                    hover
-                    key={`repos-${item.element}`}
-                    onClick={() => navigate(`/Packages/${item.element.split(".")[0]}?idx=${item.directory_index}`)}
-                  >
-                    <TableCell sx={{ ...styles.clickButton, display: "flex", flexDirection: "row", justifyContent: "space-between" }}>
-                      <span>
-                        {item.element.split(".")[0]}
-                      </span>
-                      <span style={{ color: "rgb(180, 180, 180)" }}>
-                        {paths[item.directory_index]}
-                      </span>
-                    </TableCell>
-                  </TableRow>
-                )
+              (
+                // (item.element.includes(repoSearch) || repoSearch.length == 0) && (
+                <TableRow
+                  hover
+                  key={`repos-${item.element}`}
+                  onClick={() => navigate(`/Packages/${item.element.split(".")[0]}?idx=${item.directory_index}`)}
+                >
+                  <TableCell sx={{ ...styles.clickButton, display: "flex", flexDirection: "row", justifyContent: "space-between" }}>
+                    <span>
+                      {item.element.split(".")[0]}
+                    </span>
+                    <span style={{ color: "rgb(180, 180, 180)" }}>
+                      {paths[item.directory_index]}
+                    </span>
+                  </TableCell>
+                </TableRow>
+              )
             )}
             <SearchResultsNotes
               allResults={mapAvailableRepos(availableRepos.filter((item) => handleSearch_RepositoryandPackages(repoSearch, item, allPackages)))}

@@ -9,11 +9,12 @@ export function handleSearch_RepositoryandPackages(
     element: Repository,
     allPackages: PackageSearchObject[]
 ): boolean {
-
+    
     // 1) Search by repository name
     if (element.element.includes(searchString) || searchString.length === 0)
         return true;
-
+    
+    if(!allPackages || allPackages.length === 0) return false
     // 2) Search by package name + repository membership
     if (searchString.startsWith("pk:")) {
 

@@ -11,7 +11,7 @@
         RPM_PACKAGES_DIRECTORY_SHARED_PATH: "{{ RPM_PACKAGES_DIRECTORY_SHARED_PATH | default('/rpm_repos/cas') }}"
         RPM_PACKAGES_DIRECTORY: "{{ RPM_PACKAGES_DIRECTORY | default('/app/packages/rhel9;/app/packages/rhel8;/app/packages/rhel7') }}"
         RPM_PACKAGES_PUBLIC_BACKEND_URL: "{{ RPM_PACKAGES_PUBLIC_BACKEND_URL | default('/api') }}"
-        RPM_PACKAGES_IGNORE_PATHS: "{{ RPM_PACKAGES_IGNORE_PATHS | default('/app/packages/all') }}"
+        RPM_PACKAGES_IGNORE_PATHS: "{{ RPM_PACKAGES_IGNORE_PATHS | default('/all') }}"
 
     - name: Create Docker network
       docker_network:

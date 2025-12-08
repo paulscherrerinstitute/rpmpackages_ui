@@ -55,8 +55,7 @@ def get_all_packages() -> list[str]:
         files = os.listdir(el)
         for f in files:
             file_path = os.path.join(el, f)
-            if os.path.isfile(file_path):
-
+            if os.path.isfile(file_path) and FILE_ENDING in file_path:
                 # GET DATA
                 first_arr = assemble_repo(file_path)
                 contents = list(map(split_lines, first_arr))

@@ -17,6 +17,7 @@ def read_file(file_path: str) -> str:
             return data
     return ""
 
+
 def assemble_repo(file_path: str) -> list[str]:
     return read_file(file_path).split("\n\n#")
 
@@ -63,11 +64,12 @@ def get_all_packages() -> list[str]:
                 # Save if exists within
                 for category in contents:
                     for pk in category:
-                        isIncluded = (
-                            unique_pkges.count(pk) == 0 and pk != "" and (".rpm" in pk)
-                        )
-                        if isIncluded:
-                            unique_pkges.append(pk)
+                        if ".rpm" in pk:
+                            isIncluded = (
+                                unique_pkges.count(pk) == 0 and pk != "" and (".rpm" in pk)
+                            )
+                            if isIncluded:
+                                unique_pkges.append(pk)
     return unique_pkges
 
 
@@ -89,8 +91,12 @@ def get_all_packages_with_repos() -> list[PackageFile]:
 
                 for category in contents:
                     for pkge in category:
-                        if ".rpm" in pkge: 
-                            packages.append(PackageFile(name=pkge, directory=dir, directory_index=idx))
+                        if ".rpm" in pkge:
+                            packages.append(
+                                PackageFile(
+                                    name=pkge, directory=dir, directory_index=idx
+                                )
+                            )
 
     return packages
 
@@ -116,7 +122,9 @@ def get_specific_package(pkge: str) -> list[Repository]:
                     for pk in category:
                         isIncluded = pk == pkge
                         if isIncluded:
-                            includedIn.append(Repository(element=f, directory_index=idx))
+                            includedIn.append(
+                                Repository(element=f, directory_index=idx)
+                            )
                             break
                     if isIncluded:
                         break
@@ -130,7 +138,11 @@ def split_lines(s: str) -> list[str]:
 
 def should_ignore(file_path: str):
     paths: list[str] = IGNORE_PATHS.split(";")
-    for path in paths:
-        if path == file_path:
-            return True
+    for el in REPO_DIR_L:
+        for path in paths:
+            clean_path = (path.strip("\\/"))
+            compare_path = os.path.join(el, clean_path)
+            print(compare_path)  
+            if compare_path == file_path:
+                return True
     return False

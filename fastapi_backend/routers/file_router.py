@@ -122,6 +122,6 @@ async def list_orphaned_files() -> list[PackageFile]:
                 continue
             for file in os.listdir(file_path):
                 current: PackageFile = PackageFile(name=file, directory=directory, directory_index=idx)
-                if current not in complete_list:
+                if current not in complete_list and ".rpm" in file:
                     orphans.append(current)
     return orphans

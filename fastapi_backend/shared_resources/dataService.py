@@ -68,7 +68,7 @@ def get_all_packages() -> list[str]:
                                 unique_pkges.count(pk) == 0 and pk != "" and (".rpm" in pk)
                             )
                             if isIncluded:
-                                unique_pkges.append(pk)
+                                unique_pkges.append(pk.strip(" "))
     return unique_pkges
 
 
@@ -93,7 +93,7 @@ def get_all_packages_with_repos() -> list[PackageFile]:
                         if ".rpm" in pkge:
                             packages.append(
                                 PackageFile(
-                                    name=pkge, directory=dir, directory_index=idx
+                                    name=pkge.strip(" "), directory=dir, directory_index=idx
                                 )
                             )
 
@@ -141,7 +141,6 @@ def should_ignore(file_path: str):
         for path in paths:
             clean_path = (path.strip("\\/"))
             compare_path = os.path.join(el, clean_path)
-            print(compare_path)  
             if compare_path == file_path:
                 return True
     return False

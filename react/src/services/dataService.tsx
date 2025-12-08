@@ -275,16 +275,22 @@ export async function getAllPackagesFromRepository(
     `${PACKAGE_PATH}/repository/${repository}${PERMITTED_FILE_ENDING}/${directory_index}`
   );
   const text = await response.text();
+
   if (text.includes("File not found")) {
     return JSON.parse(text).detail;
   }
 
-  const textByCategory = text.split("#").filter((t) => { return t.length > 0 })
-  let txt: string[][] = textByCategory.map((t) => t.split("\n"));
-  txt = txt.map((t) =>
-    t.filter((tChild) => {
-      return tChild.length > 0;
-    })
+  // Split into categories
+  const textByCategory = text
+    .split("#")
+    .filter(t => t.trim().length > 0);
+
+  // Split into lines and remove trailing spaces
+  const txt = textByCategory.map(category =>
+    category
+      .split("\n")
+      .map(line => line.trimEnd())   // <-- remove trailing whitespace
+      .filter(line => line.length > 0)
   );
   return txt;
 }

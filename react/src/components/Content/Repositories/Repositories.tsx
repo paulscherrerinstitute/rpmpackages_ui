@@ -42,16 +42,24 @@ export function Repositories() {
     setIsDataLoading(false);
   }
   useEffect(() => {
-    getBackendHealth().then((val) => {
-      if (val == "Alive and Well!") {
-        fetchData();
-        setBackendIsHealthy(true);
-      } else {
+    async function load() {
+      const health = await getBackendHealth();
+      if (health !== "Alive and Well!") {
         setBackendIsHealthy(false);
+        return;
       }
-    });
-    getAllPackagesWithRepository().then((val) => setAllPackages(val))
+      setBackendIsHealthy(true);
+
+      await fetchData();  // loads repos + paths
+      const pkgs = await getAllPackagesWithRepository();
+      setAllPackages(pkgs);
+
+      setIsDataLoading(false);  // ← move this here!
+    }
+
+    load();
   }, []);
+
 
 
   const [repoSearch, setRepoSearch] = useState("");
@@ -103,7 +111,7 @@ export function Repositories() {
           </Box>
           <Box sx={r_styles.searchWrapper}>
             <Tooltip title="Start your search with 'pk:' to search repositories by their included packages.">
-              <HelpOutlineIcon sx={{...styles.clickButtonBig, marginRight: 2}} />
+              <HelpOutlineIcon sx={{ ...styles.clickButtonBig, marginRight: 2 }} />
             </Tooltip>
             <TextField
               variant="standard"

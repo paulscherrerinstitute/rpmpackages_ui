@@ -103,9 +103,9 @@ export function AddRepositoryPopup({
               id="select"
               label="Repositories"
             >
-              {availableRepos.map((repo) => (
+              {availableRepos.map((repo, idx) => (
                 <MenuItem
-                  key={repo.element}
+                  key={`${repo.element}-${idx}`}
                   disabled={doesExist(repo.element)}
                   value={repo.element}
                   sx={{display: "flex", flexDirection: "column"}}

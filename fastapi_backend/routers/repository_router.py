@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException
 from fastapi.responses import JSONResponse
 import os
 import shutil
-from shared_resources.dataService import FILE_ENDING, REPO_DIR_L
+from shared_resources.dataService import FILE_ENDING, REPO_DIR_L, strip_to_base, safe_join
 from routers.routers_types import RepositoryRequest, RepositoryResponse, Repository
 from shared_resources.watchdog_manager import setHandlerSource
 
@@ -17,8 +17,8 @@ async def create_repository(
     request: RepositoryRequest,
 ) -> RepositoryResponse:
     setHandlerSource("internal")
-    folder_path = os.path.join(REPO_DIR_L[request.directory_index], request.repository)
-    repository_path = os.path.join(REPO_DIR_L[request.directory_index], request.repository + FILE_ENDING)
+    folder_path = safe_join(REPO_DIR_L[request.directory_index], strip_to_base(request.repository))
+    repository_path = safe_join(REPO_DIR_L[request.directory_index], strip_to_base(request.repository + FILE_ENDING))
 
     if folder_path:
         os.mkdir(folder_path)
@@ -41,7 +41,7 @@ async def list_files() -> list[Repository]:
             for element in os.listdir(li):
                 if (
                     element not in file_list
-                    and not os.path.isdir(os.path.join(li, element))
+                    and not os.path.isdir(safe_join(li, strip_to_base(element)))
                     and FILE_ENDING in element
                     # ignore legacy .repo_cfgn-Files
                     and FILE_ENDING + "n" not in element
@@ -60,10 +60,10 @@ async def snap_repository_and_folder(
     repository: str, directory_index: int
 ):  # -> RepositoryResponse:
     setHandlerSource("internal")
-    repository_path = os.path.join(
-        REPO_DIR_L[directory_index], repository + FILE_ENDING
+    repository_path = safe_join(
+        REPO_DIR_L[directory_index], strip_to_base(repository + FILE_ENDING)
     )
-    folder_path = os.path.join(REPO_DIR_L[directory_index], repository)
+    folder_path = safe_join(REPO_DIR_L[directory_index], strip_to_base(repository))
     if repository_path and os.path.exists(repository_path):
         os.remove(repository_path)
     if folder_path and os.path.exists(folder_path):

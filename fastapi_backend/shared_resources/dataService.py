@@ -44,7 +44,7 @@ def get_repo_directories() -> list[str]:
     file_list: list[str] = []
     for el in REPO_DIR_L:
         for element in os.listdir(el):
-            if element not in file_list and os.path.isdir(os.path.join(el, element)):
+            if element not in file_list and os.path.isdir(safe_join(el, strip_to_base(element))):
                 file_list.append(element)
     return file_list
 
@@ -54,7 +54,7 @@ def get_all_packages() -> list[str]:
     for el in REPO_DIR_L:
         files = os.listdir(el)
         for f in files:
-            file_path = os.path.join(el, f)
+            file_path = safe_join(el, strip_to_base(f))
             if os.path.isfile(file_path) and FILE_ENDING in file_path:
                 # GET DATA
                 first_arr = assemble_repo(file_path)
@@ -82,7 +82,7 @@ def get_all_packages_with_repos() -> list[PackageFile]:
             if len(split) > 1:
                 ending = f.split(".")[1]
                 appropriate_filename = ending == FILE_ENDING.replace(".", "")
-            f_path: str = os.path.join(el, f)
+            f_path: str = safe_join(el, strip_to_base(f))
             if os.path.isfile(f_path) and appropriate_filename:
                 first_arr = assemble_repo(f_path)
                 contents = list(map(split_lines, first_arr))
@@ -105,7 +105,7 @@ def get_specific_package(pkge: str) -> list[Repository]:
     for idx, el in enumerate(REPO_DIR_L):
         files = os.listdir(el)
         for f in files:
-            file_path = os.path.join(el, f)
+            file_path = safe_join(el, strip_to_base(f))
             if (
                 os.path.isfile(file_path)
                 and FILE_ENDING in file_path
@@ -140,7 +140,28 @@ def should_ignore(file_path: str):
     for el in REPO_DIR_L:
         for path in paths:
             clean_path = (path.strip("\\/"))
-            compare_path = os.path.join(el, clean_path)
+            compare_path = safe_join(el, strip_to_base(clean_path))
             if compare_path == file_path:
                 return True
     return False
+
+def safe_join(base: str, user_path: str) -> str:
+    base = os.path.abspath(base)
+    full = os.path.abspath(os.path.join(base, user_path))
+
+    if not full.startswith(base + os.sep):
+        raise ValueError("Directory traversal detected")
+
+    return full
+
+def safe_join_second(base: str, user_path: str, user_path_second: str) -> str:
+    base = os.path.abspath(base)
+    full = os.path.abspath(os.path.join(base, user_path, user_path_second))
+
+    if not full.startswith(base + os.sep):
+        raise ValueError("Directory traversal detected")
+
+    return full
+
+def strip_to_base(file_path):
+    return os.path.basename(file_path)

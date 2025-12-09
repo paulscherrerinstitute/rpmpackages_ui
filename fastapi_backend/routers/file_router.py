@@ -6,6 +6,9 @@ from shared_resources.dataService import (
     get_repo_directories,
     get_all_packages_with_repos,
     should_ignore,
+    strip_to_base,
+    safe_join,
+    safe_join_second
 )
 from routers.routers_types import (
     RenamePackageResponse,
@@ -29,7 +32,7 @@ async def list_folders_containing_pkge(package: str) -> list[FetchInclusionRespo
         directory_list: list[str] = get_repo_directories()
         for directory in directory_list:
             for idx, el in enumerate(REPO_DIR_L):
-                directory_path = os.path.join(el, directory)
+                directory_path = safe_join(el, strip_to_base(directory))
                 if os.path.isdir(directory_path):
                     for file in os.listdir(directory_path):
                         if file == package and not os.path.isdir(file):
@@ -44,12 +47,12 @@ async def list_folders_containing_pkge(package: str) -> list[FetchInclusionRespo
 @router.patch(ROUTE_PATH + "/{package}")
 async def rename_file(package: str, request: RenameRequest) -> RenamePackageResponse:
     setHandlerSource("internal")
-    file_path = os.path.join(REPO_DIR_L[request.directory_index], request.directory)
+    file_path = safe_join(REPO_DIR_L[request.directory_index], strip_to_base(request.directory))
     for element in os.listdir(file_path):
-        os.rename(os.path.join(file_path, element), os.path.join(file_path, package))
+        os.rename(safe_join(file_path, strip_to_base(element)), safe_join(file_path, strip_to_base(package)))
         if element == package and ".rpm" in element:
-            element_path = os.path.join(file_path, element)
-            new_path = os.path.join(file_path, request.new_name)
+            element_path = safe_join(file_path, strip_to_base(element))
+            new_path = safe_join(file_path, strip_to_base(request.new_name))
             os.rename(element_path, new_path)
             return RenamePackageResponse(old_name=package, new_name=request.new_name)
 
@@ -60,13 +63,13 @@ async def rename_file(package: str, request: RenameRequest) -> RenamePackageResp
 @router.post(ROUTE_PATH + "/{directory}/{directory_index}")
 async def upload_file(directory: str, directory_index: int, file: UploadFile) -> dict:
     setHandlerSource("internal")
-    file_path = os.path.join(REPO_DIR_L[directory_index], directory)
+    file_path = safe_join(REPO_DIR_L[directory_index], strip_to_base(directory))
 
     # Ensure the directory exists
     os.makedirs(file_path, exist_ok=True)
 
     if file.filename:
-        newfile_path = os.path.join(file_path, file.filename)
+        newfile_path = safe_join(file_path, strip_to_base(file.filename))
         try:
             # Read and write the file in binary mode
             with open(newfile_path, "wb") as f:
@@ -81,14 +84,14 @@ async def upload_file(directory: str, directory_index: int, file: UploadFile) ->
 # Get File from Folder by Packagename
 @router.get(ROUTE_PATH + "/{directory}/{package}/{directory_index}")
 async def get_files(directory: str, package: str, directory_index: int):
-    file_path = os.path.join(REPO_DIR_L[directory_index], directory)
+    file_path = safe_join(REPO_DIR_L[directory_index], strip_to_base(directory))
     if not os.path.exists(file_path):
         return PlainTextResponse("No file found.")
 
     for element in os.listdir(file_path):
  
         if element == package:
-            file: str = os.path.join(file_path, element)
+            file: str = safe_join(file_path, strip_to_base(element))
             if os.path.isfile(file):
                 return FileResponse(
                     file, media_type="application/octet-stream", filename=package
@@ -101,7 +104,7 @@ async def get_files(directory: str, package: str, directory_index: int):
 @router.delete(ROUTE_PATH + "/{directory}/{package}/{directory_index}")
 async def remove(directory: str, package: str, directory_index: int) -> DeleteFileResponse:
     setHandlerSource("internal")
-    file_path = os.path.join(REPO_DIR_L[directory_index], directory, package)
+    file_path = safe_join_second(REPO_DIR_L[directory_index], strip_to_base(directory), strip_to_base(package))
     is_deleted = False
     if os.path.isfile(file_path):
         os.remove(file_path)
@@ -117,7 +120,7 @@ async def list_orphaned_files() -> list[PackageFile]:
     orphans: list[PackageFile] = []
     for directory in get_repo_directories():
         for idx, el in enumerate(REPO_DIR_L):
-            file_path = os.path.join(el, directory)
+            file_path = safe_join(el, strip_to_base(directory))
             if should_ignore(file_path) or not os.path.isdir(file_path):
                 continue
             for file in os.listdir(file_path):

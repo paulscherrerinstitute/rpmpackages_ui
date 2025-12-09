@@ -427,10 +427,10 @@ function AllPackagesDetailsDialog(
         <DialogTitle>This package is included in:</DialogTitle>
         <Table>
           <TableBody>
-            {inclusionsInRepositories.map((i) => (
+            {inclusionsInRepositories.map((i, idx) => (
               <TableRow
                 hover
-                key={"included-" + i.element}
+                key={`included-${i.element}-${idx}`}
                 sx={ap_styles.packageRow}
               >
                 <TableCell>

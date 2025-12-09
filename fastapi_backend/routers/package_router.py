@@ -15,6 +15,9 @@ from shared_resources.dataService import (
     get_specific_package,
     get_repo_directories,
     get_all_packages_with_repos,
+    strip_to_base,
+    safe_join,
+    safe_join_second
 )
 from routers.routers_types import (
     PatchMoveRequest,
@@ -35,7 +38,7 @@ ROUTE_PATH = "/data/package"
 @router.patch(ROUTE_PATH + "/{package}/move", response_class=JSONResponse)
 async def move_pkge(package: str, request: PatchMoveRequest) -> list[str]:
     setHandlerSource("internal")
-    file_path = os.path.join(REPO_DIR_L[request.directory_index], request.repository)
+    file_path = safe_join(REPO_DIR_L[request.directory_index], strip_to_base(request.repository))
     content = read_file(file_path).replace("\n" + package, "").split("\n\n#")
     for idx, pk in enumerate(content):
         if idx == request.outer_index:
@@ -59,7 +62,7 @@ async def create_item(request: CreateRequest) -> list[list[str]]:
     if FILE_ENDING not in file_name:
         file_name += FILE_ENDING
 
-    file_path = os.path.join(REPO_DIR_L[request.directory_index], file_name)
+    file_path = safe_join(REPO_DIR_L[request.directory_index], strip_to_base(file_name))
     if not os.path.isfile(file_path):
         raise HTTPException(status_code=404, detail="File not found")
 
@@ -84,7 +87,7 @@ async def delete_item_repos(
     package: str, file_name: str, directory_index: int
 ) -> list[str]:
     setHandlerSource("internal")
-    file_path = os.path.join(REPO_DIR_L[directory_index], file_name)
+    file_path = safe_join(REPO_DIR_L[directory_index], strip_to_base(file_name))
 
     if not os.path.isfile(file_path):
         raise HTTPException(status_code=404, detail="File not found")
@@ -107,7 +110,7 @@ async def delete_item_repos(
 @router.patch(ROUTE_PATH + "/{package}", response_class=JSONResponse)
 async def update_pkges(package, request: PatchRequest) -> list[str]:
     setHandlerSource("internal")
-    file_path = os.path.join(REPO_DIR_L[request.directory_index], request.repository)
+    file_path = safe_join(REPO_DIR_L[request.directory_index], strip_to_base(request.repository))
     content = read_file(file_path).split("\n")
 
     for idx, pk in enumerate(content):
@@ -153,7 +156,7 @@ async def list_orphaned_pkge() -> list[Package]:
 
     for directory in get_repo_directories():
         for idx, el in enumerate(REPO_DIR_L):
-            file_path = os.path.join(el, directory)
+            file_path = safe_join(el, strip_to_base(directory))
             if not os.path.isdir(file_path):
                 continue
             for file in os.listdir(file_path):
@@ -179,7 +182,7 @@ async def list_orphaned_pkge() -> list[Package]:
     response_class=PlainTextResponse,
 )
 async def get_data(file_name: str, directory_index: int) -> PlainTextResponse:
-    file_path = os.path.join(REPO_DIR_L[directory_index], file_name)
+    file_path = safe_join(REPO_DIR_L[directory_index], strip_to_base(file_name))
     if not os.path.isfile(file_path):
         raise HTTPException(status_code=404, detail="File not found")
 
@@ -193,7 +196,7 @@ async def get_data(file_name: str, directory_index: int) -> PlainTextResponse:
 # Get a packages internal information
 @router.get(ROUTE_PATH + "/details/{repository}/{package}/{directory_index}")
 async def get_internal_information(repository: str, package: str, directory_index: int):
-    file_path = os.path.join(REPO_DIR_L[directory_index], repository, package)
+    file_path = safe_join_second(REPO_DIR_L[directory_index], strip_to_base(repository), strip_to_base(package))
 
     if os.path.isfile(file_path):
         with rpmfile.open(file_path) as rpm:

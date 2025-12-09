@@ -6,6 +6,8 @@ from shared_resources.dataService import (
     reassemble_repo,
     write_file,
     read_file,
+    strip_to_base,
+    safe_join
 )
 from routers.routers_types import SubtitleRequest, CreateSubtitleResponse
 from shared_resources.watchdog_manager import setHandlerSource
@@ -21,7 +23,7 @@ async def create_dir(
     repository: str, request: SubtitleRequest
 ) -> CreateSubtitleResponse:
     setHandlerSource("internal")
-    file_path = os.path.join(REPO_DIR_L[request.directory_index], repository)
+    file_path = safe_join(REPO_DIR_L[request.directory_index], strip_to_base(repository))
     if not os.path.isfile(file_path):
         raise HTTPException(status_code=404, detail="File not found")
 
@@ -48,7 +50,7 @@ async def create_dir(
 @router.delete(ROUTER_PATH + "/{repository}")
 async def remove_dir(repository: str, request: SubtitleRequest) -> str:
     setHandlerSource("internal")
-    file_path = os.path.join(REPO_DIR_L[request.directory_index], repository)
+    file_path = safe_join(REPO_DIR_L[request.directory_index], strip_to_base(repository))
     content = read_file(file_path)
     new_content = content.replace("\n\n# " + request.directory, "")
 
